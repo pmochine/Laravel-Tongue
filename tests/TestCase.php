@@ -115,13 +115,13 @@ class TestCase extends OrchestraTestCase
             app()->setLocale($locale);
         }
 
-        // Load translated routes for testing
-        // app('translator')->getLoader()->addNamespace('Localize', realpath(dirname(__FILE__)).'/lang');
-        // app('translator')->load('Localize', 'routes', 'de');
-        // app('translator')->load('Localize', 'routes', 'en');
+        //Load translated routes for testing
+        // app('translator')->getLoader()->addNamespace('LaravelTongue', realpath(dirname(__FILE__)).'/lang');
+        // app('translator')->load('LaravelTongue', 'routes', 'de');
+        // app('translator')->load('LaravelTongue', 'routes', 'en');
 
-        // Load routes for testing
-       // app('files')->getRequire(__DIR__.'/routing/routes.php');
+        //Load routes for testing
+       app('files')->getRequire(__DIR__.'/routing/routes.php');
     }
 
     /**

@@ -52,12 +52,14 @@ class TongueTest extends TestCase
     //     $this->assertEquals($supportedLocales, app('localization.localize')->getAvailableLocales());
     // }
 
+ 
     /**
      * It should not redirect a non-localized route.
      *
      * @return void
+     * @test
      */
-    public function testItDoesNotRedirectANonLocalizedRoute()
+    public function it_does_not_redirect_a_non_localized_route() 
     {
         $this->sendRequest('GET', $this->pathNotLocalized);
 
