@@ -168,3 +168,4 @@ This package is based on
  - https://github.com/hoyvoy/laravel-subdomain-localization
  - https://github.com/mcamara/laravel-localization
 
+Oh come on. You read everything?? If you liked it so far, hit the ⭐️ button to give me a 🤩 face. 
