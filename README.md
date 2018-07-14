@@ -16,7 +16,7 @@
 
 **If you are looking for an easy package for subdomain multilingual urls, this package is for you.  😜**
 
-## Installation in 3 Steps*
+## Installation in 4 Steps*
 
 ### 1: Add with composer 💻
 ```bash
@@ -38,6 +38,13 @@ If you want to use it, open `app/Http/kernel.php` and register this route middle
     'speaks-tongue' => \Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale::class,
 	...
 ```
+
+### 3: Add in your Env 🔑
+
+    SESSION_DOMAIN=.exmaple.com
+    
+  **Important!** Note the dot before the domain name. Now the session is availabe in every subdomain 🙃. 
+
 
 
 ### *Note! 📝 This step is optional if you use laravel>=5.5 with package auto discovery feature.
@@ -101,7 +108,7 @@ For more information about Middleware, please refer to <a href="http://laravel.c
 ```
 The above `<html>` tag will always have a supported locale and directionality (‘ltr’ or ‘rtl’). The latter is important for right-to-left languages like Arabic and Hebrew, since the whole page layout will change for those.
 
-### How to Switch Up the Language
+### How to Switch Up the Language 🇬🇧->🇩🇪
 In a controller far far away...
 
  ```php
