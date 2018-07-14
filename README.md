@@ -1,4 +1,4 @@
-# Laravel Tongue - Use your subdomain for multilingual urls and redirects
+# Laravel Tongue - Multilingual subdomain urls and redirects
 
 
 [![Build Status](https://travis-ci.org/pmochine/laravel-tongue.svg?branch=master)](https://travis-ci.org/pmochine/laravel-tongue)
