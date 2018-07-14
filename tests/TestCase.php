@@ -4,8 +4,8 @@ namespace Pmochine\LaravelTongue\Tests;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Request;
-//use Orchestra\Testbench\BrowserKit\TestCase as OrchestraTestCase;
-use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use Orchestra\Testbench\BrowserKit\TestCase as OrchestraTestCase;
+
 
 class TestCase extends OrchestraTestCase
 {
