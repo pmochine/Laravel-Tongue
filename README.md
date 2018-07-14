@@ -1,4 +1,5 @@
-# Laravel Tongue
+# Laravel Tongue - Use your subdomain for multilingual urls and redirects
+
 
 [![Build Status](https://travis-ci.org/pmochine/laravel-tongue.svg?branch=master)](https://travis-ci.org/pmochine/laravel-tongue)
 [![styleci](https://styleci.io/repos/CHANGEME/shield)](https://styleci.io/repos/CHANGEME)
@@ -10,7 +11,7 @@
 [![Packagist](https://poser.pugx.org/pmochine/laravel-tongue/d/total.svg)](https://packagist.org/packages/pmochine/laravel-tongue)
 [![Packagist](https://img.shields.io/packagist/l/pmochine/laravel-tongue.svg)](https://packagist.org/packages/pmochine/laravel-tongue)
 
-Package description: CHANGE ME
+![Laravel Tongue](img/laravel-tongue.png)
 
 ## Installation
 
