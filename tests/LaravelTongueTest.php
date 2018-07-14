@@ -2,7 +2,7 @@
 
 namespace Pmochine\LaravelTongue\Tests;
 
-use Pmochine\LaravelTongue\Facades\LaravelTongue;
+use Pmochine\LaravelTongue\Facades\Tongue;
 use Pmochine\LaravelTongue\ServiceProvider;
 use Orchestra\Testbench\TestCase;
 
@@ -16,7 +16,7 @@ class LaravelTongueTest extends TestCase
     protected function getPackageAliases($app)
     {
         return [
-            'laravel-tongue' => LaravelTongue::class,
+            'tongue' => Tongue::class,
         ];
     }
 
