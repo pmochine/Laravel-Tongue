@@ -1,13 +1,15 @@
 {
   "name": "pmochine/laravel-tongue",
-  "description": "Finally a subdomain localization that works how you want it to work.",
+  "description": "🎉 Finally a subdomain localization that works how you want it to work. 🌐",
   "license": "MIT",
   "keywords": [
     "laravel",
     "tongue",
     "localization",
     "subdomain",
-    "i18n"
+    "i18n",
+    "package",
+    "language"
   ],
   "type": "library",
   "authors": [
