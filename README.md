@@ -39,7 +39,7 @@ If you want to use it, open `app/Http/kernel.php` and register this route middle
 	...
 ```
 
-### 3: Add in your Env 🔑
+### 4: Add in your Env 🔑
 
     SESSION_DOMAIN=.exmaple.com
     
