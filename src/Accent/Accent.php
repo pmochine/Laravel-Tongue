@@ -25,7 +25,7 @@ class Accent
         $user = isset($parsed_url['user']) ? $parsed_url['user'] : '';
         $pass = isset($parsed_url['pass']) ? ':'.$parsed_url['pass'] : '';
         $url .= $user.(($user || $pass) ? "$pass@" : '');
-        if (! empty($url)) {
+        if (!empty($url)) {
             $url .= isset($parsed_url['path']) ? '/'.ltrim($parsed_url['path'], '/') : '';
         } elseif (empty($url)) {
             $url .= isset($parsed_url['path']) ? $parsed_url['path'] : '';
