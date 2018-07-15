@@ -2,14 +2,13 @@
 
 namespace Pmochine\LaravelTongue\Localization;
 
+use Locale;
 use Illuminate\Http\Request;
 
-use Locale;
-
 /**
- * Class was originally written by Mcamara. 
+ * Class was originally written by Mcamara.
  * Visit the package!
- * https://github.com/mcamara/laravel-localization
+ * https://github.com/mcamara/laravel-localization.
  */
 class TongueDetector
 {
@@ -29,6 +28,7 @@ class TongueDetector
      * @var bool
      */
     private $use_intl = false;
+
     /**
      * @param string  $fallbackLocale
      * @param array   $supportedLanguages
@@ -39,9 +39,10 @@ class TongueDetector
         $this->fallbackLocale = $fallbackLocale;
 
         $this->canonicalize($supportedLanguages);
-        
+
         $this->request = $request;
     }
+
     /**
      * Negotiates language with the user's browser through the Accept-Language
      * HTTP header or the user's host address.  Language codes are generally in
@@ -61,10 +62,9 @@ class TongueDetector
     public function negotiateLanguage()
     {
         $matches = $this->getMatchesFromAcceptedLanguages();
-        
-        foreach ($matches as $key => $q) {
 
-            if (!empty($this->supportedLanguages[$key])) {
+        foreach ($matches as $key => $q) {
+            if (! empty($this->supportedLanguages[$key])) {
                 return $key;
             }
 
@@ -73,8 +73,8 @@ class TongueDetector
             }
 
             // Search for acceptable locale by 'regional' => 'af_ZA' or 'lang' => 'af-ZA' match.
-            foreach ( $this->supportedLanguages as $key_supported => $locale ) {
-                if ( (isset($locale['regional']) && $locale['regional'] == $key) || (isset($locale['lang']) && $locale['lang'] == $key) ) {
+            foreach ($this->supportedLanguages as $key_supported => $locale) {
+                if ((isset($locale['regional']) && $locale['regional'] == $key) || (isset($locale['lang']) && $locale['lang'] == $key)) {
                     return $key_supported;
                 }
             }
@@ -83,13 +83,14 @@ class TongueDetector
         // If any (i.e. "*") is acceptable, return the first supported format
         if (isset($matches['*'])) {
             reset($this->supportedLanguages);
+
             return key($this->supportedLanguages);
         }
 
-        if ($this->use_intl && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        if ($this->use_intl && ! empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $http_accept_language = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
-            if (!empty($this->supportedLanguages[$http_accept_language])) {
+            if (! empty($this->supportedLanguages[$http_accept_language])) {
                 return $http_accept_language;
             }
         }
@@ -98,13 +99,14 @@ class TongueDetector
             $remote_host = explode('.', $this->request->server('REMOTE_HOST'));
             $lang = strtolower(end($remote_host));
 
-            if (!empty($this->supportedLanguages[$lang])) {
+            if (! empty($this->supportedLanguages[$lang])) {
                 return $lang;
             }
         }
 
         return $this->fallbackLocale;
     }
+
     /**
      * Return all the accepted languages from the browser.
      *
@@ -115,7 +117,6 @@ class TongueDetector
         $matches = [];
 
         if ($acceptLanguages = $this->request->header('Accept-Language')) {
-
             $acceptLanguages = explode(',', $acceptLanguages);
             $generic_matches = [];
 
@@ -142,7 +143,7 @@ class TongueDetector
                 //less than it's parent.
                 $l_ops = explode('-', $l);
                 array_pop($l_ops);
-                while (!empty($l_ops)) {
+                while (! empty($l_ops)) {
                     //The new generic option needs to be slightly less important than it's base
                     $q -= 0.001;
                     $op = implode('-', $l_ops);
@@ -158,19 +159,17 @@ class TongueDetector
 
         return $matches;
     }
+
     /**
      * Set the supportedLanguages using
-     * http://php.net/manual/de/locale.canonicalize.php
-     * 
+     * http://php.net/manual/de/locale.canonicalize.php.
      */
     protected function canonicalize($supportedLanguages)
     {
         if (class_exists('Locale')) {
-
             $this->use_intl = true;
 
             foreach ($supportedLanguages as $key => $language) {
-
                 if (isset($language['lang'])) {
                     $language['lang'] = Locale::canonicalize($language['lang']);
                 } else {
@@ -183,7 +182,6 @@ class TongueDetector
 
                 $this->supportedLanguages[$key] = $language;
             }
-
         } else {
             $this->supportedLanguages = $supportedLanguages;
         }

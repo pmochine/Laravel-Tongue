@@ -4,7 +4,7 @@ namespace Pmochine\LaravelTongue;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
-    const CONFIG_PATH = __DIR__ . '/../config/localization.php';
+    const CONFIG_PATH = __DIR__.'/../config/localization.php';
 
     public function boot()
     {

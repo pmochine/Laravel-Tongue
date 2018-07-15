@@ -2,9 +2,9 @@
 
 namespace Pmochine\LaravelTongue\Tests;
 
-use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
 use Pmochine\LaravelTongue\Facades\Tongue;
 use Pmochine\LaravelTongue\ServiceProvider;
+use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
 
 class TongueTest extends TestCase
 {
@@ -37,10 +37,8 @@ class TongueTest extends TestCase
         ];
     }
 
-
- 
     /** @test */
-    public function it_does_not_redirect_when_middleware_is_not_used() 
+    public function it_does_not_redirect_when_middleware_is_not_used()
     {
         $this->sendRequest('GET', $this->pathNotLocalized);
 
@@ -56,7 +54,6 @@ class TongueTest extends TestCase
     /** @test */
     public function it_does_not_redirect_if_locale_is_not_missing()
     {
-
         $this->sendRequest('GET', $this->pathLocalized, 'de');
 
         $this->assertEquals(app()->getLocale(), 'de');
@@ -114,12 +111,12 @@ class TongueTest extends TestCase
     }
 
     /**
-    * It ignores cookies when cookie localization is disabled.
-    * BUT now is redirecting since beautify is false as well
-    *
-    * @return void
-    * @test
-    */
+     * It ignores cookies when cookie localization is disabled.
+     * BUT now is redirecting since beautify is false as well.
+     *
+     * @return void
+     * @test
+     */
     public function it_ignoes_cookies_and_redirects_when_beautify_is_deactivated()
     {
         // Disable cookie localization
@@ -137,7 +134,6 @@ class TongueTest extends TestCase
 
         $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
     }
-
 
     /** @test */
     public function it_detects_and_set_the_locale_from_the_browser()
@@ -168,7 +164,7 @@ class TongueTest extends TestCase
         $this->assertResponseOk();
     }
 
-   /** @test */
+    /** @test */
     public function it_detects_and_set_the_locale_from_the_config()
     {
         $this->sendRequest('GET', $this->pathLocalized);
@@ -184,7 +180,7 @@ class TongueTest extends TestCase
     public function it_detects_and_set_the_locale_from_the_config_and_redirects()
     {
         app('config')->set('localization.beautify_url', false);
-        
+
         $this->sendRequest('GET', $this->pathLocalized);
 
         $this->assertEquals($this->defaultLocale, $this->app->getLocale());
@@ -220,7 +216,7 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_the_current_app_locale() 
+    public function it_returns_the_current_app_locale()
     {
         $this->app->setLocale('fr');
 
@@ -228,7 +224,7 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_the_current_name_or_other_keys() 
+    public function it_returns_the_current_name_or_other_keys()
     {
         $this->app->setLocale('de');
 
@@ -242,7 +238,7 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_an_exception_if_key_does_not_exist() 
+    public function it_throws_an_exception_if_key_does_not_exist()
     {
         $this->app->setLocale('de');
 
@@ -251,15 +247,14 @@ class TongueTest extends TestCase
         app('tongue')->current('namr');
     }
 
-
     /** @test */
-    public function it_returns_the_direction_of_the_spoken_language() 
+    public function it_returns_the_direction_of_the_spoken_language()
     {
         $this->assertEquals('ltr', app('tongue')->leftOrRight());
 
         $this->app->setLocale('es');
 
-        $this->assertEquals('ltr',app('tongue')->leftOrRight());
+        $this->assertEquals('ltr', app('tongue')->leftOrRight());
     }
 
     /**
@@ -274,8 +269,4 @@ class TongueTest extends TestCase
 
         $this->assertEquals($supportedLocales, app('tongue')->speaking()->all());
     }
-
-  
-
-
 }

@@ -6,7 +6,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Request;
 use Orchestra\Testbench\BrowserKit\TestCase as OrchestraTestCase;
 
-
 class TestCase extends OrchestraTestCase
 {
     protected $scheme = 'https';
@@ -150,7 +149,7 @@ class TestCase extends OrchestraTestCase
                 }
             }
 
-            if (!$cookieFound) {
+            if (! $cookieFound) {
                 return false;
             }
         }
