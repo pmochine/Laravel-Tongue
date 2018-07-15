@@ -1,4 +1,5 @@
 
+
 # Laravel Tongue 👅 - Multilingual subdomain urls and redirects
 
 
@@ -20,13 +21,13 @@
 
 ### 1: Add with composer 💻
 ```bash
-composer require pmochine/laravel-tongue
+  composer require pmochine/laravel-tongue
 ```
 
 ### 2: Publish Configuration File (you need to change some thingys so use it 😎)
 
 ```bash
-php artisan vendor:publish --provider="Pmochine\LaravelTongue\ServiceProvider" --tag="config"
+  php artisan vendor:publish --provider="Pmochine\LaravelTongue\ServiceProvider" --tag="config"
 ```
 ### 3: Add the Middleware 🌐
 **Laravel Tongue** comes with a middleware that can be used to enforce the use of a language subdomain. For example: the user calls example.com it goes directly to fr.example.com. 
@@ -34,14 +35,14 @@ php artisan vendor:publish --provider="Pmochine\LaravelTongue\ServiceProvider" -
 If you want to use it, open `app/Http/kernel.php` and register this route middleware by adding it to the `routeMiddleware` (down below) array:
 
 ```php
-	...
-    'speaks-tongue' => \Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale::class,
-	...
+  ...
+  'speaks-tongue' => \Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale::class,
+  ...
 ```
 
 ### 4: Add in your Env 🔑
 
-    SESSION_DOMAIN=.exmaple.com
+      SESSION_DOMAIN=.exmaple.com
     
   **Important!** Note the dot before the domain name. Now the session is availabe in every subdomain 🙃. 
 
@@ -51,7 +52,7 @@ If you want to use it, open `app/Http/kernel.php` and register this route middle
 
 Add service provider to `config/app.php` in `providers` section
 ```php
-Pmochine\LaravelTongue\ServiceProvider::class,
+  Pmochine\LaravelTongue\ServiceProvider::class,
 ```
 
 ## Usage - (or to make it runnable 🏃‍♂️)
@@ -70,7 +71,7 @@ Open `app/Providers/RouteServiceProvider.php` and add this
         
         parent::boot();
     }
-	...
+  ...
 ```
 
 Once you have done this, there is nothing more that you MUST do. Laravel application locale has been set and you can use other locale-dependant Laravel components (e.g. Translation) as you normally do.
@@ -96,35 +97,18 @@ For more information about Middleware, please refer to <a href="http://laravel.c
 ### Frontend 😴
 
 ```php
-<!doctype html>
-<html lang="{{tongue()->current()}}" dir="{{tongue()->leftOrRight()}}">
+  <!doctype html>
+  <html lang="{{tongue()->current()}}" dir="{{tongue()->leftOrRight()}}">
 
-	<head>
-	  	@include('layouts.head')
-  	</head>
+    <head>
+        @include('layouts.head')
+      </head>
 
-	<body>
-	...
+    <body>
+    ...
 ```
 The above `<html>` tag will always have a supported locale and directionality (‘ltr’ or ‘rtl’). The latter is important for right-to-left languages like Arabic and Hebrew, since the whole page layout will change for those.
 
-### How to Switch Up the Language 🇬🇧->🇩🇪
-In a controller far far away...
-
- ```php
-    /**
-     * Sets the locale in the app
-     * @return redirect to previous url
-     */
-    public function store()
-    {
-    	$locale = request()->validate([
-    		'locale' => 'required|string|size:2'
-    	])['locale'];
-
-    	return tongue()->speaks($locale)->back();
-    } 
-  ```
 
 ## Configuration
 
@@ -152,10 +136,132 @@ Use this option to enable or disable the use of cookies 🍪 during the locale d
 
 Don't say anyone that I copied it from [mcamara](https://github.com/mcamara/laravel-localization) 🤫
 
+## Route translation 
 
-## TODO
-Yeah yeah still need to do some little things. So I'm going to update. Use it if you are not AFRAID 🤓.
+If you want to use translated routes (en.yourdomain.com/welcome, fr.yourdomain.com/bienvenue), proceed as follows:
 
+First, create language files for the languages that you support:
+
+`resources/lang/en/routes.php`:
+
+```php
+    return [
+    
+        // route name => route translation
+        'welcome' => 'welcome',
+        'user_profile' => 'user/{username}',
+    
+    ];
+```
+
+`resources/lang/fr/routes.php`:
+
+```php
+    return [
+    
+        // route name => route translation
+        'welcome' => 'bienvenue',
+        'user_profile' => 'utilisateur/{username}',
+    
+    ];
+```
+
+Then, here is how you define translated routes in `routes/web.php`:
+
+```php
+    Route::group([ 'middleware' => [ 'speaks-tongue' ]], function() {
+    
+        Route::get(dialect()->interpret('routes.welcome'), 'WelcomeController@index');
+    
+    });
+```
+
+You can of course name the language files as you wish, and pass the proper prefix (routes. in the example) to the interpret() method.
+
+## Helper Functions - (finally something useful 😎)
+
+This package provides useful helper functions that you can use - for example - in your views:
+
+### Translate your current URL into the given language
+
+```php
+    <a href="{{ dialect()->current('fr') }}">See the french version</a>
+```
+
+### Get all translated URL except the current URL
+
+```php
+  @foreach (dialect()->translateAll() as $locale => $url)
+      <a href="{{ $url }}">{{ $locale }}</a>
+  @endforeach
+```
+
+You can pass `false` as parameter so it won't explude the current URL. 
+
+### Translate URL to the language you want
+
+```php
+    <a href="{{ dialect()->translate('user_profile', [ 'username' => 'JohnDoe' ], 'fr') }}">See JohnDoe's profile</a>
+```
+
+Use `dialect()->translate($routeName, $routeAttributes = null, $locale = null)` to generate an alternate version of the given route. This will return an url with the proper subdomain and also translate the uri if necessary.
+
+You can pass route parameters if necessary. If you don't give a specific locale, it will use the current locale ☺️.
+
+### Get your config supported locale list
+```php
+  $collection = tongue()->speaking(); //returns collection
+```
+Remember it returns a collection. You can add methods to it ([see available methods](https://laravel.com/docs/5.6/collections#available-methods))
+Examples: 
+```php
+  $keys = tongue()->speaking()->keys()->all(); //['en','de',..]
+  $sorted = tongue()->speaking()->sort()->all(); ['de','en',..]
+```
+
+### Get the current language that is set
+```php
+    $locale = tongue()->current(); //de
+```
+Or if you like you can get the full name, the alphabet script, the native name of the language & the regional code.
+```php
+    $name = tongue()->current('name'); //German
+    $script = tongue()->current('script'); //Latn
+    $native = tongue()->current('native'); //Deutsch
+    $regional = tongue()->current('regional'); //de_DE
+```
+
+ ## How to Switch Up the Language 🇬🇧->🇩🇪
+ For example with a selector:
+ 
+```php
+  <ul>
+      @foreach(tongue()->speaking()->all() as $localeCode => $properties)
+          <li>
+              <a rel="alternate" hreflang="{{ $localeCode }}" href="dialect()->current($localeCode)">
+                  {{ $properties['native'] }}
+              </a>
+          </li>
+      @endforeach
+  </ul>
+```
+Or in a controller far far away...
+```php
+  /**
+     * Sets the locale in the app
+     * @return redirect to previous url
+     */
+    public function store()
+    {
+      $locale = request()->validate([
+        'locale' => 'required|string|size:2'
+      ])['locale'];
+
+      return tongue()->speaks($locale)->back();
+    } 
+```
+    
+ 
 ## Security
 
 If you discover any security related issues, please don't email me. I'm afraid 😱. avidofood@protonmail.com
