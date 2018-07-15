@@ -20,9 +20,11 @@ class Localization
 		$locale = self::fromUrl();
 
 		if(!$locale){
+
 			if(!Config::beautify()){
-				return; //redirect?? or exception?
+				return Config::fallbackLocale(); //redirects see test it_ignoes_cookies_and_redirects....
 			}
+
 			$locale = self::currentTongue();
 		}
 
@@ -31,14 +33,14 @@ class Localization
 
 	/**
 	 * Gets the locale from the url.
-	 * @return string|boolean false [when domain===locale]
+	 * @return string|boolean false [when hostname===locale]
 	 */
 	public static function fromUrl()
 	{
-		$domain = explode('.', self::domain())[0];
+		$hostname = explode('.', self::domain())[0];
 		$locale = explode('.', request()->getHost())[0];
 
-		return $domain === $locale ? false : $locale;
+		return $hostname === $locale ? false : $locale;
 	}
 
 	/**
@@ -53,7 +55,7 @@ class Localization
 			return $locale;
 		}
 
-		if (Config::acceptLanguage() && !app()->runningInConsole()) {
+		if (Config::acceptLanguage() && self::languageIsSet()) {
 
             $detector = new TongueDetector(Config::fallbackLocale(), Config::supportedLocales(), request());
 
@@ -62,13 +64,29 @@ class Localization
 
 		return Config::fallbackLocale();
 	}
+
 	/**
-	 * Gets the domain of the website.
+	 * Only for testing the TongueDetector
+	 * 
+	 * @return boolean 
+	 */
+	protected static function languageIsSet()
+	{
+		return !app()->runningInConsole() || array_has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
+	}
+	/**
+	 * Gets the registrable Domain of the website.
+	 * 
+	 * https://github.com/layershifter/TLDExtract
 	 * @return string
 	 */
 	protected static function domain()
 	{
-		return request()->server("SERVER_NAME");
+		$extract = new \LayerShifter\TLDExtract\Extract();
+	
+		$result = $extract->parse(request()->getHost());
+
+		return $result->getRegistrableDomain();
 	}
 
 	/**

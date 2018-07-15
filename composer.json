@@ -20,9 +20,10 @@
   ],
   "require": {
     "php": ">=7.0",
-    "illuminate/support": "^5.6",
     "illuminate/container": "^5.6",
-    "illuminate/events": "^5.6"
+    "illuminate/events": "^5.6",
+    "illuminate/support": "^5.6",
+    "layershifter/tld-extract": "^1.2"
   },
   "require-dev": {
     "orchestra/testbench": "3.6.*",

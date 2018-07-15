@@ -57,6 +57,7 @@ class Dialect
 	{
 		// Save any flashed data for redirect
 		app('session')->reflash();
+		
 		return new RedirectResponse($redirection, 302, ['Vary' => 'Accept-Language']);
 	}
 

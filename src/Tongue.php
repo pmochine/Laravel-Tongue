@@ -2,9 +2,10 @@
 
 namespace Pmochine\LaravelTongue;
 
+use Illuminate\Foundation\Application;
+use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
 use Pmochine\LaravelTongue\Localization\Localization;
 use Pmochine\LaravelTongue\Misc\Config;
-use Illuminate\Foundation\Application;
 
 class Tongue
 {
@@ -40,9 +41,16 @@ class Tongue
 	 * 
 	 * @return  string 
 	 */
-	public function current()
+	public function current($key = null)
 	{
-		return $this->app->getLocale();
+		$locale = $this->app->getLocale();
+
+		if(!$key){
+			return $locale;
+		}
+
+		return $this->speaking($key, $locale);
+		
 	}
 
 	/**
@@ -114,7 +122,7 @@ class Tongue
 
 
 		// Regional locale such as de_DE, so formatLocalized works in Carbon
-        $regional = $this->regional($locale);
+        $regional = $this->speaking('regional', $locale);
 
         if ($regional) {
             setlocale(LC_TIME, $regional.'.UTF-8');
@@ -134,6 +142,32 @@ class Tongue
 	public function back()
 	{
 		return dialect()->redirect( dialect()->redirectUrl( url()->previous() ) );
+	}
+
+	/**
+	 * Gets the collection list of all languages,
+	 * the website speaks. Or give us the specific keys. 
+	 * 
+	 * @return collection | string
+	 */
+	public function speaking($key = null, $locale = null)
+	{
+		$locales = Config::supportedLocales();
+
+		if (empty($locales) || !is_array($locales)) {
+		    throw new SupportedLocalesNotDefined();
+		}
+
+		if(!$key){
+	        return collect($locales);
+		}
+
+		if(!array_has($locales, "{$locale}.{$key}")){
+			throw new SupportedLocalesNotDefined();
+		}
+
+		return data_get($locales, "{$locale}.{$key}");
+		
 	}
 
 	/**
@@ -162,20 +196,5 @@ class Tongue
 		return array_key_exists($locale, Config::supportedLocales());
 	}
 
-	/**
-     * Returns current regional.
-     *
-     * @return string current regional
-     */
-    protected function regional($locale)
-    {
-        // need to check if it exists, since 'regional' has been added
-        // after version 1.0.11 and existing users will not have it
-   
-        if (isset(Config::supportedLocales()[$locale]['regional'])) {
-            return Config::supportedLocales()[$locale]['regional'];
-        } 
-            
-        return;
-    }
+
 }
