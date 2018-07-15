@@ -216,7 +216,7 @@ Remember it returns a collection. You can add methods to it ([see available meth
 Examples: 
 ```php
   $keys = tongue()->speaking()->keys()->all(); //['en','de',..]
-  $sorted = tongue()->speaking()->sort()->all(); ['de','en',..]
+  $sorted = tongue()->speaking()->sort()->all(); //['de','en',..]
 ```
 
 ### Get the current language that is set
