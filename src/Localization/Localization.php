@@ -19,8 +19,8 @@ class Localization
     {
         $locale = self::fromUrl();
 
-        if (! $locale) {
-            if (! Config::beautify()) {
+        if (!$locale) {
+            if (!Config::beautify()) {
                 return Config::fallbackLocale(); //redirects see test it_ignoes_cookies_and_redirects....
             }
 
@@ -85,7 +85,7 @@ class Localization
      */
     protected static function languageIsSet()
     {
-        return ! app()->runningInConsole() || array_has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
+        return !app()->runningInConsole() || array_has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
     }
 
     /**

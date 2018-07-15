@@ -46,7 +46,7 @@ class Tongue
     {
         $locale = $this->app->getLocale();
 
-        if (! $key) {
+        if (!$key) {
             return $locale;
         }
 
@@ -89,7 +89,7 @@ class Tongue
         //fallback language is the same as the current language
         if (Config::beautify() && $this->current() === Config::fallbackLocale()) {
             //didn't found locale means browser is set to exmaple.com
-            if (! $locale) {
+            if (!$locale) {
                 return false;
             }
             //browser is set to en.example.com but should be forced back to example.com
@@ -111,7 +111,7 @@ class Tongue
      */
     public function speaks(string $locale)
     {
-        if (! $this->isSpeaking($locale)) {
+        if (!$this->isSpeaking($locale)) {
             return abort(404); //oder error?
         }
 
@@ -153,15 +153,15 @@ class Tongue
     {
         $locales = Config::supportedLocales();
 
-        if (empty($locales) || ! is_array($locales)) {
+        if (empty($locales) || !is_array($locales)) {
             throw new SupportedLocalesNotDefined();
         }
 
-        if (! $key) {
+        if (!$key) {
             return collect($locales);
         }
 
-        if (! array_has($locales, "{$locale}.{$key}")) {
+        if (!array_has($locales, "{$locale}.{$key}")) {
             throw new SupportedLocalesNotDefined();
         }
 
@@ -176,7 +176,7 @@ class Tongue
      */
     protected function findLocale()
     {
-        if (! Config::subdomain()) {
+        if (!Config::subdomain()) {
             return false; //use Mcamara Localization
         }
 
