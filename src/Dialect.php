@@ -22,6 +22,20 @@ class Dialect
      */
     protected $app = '';
 
+    /**
+     * An array that contains information about the current request.
+     *
+     * @var array
+     */
+    protected $parsed_url;
+
+	/**
+     * An array that contains all routes that should be translated.
+     *
+     * @var array
+     */
+    protected $translatedRoutes = [];
+
 	public function __construct(Application $app)
 	{
 		$this->app = $app;
@@ -37,7 +51,7 @@ class Dialect
 		
 		$parsed_url = parse_url($url ?? request()->fullUrl() );
 
-		$domain = request()->server("SERVER_NAME");
+		$domain = Localization::domain();
 
 		if(Config::beautify() && Localization::fromUrl() === Config::fallbackLocale()){
 			$parsed_url['host'] = $domain;
@@ -50,15 +64,152 @@ class Dialect
 	/**
 	 * Creates the redirect response
 	 * 
-	 * @param   string 
+	 * @param  string 
 	 * @return Illuminate\Http\RedirectResponse;
 	 */
-	public function redirect($redirection)
+	public function redirect(string $redirection)
 	{
 		// Save any flashed data for redirect
 		app('session')->reflash();
-		
+
 		return new RedirectResponse($redirection, 302, ['Vary' => 'Accept-Language']);
+	}
+
+
+
+
+	/**
+	 * Translate the current route for the given locale.
+	 *
+	 * @param $locale
+	 *
+	 * @return bool|string
+	 */
+	public function current($locale)
+	{
+	    return $this->url($this->currentRouteName(), Accent::currentRouteAttributes(), $locale);
+	}
+
+	/**
+	 * Translate the current route for the given locale.
+	 *
+	 * @param bool $excludeCurrentLocale
+	 *
+	 * @return array
+	 */
+	public function getCurrentVersions($excludeCurrentLocale = true)
+	{
+	    $versions = [];
+
+	    foreach (tongue()->speaking()->keys()->all() as $locale) {
+
+	        if ($excludeCurrentLocale && $locale == tongue()->current()) {
+	            continue;
+	        }
+	
+	        if ($url = $this->current($locale)) {
+	            $versions[$locale] = $url;
+	        }
+	    }
+
+	    return $versions;
+	}
+
+	/**
+	 * Return translated URL from route.
+	 *
+	 * @param string       $routeName
+	 * @param string|false $routeAttributes
+	 * @param string|false $locale
+	 *
+	 * @return string|bool
+	 */
+	public function url($routeName, $routeAttributes = null, $locale = null)
+	{
+	    // If no locale is given, we use the current locale
+	    if (!$locale) {
+	        $locale = tongue()->current();
+	    }
+
+	    if (!$this->parsed_url) {
+	    	$this->parsed_url = Accent::parseCurrentUrl();
+	    }
+
+	    // Retrieve the current URL components
+	    $parsed_url = $this->parsed_url;
+
+	    // Add locale to the host
+	    $parsed_url['host'] = $locale.'.'.Localization::domain();
+
+	    // Resolve the translated route path for the given route name
+	    $translatedPath = Accent::findRoutePathByName($routeName, $locale);
+
+	    if ($translatedPath !== false) {
+	        $parsed_url['path'] = $translatedPath;
+	    }
+
+	    // If attributes are given, substitute them in the path
+	    if ($routeAttributes) {
+	        $parsed_url['path'] = Accent::substituteAttributesInRoute($routeAttributes, $parsed_url['path']);
+	    }
+
+	    return Accent::unparseUrl($parsed_url);
+	}
+
+	/**
+	 * Resolve a translated route path for the given route name.
+	 *
+	 * @param $routeName
+	 *
+	 * @return string
+	 */
+	public function resolve($routeName)
+	{
+
+	    $routePath = Accent::findRoutePathByName($routeName);
+
+	    if (!isset($this->translatedRoutes[$routeName])) {
+		    $this->translatedRoutes[$routeName] = $routePath;
+		}
+	
+
+	    return $routePath;
+	}
+
+	/**
+	 * Get the current route name.
+	 *
+	 * @return bool|string
+	 */
+	protected function currentRouteName()
+	{
+	    if (app('router')->currentRouteName()) {
+	        return app('router')->currentRouteName();
+	    }
+
+	    if (app('router')->current()) {
+	        return $this->findRouteNameByPath(app('router')->current()->uri());
+	    }
+
+	    return false;
+	}
+
+	/**
+	 * Find the route name matching the given route path.
+	 *
+	 * @param string $routePath
+	 *
+	 * @return bool|string
+	 */
+	public function findRouteNameByPath($routePath)
+	{
+	    foreach ($this->translatedRoutes as $name => $path) {
+	        if ($routePath == $path) {
+	            return $name;
+	        }
+	    }
+
+	    return false;
 	}
 
 }

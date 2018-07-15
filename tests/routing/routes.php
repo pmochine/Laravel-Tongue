@@ -11,12 +11,12 @@ app('router')->group(['middleware' => 'Illuminate\Cookie\Middleware\AddQueuedCoo
             return response('localized');
         });
 
-        // app('router')->get(app('localization.router')->resolve('Localize::routes.good_morning'), function () {
-        //     return response('translated route without parameter');
-        // });
+        app('router')->get(app('dialect')->resolve('Tongue::routes.good_morning'), function () {
+            return response('translated route without parameter');
+        });
 
-        // app('router')->get(app('localization.router')->resolve('Localize::routes.hello_user'), function () {
-        //     return response('translated route with parameter');
-        // });
+        app('router')->get(app('dialect')->resolve('Tongue::routes.hello_user'), function () {
+            return response('translated route with parameter');
+        });
     });
 });

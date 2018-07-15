@@ -26,7 +26,6 @@ class TestCase extends OrchestraTestCase
      */
     public function refreshConfig()
     {
-        // app('config')->set('localization.domain', $this->domain);
         app('config')->set('app.fallback_locale', $this->defaultLocale);
     }
 
@@ -116,12 +115,12 @@ class TestCase extends OrchestraTestCase
         }
 
         //Load translated routes for testing
-        // app('translator')->getLoader()->addNamespace('LaravelTongue', realpath(dirname(__FILE__)).'/lang');
-        // app('translator')->load('LaravelTongue', 'routes', 'de');
-        // app('translator')->load('LaravelTongue', 'routes', 'en');
+        app('translator')->getLoader()->addNamespace('Tongue', realpath(dirname(__FILE__)).'/lang');
+        app('translator')->load('Tongue', 'routes', 'de');
+        app('translator')->load('Tongue', 'routes', 'en');
 
         //Load routes for testing
-       app('files')->getRequire(__DIR__.'/routing/routes.php');
+        app('files')->getRequire(__DIR__.'/routing/routes.php');
     }
 
     /**

@@ -44,6 +44,21 @@ class Localization
 	}
 
 	/**
+	 * Gets the registrable Domain of the website.
+	 * 
+	 * https://github.com/layershifter/TLDExtract
+	 * @return string
+	 */
+	public static function domain()
+	{
+		$extract = new \LayerShifter\TLDExtract\Extract();
+	
+		$result = $extract->parse(request()->getHost());
+
+		return $result->getRegistrableDomain();
+	}
+
+	/**
 	 * Tries to get the current locale of the user. 
 	 * Via the Browser or the fallback language
 	 * 
@@ -73,20 +88,6 @@ class Localization
 	protected static function languageIsSet()
 	{
 		return !app()->runningInConsole() || array_has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
-	}
-	/**
-	 * Gets the registrable Domain of the website.
-	 * 
-	 * https://github.com/layershifter/TLDExtract
-	 * @return string
-	 */
-	protected static function domain()
-	{
-		$extract = new \LayerShifter\TLDExtract\Extract();
-	
-		$result = $extract->parse(request()->getHost());
-
-		return $result->getRegistrableDomain();
 	}
 
 	/**

@@ -2,6 +2,8 @@
 
 namespace Pmochine\LaravelTongue\Accent;
 
+use Pmochine\LaravelTongue\Localization\Localization;
+
 class Accent
 {
 	/**
@@ -33,4 +35,76 @@ class Accent
 
 	    return $url;
 	}
+
+
+	/**
+	 * Get the current route name.
+	 *
+	 * @return bool|string
+	 */
+	public static function currentRouteAttributes()
+	{
+	    if (app('router')->current()) {
+	        return app('router')->current()->parametersWithoutNulls();
+	    }
+
+	    return false;
+	}
+
+	/**
+	 * Find the route path matching the given route name.
+	 *
+	 * @param string      $routeName
+	 * @param string|null $locale
+	 *
+	 * @return string
+	 */
+	public static function findRoutePathByName($routeName, $locale = null)
+	{
+	    if (app('translator')->has($routeName, $locale)) {
+	        return app('translator')->trans($routeName, [], $locale);
+	    }
+
+	    return false;
+	}
+
+	/**
+	 * Change route attributes for the ones in the $attributes array.
+	 *
+	 * @param $attributes array Array of attributes
+	 * @param string $route string route to substitute
+	 *
+	 * @return string route with attributes changed
+	 */
+	public static function substituteAttributesInRoute($attributes, $route)
+	{
+	    foreach ($attributes as $key => $value) {
+	        $route = str_replace('{'.$key.'}', $value, $route);
+	        $route = str_replace('{'.$key.'?}', $value, $route);
+	    }
+
+	    // delete empty optional arguments that are not in the $attributes array
+	    $route = preg_replace('/\/{[^)]+\?}/', '', $route);
+
+	    return $route;
+	}
+
+	/**
+	 * Stores the parsed url array after a few modifications.
+	 *
+	 * @return array
+	 */
+	public static function parseCurrentUrl()
+	{
+	    $parsed_url = parse_url(app()['request']->fullUrl());
+
+	    // Don't store path, query and fragment
+	    unset($parsed_url['query']);
+	    unset($parsed_url['fragment']);
+
+	    $parsed_url['host'] = Localization::domain();
+
+	    return $parsed_url;
+	}
+
 }
