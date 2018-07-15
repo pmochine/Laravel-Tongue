@@ -3,7 +3,7 @@
 
 
 [![Build Status](https://travis-ci.org/pmochine/laravel-tongue.svg?branch=master)](https://travis-ci.org/pmochine/laravel-tongue)
-[![styleci](https://styleci.io/repos/CHANGEME/shield)](https://styleci.io/repos/CHANGEME)
+[![styleci](https://styleci.io/repos/140954300/shield)](https://styleci.io/repos/140954300)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pmochine/laravel-tongue/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pmochine/laravel-tongue/?branch=master)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/CHANGEME/mini.png)](https://insight.sensiolabs.com/projects/CHANGEME)
 [![Coverage Status](https://coveralls.io/repos/github/pmochine/laravel-tongue/badge.svg?branch=master)](https://coveralls.io/github/pmochine/laravel-tongue?branch=master)
