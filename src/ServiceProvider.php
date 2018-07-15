@@ -20,11 +20,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             'localization'
         );
 
-        $this->app->singleton('tongue', function($app) {
+        $this->app->singleton('tongue', function ($app) {
             return new Tongue($app);
         });
 
-        $this->app->singleton('dialect', function($app) {
+        $this->app->singleton('dialect', function ($app) {
             return new Dialect($app);
         });
     }
