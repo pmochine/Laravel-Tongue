@@ -2,7 +2,7 @@
 # Laravel Tongue 👅 - Multilingual subdomain urls and redirects
 
 
-[![Build Status](https://travis-ci.org/pmochine/laravel-tongue.svg?branch=master)](https://travis-ci.org/pmochine/laravel-tongue)
+[![Build Status](https://travis-ci.org/pmochine/Laravel-Tongue.svg?branch=master)](https://travis-ci.org/pmochine/Laravel-Tongue)
 [![styleci](https://styleci.io/repos/140954300/shield)](https://styleci.io/repos/140954300)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pmochine/laravel-tongue/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pmochine/laravel-tongue/?branch=master)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/51fd6376-0342-47b6-9dbc-2c20f7403845/mini.png)](https://insight.sensiolabs.com/projects/51fd6376-0342-47b6-9dbc-2c20f7403845)
