@@ -92,7 +92,7 @@ class DialectTest extends TestCase
     {
         $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
 
-        $this->assertEquals($this->getUri($this->enPathWithoutParameter, 'en'), app('dialect')->getCurrentVersions()['en']);
+        $this->assertEquals($this->getUri($this->enPathWithoutParameter, 'en'), app('dialect')->translateAll()['en']);
         
         $this->refresh();
 
@@ -101,19 +101,19 @@ class DialectTest extends TestCase
         $this->assertEquals([
             'en' => $this->getUri($this->enPathWithParameter1, 'en'),
             'de' => $this->getUri($this->dePathWithParameter1, 'de'),
-        ], array_only( app('dialect')->getCurrentVersions(false), ['en', 'de']));
+        ], array_only( app('dialect')->translateAll(false), ['en', 'de']));
     }
 
     /** @test */
-    public function it_resolves_a_translated_route_path()
+    public function it_interprets_a_translated_route_path()
     {
         $this->setRequestContext('GET', '', 'de');
 
-        $this->assertEquals($this->dePathWithoutParameter, app('dialect')->resolve($this->routeNameWithoutParameter));
+        $this->assertEquals($this->dePathWithoutParameter, app('dialect')->interpret($this->routeNameWithoutParameter));
 
         $this->setRequestContext('GET', '', 'en');
 
-        $this->assertEquals($this->enPathWithParameter, app('dialect')->resolve($this->routeNameWithParameter));
+        $this->assertEquals($this->enPathWithParameter, app('dialect')->interpret($this->routeNameWithParameter));
     }
 
     /** @test */
@@ -123,26 +123,26 @@ class DialectTest extends TestCase
 
         $this->assertEquals(
             $this->getUri($this->dePathWithoutParameter, 'de'),
-            app('dialect')->url($this->routeNameWithoutParameter, null, 'de')
+            app('dialect')->translate($this->routeNameWithoutParameter, null, 'de')
         );
 
         $this->assertEquals(
             $this->getUri($this->enPathWithParameter1, 'en'),
-            app('dialect')->url($this->routeNameWithParameter, $this->routeParameters, 'en')
+            app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters, 'en')
         );
 
         $this->setRequestContext('GET', '', 'de');
 
         $this->assertEquals(
             $this->getUri($this->dePathWithParameter1, 'de'),
-            app('dialect')->url($this->routeNameWithParameter, $this->routeParameters)
+            app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters)
         );
 
         $this->setRequestContext('GET', '', 'en');
 
         $this->assertEquals(
             $this->getUri($this->enPathWithParameter1, 'en'),
-            app('dialect')->url($this->routeNameWithParameter, $this->routeParameters)
+            app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters)
         );
     }
 }

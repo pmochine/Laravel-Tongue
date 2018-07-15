@@ -87,17 +87,17 @@ class Dialect
 	 */
 	public function current($locale)
 	{
-	    return $this->url($this->currentRouteName(), Accent::currentRouteAttributes(), $locale);
+	    return $this->translate($this->currentRouteName(), Accent::currentRouteAttributes(), $locale);
 	}
 
 	/**
-	 * Translate the current route for the given locale.
+	 * Get all Translations for the current URL
 	 *
 	 * @param bool $excludeCurrentLocale
 	 *
 	 * @return array
 	 */
-	public function getCurrentVersions($excludeCurrentLocale = true)
+	public function translateAll($excludeCurrentLocale = true)
 	{
 	    $versions = [];
 
@@ -106,7 +106,7 @@ class Dialect
 	        if ($excludeCurrentLocale && $locale == tongue()->current()) {
 	            continue;
 	        }
-	
+
 	        if ($url = $this->current($locale)) {
 	            $versions[$locale] = $url;
 	        }
@@ -124,7 +124,7 @@ class Dialect
 	 *
 	 * @return string|bool
 	 */
-	public function url($routeName, $routeAttributes = null, $locale = null)
+	public function translate($routeName, $routeAttributes = null, $locale = null)
 	{
 	    // If no locale is given, we use the current locale
 	    if (!$locale) {
@@ -157,13 +157,13 @@ class Dialect
 	}
 
 	/**
-	 * Resolve a translated route path for the given route name.
+	 * Interprets a translated route path for the given route name.
 	 *
 	 * @param $routeName
 	 *
 	 * @return string
 	 */
-	public function resolve($routeName)
+	public function interpret($routeName)
 	{
 
 	    $routePath = Accent::findRoutePathByName($routeName);
