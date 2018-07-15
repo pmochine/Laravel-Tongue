@@ -63,14 +63,14 @@ Add service provider to `config/app.php` in `providers` section
 Open `app/Providers/RouteServiceProvider.php` and add this
 
 ```php
-    public function boot()
-    {
-        // This will guess a locale from the current HTTP request
-        // and set the application locale.
-        tongue()->detect();
-        
-        parent::boot();
-    }
+  public function boot()
+  {
+      // This will guess a locale from the current HTTP request
+      // and set the application locale.
+      tongue()->detect();
+      
+      parent::boot();
+  }
   ...
 ```
 
@@ -81,15 +81,15 @@ Once you have done this, there is nothing more that you MUST do. Laravel applica
 If you want to enforce the use of a language subdomain for some routes, you can simply assign the middleware provided, for example as follows in `routes/web.php`:
 
 ```php
-    // Without the localize middleware, this route can be reached with or without language subdomain
-    Route::get('logout', 'AuthController@logout');
-    
-    // With the localize middleware, this route cannot be reached without language subdomain
-    Route::group([ 'middleware' => [ 'speaks-tongue' ]], function() {
-    
-        Route::get('welcome', 'WelcomeController@index');
-    
-    });
+  // Without the localize middleware, this route can be reached with or without language subdomain
+  Route::get('logout', 'AuthController@logout');
+  
+  // With the localize middleware, this route cannot be reached without language subdomain
+  Route::group([ 'middleware' => [ 'speaks-tongue' ]], function() {
+  
+      Route::get('welcome', 'WelcomeController@index');
+  
+  });
 ```
 
 For more information about Middleware, please refer to <a href="http://laravel.com/docs/middleware">Laravel docs</a>.
@@ -145,35 +145,35 @@ First, create language files for the languages that you support:
 `resources/lang/en/routes.php`:
 
 ```php
-    return [
+  return [
     
-        // route name => route translation
-        'welcome' => 'welcome',
-        'user_profile' => 'user/{username}',
-    
-    ];
+    // route name => route translation
+    'welcome' => 'welcome',
+    'user_profile' => 'user/{username}',
+  
+  ];
 ```
 
 `resources/lang/fr/routes.php`:
 
 ```php
-    return [
+  return [
     
-        // route name => route translation
-        'welcome' => 'bienvenue',
-        'user_profile' => 'utilisateur/{username}',
+    // route name => route translation
+    'welcome' => 'bienvenue',
+    'user_profile' => 'utilisateur/{username}',
     
-    ];
+  ];
 ```
 
 Then, here is how you define translated routes in `routes/web.php`:
 
 ```php
-    Route::group([ 'middleware' => [ 'speaks-tongue' ]], function() {
+  Route::group([ 'middleware' => [ 'speaks-tongue' ]], function() {
     
-        Route::get(dialect()->interpret('routes.welcome'), 'WelcomeController@index');
+      Route::get(dialect()->interpret('routes.welcome'), 'WelcomeController@index');
     
-    });
+  });
 ```
 
 You can of course name the language files as you wish, and pass the proper prefix (routes. in the example) to the interpret() method.
@@ -185,7 +185,7 @@ This package provides useful helper functions that you can use - for example - i
 ### Translate your current URL into the given language
 
 ```php
-    <a href="{{ dialect()->current('fr') }}">See the french version</a>
+  <a href="{{ dialect()->current('fr') }}">See the french version</a>
 ```
 
 ### Get all translated URL except the current URL
@@ -201,7 +201,7 @@ You can pass `false` as parameter so it won't explude the current URL.
 ### Translate URL to the language you want
 
 ```php
-    <a href="{{ dialect()->translate('user_profile', [ 'username' => 'JohnDoe' ], 'fr') }}">See JohnDoe's profile</a>
+  <a href="{{ dialect()->translate('user_profile', [ 'username' => 'JohnDoe' ], 'fr') }}">See JohnDoe's profile</a>
 ```
 
 Use `dialect()->translate($routeName, $routeAttributes = null, $locale = null)` to generate an alternate version of the given route. This will return an url with the proper subdomain and also translate the uri if necessary.
@@ -221,14 +221,14 @@ Examples:
 
 ### Get the current language that is set
 ```php
-    $locale = tongue()->current(); //de
+  $locale = tongue()->current(); //de
 ```
 Or if you like you can get the full name, the alphabet script, the native name of the language & the regional code.
 ```php
-    $name = tongue()->current('name'); //German
-    $script = tongue()->current('script'); //Latn
-    $native = tongue()->current('native'); //Deutsch
-    $regional = tongue()->current('regional'); //de_DE
+  $name = tongue()->current('name'); //German
+  $script = tongue()->current('script'); //Latn
+  $native = tongue()->current('native'); //Deutsch
+  $regional = tongue()->current('regional'); //de_DE
 ```
 
  ## How to Switch Up the Language 🇬🇧->🇩🇪
@@ -248,17 +248,17 @@ Or if you like you can get the full name, the alphabet script, the native name o
 Or in a controller far far away...
 ```php
   /**
-     * Sets the locale in the app
-     * @return redirect to previous url
-     */
-    public function store()
-    {
-      $locale = request()->validate([
-        'locale' => 'required|string|size:2'
-      ])['locale'];
+   * Sets the locale in the app
+   * @return redirect to previous url
+   */
+  public function store()
+  {
+    $locale = request()->validate([
+      'locale' => 'required|string|size:2'
+    ])['locale'];
 
-      return tongue()->speaks($locale)->back();
-    } 
+    return tongue()->speaks($locale)->back();
+  } 
 ```
     
  
