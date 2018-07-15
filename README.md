@@ -101,8 +101,8 @@ For more information about Middleware, please refer to <a href="http://laravel.c
   <html lang="{{tongue()->current()}}" dir="{{tongue()->leftOrRight()}}">
 
     <head>
-        @include('layouts.head')
-      </head>
+      @include('layouts.head')
+    </head>
 
     <body>
     ...
