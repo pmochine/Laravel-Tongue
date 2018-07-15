@@ -1,7 +1,6 @@
 <?php
 
 app('router')->group(['middleware' => 'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse'], function () {
-
     app('router')->get('not-localized', function () {
         return response('not-localized');
     });

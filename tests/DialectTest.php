@@ -70,7 +70,6 @@ class DialectTest extends TestCase
         $this->setRequestContext('GET', $this->enPathWithoutParameter, null, [], ['tongue-locale' => 'en']);
 
         $this->assertEquals($this->getUri($this->enPathWithoutParameter, 'en'), app('dialect')->redirectUrl());
-
     }
 
     /** @test */
@@ -93,7 +92,7 @@ class DialectTest extends TestCase
         $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
 
         $this->assertEquals($this->getUri($this->enPathWithoutParameter, 'en'), app('dialect')->translateAll()['en']);
-        
+
         $this->refresh();
 
         $this->sendRequest('GET', $this->enPathWithParameter1, 'en');
@@ -101,7 +100,7 @@ class DialectTest extends TestCase
         $this->assertEquals([
             'en' => $this->getUri($this->enPathWithParameter1, 'en'),
             'de' => $this->getUri($this->dePathWithParameter1, 'de'),
-        ], array_only( app('dialect')->translateAll(false), ['en', 'de']));
+        ], array_only(app('dialect')->translateAll(false), ['en', 'de']));
     }
 
     /** @test */
