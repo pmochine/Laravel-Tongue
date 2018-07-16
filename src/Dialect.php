@@ -123,7 +123,7 @@ class Dialect
     public function translate($routeName, $routeAttributes = null, $locale = null)
     {
         // If no locale is given, we use the current locale
-        if (! $locale) {
+        if (!$locale) {
             $locale = tongue()->current();
         }
 
@@ -163,7 +163,7 @@ class Dialect
     {
         $routePath = Accent::findRoutePathByName($routeName);
 
-        if (! isset($this->translatedRoutes[$routeName])) {
+        if (!isset($this->translatedRoutes[$routeName])) {
             $this->translatedRoutes[$routeName] = $routePath;
         }
 
