@@ -18,7 +18,7 @@
 
 **If you are looking for an easy package for subdomain multilingual urls, this package is for you.  😜**
 
- >***Prerequisites**: PHP > 7.* and at least Laravel 5.4.*
+ >***Prerequisites**: PHP >=7.0 and at least Laravel >=5.4
 
 ## Installation in 4 Steps*
 
