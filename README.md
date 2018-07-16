@@ -1,5 +1,6 @@
 
 
+
 # Laravel Tongue 👅 - Multilingual subdomain urls and redirects
 
 
@@ -16,6 +17,8 @@
 ![Laravel Tongue](img/laravel-tongue.png)
 
 **If you are looking for an easy package for subdomain multilingual urls, this package is for you.  😜**
+
+ >***Prerequisites**: PHP > 7.* and at least Laravel 5.4.*
 
 ## Installation in 4 Steps*
 
@@ -48,12 +51,11 @@ If you want to use it, open `app/Http/kernel.php` and register this route middle
 
 
 
-### *Note! 📝 This step is optional if you use laravel>=5.5 with package auto discovery feature.
-
-Add service provider to `config/app.php` in `providers` section
-```php
-  Pmochine\LaravelTongue\ServiceProvider::class,
-```
+> ****Note*!** 📝 This step is optional if you use laravel>=5.5 with package auto discovery feature.
+> Add service provider to `config/app.php` in `providers` section
+>```php
+>    Pmochine\LaravelTongue\ServiceProvider::class,
+>```
 
 ## Usage - (or to make it runnable 🏃‍♂️)
 
