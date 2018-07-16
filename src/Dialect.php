@@ -18,7 +18,7 @@ class Dialect
     /**
      * Our instance of the Laravel app.
      *
-     * @var Illuminate\Foundation\Application
+     * @var \Illuminate\Foundation\Application
      */
     protected $app = '';
 
@@ -65,7 +65,7 @@ class Dialect
      * Creates the redirect response.
      *
      * @param  string
-     * @return Illuminate\Http\RedirectResponse;
+     * @return \Illuminate\Http\RedirectResponse;
      */
     public function redirect(string $redirection)
     {
@@ -127,7 +127,7 @@ class Dialect
             $locale = tongue()->current();
         }
 
-        if (! $this->parsed_url) {
+        if (empty($this->parsed_url)) {
             $this->parsed_url = Accent::parseCurrentUrl();
         }
 

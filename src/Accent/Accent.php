@@ -56,7 +56,7 @@ class Accent
      * @param string      $routeName
      * @param string|null $locale
      *
-     * @return string
+     * @return string|bool
      */
     public static function findRoutePathByName($routeName, $locale = null)
     {
