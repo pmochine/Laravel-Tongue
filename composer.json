@@ -18,17 +18,15 @@
       "email": "p@mochine.de"
     }
   ],
-  "require": {
+   "require": {
     "php": ">=7.0",
-    "illuminate/container": "^5.6",
-    "illuminate/events": "^5.6",
-    "illuminate/support": "^5.6",
+    "laravel/framework": "~5.4||~5.5||~5.6",
     "layershifter/tld-extract": "^1.2"
   },
   "require-dev": {
-    "orchestra/testbench": "3.6.*",
-    "orchestra/testbench-browser-kit": "3.6.*",
-    "phpunit/phpunit": "~7.0"
+    "orchestra/testbench": "~3.4",
+    "orchestra/testbench-browser-kit": "~3.4",
+    "phpunit/phpunit": "7.0.*"
   },
   "autoload": {
     "psr-4": {
