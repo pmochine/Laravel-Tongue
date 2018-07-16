@@ -157,7 +157,7 @@ class Dialect
      *
      * @param $routeName
      *
-     * @return string
+     * @return mixed (but should be string if it exists!)
      */
     public function interpret($routeName)
     {
