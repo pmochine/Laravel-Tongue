@@ -100,10 +100,10 @@ class Localization
     {
         if ($locale != null) {
             return cookie()->queue(cookie()->forever(self::COOKIE, $locale));
-        }  
+        }
 
-        if(! request()->hasCookie(self::COOKIE)){
-            return null;
+        if (! request()->hasCookie(self::COOKIE)) {
+            return;
         }
 
         try {
@@ -117,7 +117,7 @@ class Localization
             return request()->cookie(self::COOKIE);
         } catch (Exception $e) {
             //So I don't return a cookie in that case
-            return null;
+            return;
         }
     }
 }
