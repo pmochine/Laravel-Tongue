@@ -98,16 +98,26 @@ class Localization
      */
     public static function cookie($locale = null)
     {
-        if ($locale == null) {
-            try {
-                return decrypt(request()->cookie(self::COOKIE));
-            } catch (DecryptException $e) {
-                //Somehow the middleware for decrypting does not kick in here...
-                //but it even fails if we use php artisan <something> (weird)
-                //if it happes we can simply give it normally back
-                return request()->cookie(self::COOKIE);
-            }
+        if ($locale != null) {
+            return cookie()->queue(cookie()->forever(self::COOKIE, $locale));
+        }  
+
+        if(! request()->hasCookie(self::COOKIE)){
+            return null;
         }
-        cookie()->queue(cookie()->forever(self::COOKIE, $locale));
+
+        try {
+            //Somehow I got this error: unserialize(): Error at offset 0 of 2 bytes
+            //I needed to change decrypt(value, unserialize = false);
+            return app('encrypter')->decrypt(request()->cookie(self::COOKIE), false);
+        } catch (DecryptException $e) {
+            //Somehow the middleware for decrypting does not kick in here...
+            //but it even fails if we use php artisan <something> (weird)
+            //if it happes we can simply give it normally back
+            return request()->cookie(self::COOKIE);
+        } catch (Exception $e) {
+            //So I don't return a cookie in that case
+            return null;
+        }
     }
 }
