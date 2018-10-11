@@ -235,6 +235,8 @@ class TongueTest extends TestCase
         $this->assertEquals(app('tongue')->current('native'), 'Deutsch');
 
         $this->assertEquals(app('tongue')->current('regional'), 'de_DE');
+
+        $this->assertEquals(app('tongue')->current('BCP47'), 'de-DE');
     }
 
     /** @test */

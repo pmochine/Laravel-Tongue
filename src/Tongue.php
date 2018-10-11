@@ -161,6 +161,10 @@ class Tongue
             return collect($locales);
         }
 
+        if($key === 'BCP47'){
+            return $this->BCP47($locale, $locales);
+        }
+
         if (! array_has($locales, "{$locale}.{$key}")) {
             throw new SupportedLocalesNotDefined();
         }
@@ -192,5 +196,22 @@ class Tongue
     protected function isSpeaking($locale)
     {
         return array_key_exists($locale, Config::supportedLocales());
+    }
+
+    /**
+     * Gets the BCP 47 Value of the regional
+     * See for more: http://schneegans.de/lv/?tags=en&format=text
+     *
+     * @param  string $locale
+     * @param  array $loacles [the list in the config file]
+     */
+    protected function BCP47($locale, $locales) 
+    {
+       $bcp47 = data_get($locales, "{$locale}.regional");
+
+       if(! $bcp47) return $locale; //locale is the "minimum" of BCP 47
+
+       //regional value needs to replace underscore
+       return str_replace('_', '-', $bcp47);
     }
 }

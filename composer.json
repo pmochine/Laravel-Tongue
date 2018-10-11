@@ -20,7 +20,7 @@
   ],
    "require": {
     "php": ">=7.0",
-    "laravel/framework": "~5.4||~5.5||~5.6",
+    "laravel/framework": "~5.4||~5.5||~5.6||~5.7",
     "layershifter/tld-extract": "^1.2"
   },
   "require-dev": {
