@@ -193,7 +193,7 @@ class Tongue
      * @param  string  $locale
      * @return bool
      */
-    protected function isSpeaking($locale)
+    public function isSpeaking($locale)
     {
         return array_key_exists($locale, Config::supportedLocales());
     }

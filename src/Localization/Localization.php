@@ -19,7 +19,7 @@ class Localization
     {
         $locale = self::fromUrl();
 
-        if (! $locale) {
+        if (! $locale || ! tongue()->isSpeaking($locale)) {
             if (! Config::beautify()) {
                 return Config::fallbackLocale(); //redirects see test it_ignoes_cookies_and_redirects....
             }
