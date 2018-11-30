@@ -125,9 +125,9 @@ Once you have imported the config file, you will find it at `config/localization
 
 Makes the URL BEAUTIFUL 💁‍♀️. ( Use to set fallback language to mydomain.com and not to en.mydomain.com). That is why I even created this package. I just could not find this! 😭
 
-- `subdomain` (default: `true`)
+- `subdomains` (default: `[]`)
 
-Just don't dare to change this value 🙅‍♂️. (It's not implemented, but we could use example.com/en, but wth just use the packages down below)
+Sometimes you would like to have your admin panel as a subdomain url. Here you can whitelist those subdomains (only important if those urls are using the [middleware](https://github.com/pmochine/Laravel-Tongue#middleware-)).
 
 - `acceptLanguage` (default: `true`)
 
