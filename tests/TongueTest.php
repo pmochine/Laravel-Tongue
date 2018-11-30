@@ -216,7 +216,7 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_does_not_redirect_when_subdomain_is_white_listed() 
+    public function it_does_not_redirect_when_subdomain_is_white_listed()
     {
         app('config')->set('localization.subdomains', ['admin']);
 
@@ -228,7 +228,7 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_does_redirect_when_subdomain_is_not_found_on_subdomains_list() 
+    public function it_does_redirect_when_subdomain_is_not_found_on_subdomains_list()
     {
         $this->sendRequest('GET', $this->pathLocalized, 'admin');
 

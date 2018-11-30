@@ -86,7 +86,7 @@ class Tongue
     {
         $locale = Localization::fromUrl();
 
-        if(in_array($locale, Config::subdomains())){
+        if (in_array($locale, Config::subdomains())) {
             //whitelisted subdomains! like admin.domain.com
             return false;
         }
