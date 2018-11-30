@@ -86,6 +86,11 @@ class Tongue
     {
         $locale = Localization::fromUrl();
 
+        if(in_array($locale, Config::subdomains())){
+            //whitelisted subdomains! like admin.domain.com
+            return false;
+        }
+
         //fallback language is the same as the current language
         if (Config::beautify() && $this->current() === Config::fallbackLocale()) {
             //didn't found locale means browser is set to exmaple.com
@@ -180,10 +185,6 @@ class Tongue
      */
     protected function findLocale()
     {
-        if (! Config::subdomain()) {
-            return false; //use Mcamara Localization
-        }
-
         return Localization::decipherTongue();
     }
 

@@ -13,13 +13,13 @@ return [
     'beautify_url' => true,
     /*
     |--------------------------------------------------------------------------
-    | subdomain or subfolder - that is the question
+    | subdomains that are whitelisted
     |--------------------------------------------------------------------------
     |
-    | You can set it to subfolders, but it's not implemented...
+    | for example 'admin', 'archontas', 'nova' etc.
     |
     */
-    'subdomain' => true,
+    'subdomains' => [],
     /*
     |--------------------------------------------------------------------------
     | https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language

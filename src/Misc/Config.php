@@ -4,9 +4,9 @@ namespace Pmochine\LaravelTongue\Misc;
 
 class Config
 {
-    public static function subdomain()
+    public static function subdomains()
     {
-        return config('localization.subdomain');
+        return config('localization.subdomains', []);
     }
 
     public static function beautify()

@@ -216,6 +216,26 @@ class TongueTest extends TestCase
     }
 
     /** @test */
+    public function it_does_not_redirect_when_subdomain_is_white_listed() 
+    {
+        app('config')->set('localization.subdomains', ['admin']);
+
+        $this->sendRequest('GET', $this->pathLocalized, 'admin');
+
+        $this->assertFalse(app('tongue')->twister());
+
+        $this->assertResponseOk();
+    }
+
+    /** @test */
+    public function it_does_redirect_when_subdomain_is_not_found_on_subdomains_list() 
+    {
+        $this->sendRequest('GET', $this->pathLocalized, 'admin');
+
+        $this->assertTrue(app('tongue')->twister());
+    }
+
+    /** @test */
     public function it_returns_the_current_app_locale()
     {
         $this->app->setLocale('fr');
