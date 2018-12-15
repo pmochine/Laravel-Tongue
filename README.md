@@ -139,7 +139,7 @@ Use this option to enable or disable the use of cookies 🍪 during the locale d
 
 - `prevent_redirect` (default: `false`)
 
-Important for debugging, when you want to deactivate the middelware `TongueSpeaksLocale`.
+Important for debugging, when you want to deactivate the middelware `speaks-tongue`.
 
 - `supportedLocales` (default: `🇬🇧🇩🇪🇪🇸🇫🇷🇭🇺`)
 
