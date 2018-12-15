@@ -137,6 +137,10 @@ Use this option to enable or disable the use of the browser 💻 settings during
 
 Use this option to enable or disable the use of cookies 🍪 during the locale detection.
 
+- `prevent_redirect` (default: `false`)
+
+Important for debugging, when you want to deactivate the middelware `TongueSpeaksLocale`.
+
 - `supportedLocales` (default: `🇬🇧🇩🇪🇪🇸🇫🇷🇭🇺`)
 
 Don't say anyone that I copied it from [mcamara](https://github.com/mcamara/laravel-localization) 🤫

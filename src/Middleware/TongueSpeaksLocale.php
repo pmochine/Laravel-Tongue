@@ -3,6 +3,7 @@
 namespace Pmochine\LaravelTongue\Middleware;
 
 use Closure;
+use Pmochine\LaravelTongue\Misc\Config;
 
 class TongueSpeaksLocale
 {
@@ -18,7 +19,7 @@ class TongueSpeaksLocale
      */
     public function handle($request, Closure $next)
     {
-        if (tongue()->twister()) {
+        if (tongue()->twister() && ! Config::preventRedirect()) {
             return dialect()->redirect(dialect()->redirectURL());
         }
 

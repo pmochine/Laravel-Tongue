@@ -40,7 +40,18 @@ return [
     |
     */
     'cookie_localization' => true,
-
+    /*
+    |--------------------------------------------------------------------------
+    | Prevent redirect
+    |--------------------------------------------------------------------------
+    |
+    | Sometimes in testing you don't want to use redirection. 
+    | If you set the value to true, the middleware TongueSpeaksLocale 
+    | will not redirect anymore.
+    |
+    */
+    'prevent_redirect' => env('PREVENT_REDIRECT', false),
+    
     // Uncomment the languages that your site supports - or add new ones.
     // These are sorted by the native name, which is the order you might show them in a language selector.
     // Regional languages are sorted by their base language, so "British English" sorts as "English, British"

@@ -33,4 +33,9 @@ class Config
     {
         return config('localization.cookie_localization');
     }
+
+    public static function preventRedirect()
+    {
+        return config('localization.prevent_redirect', false);
+    }
 }
