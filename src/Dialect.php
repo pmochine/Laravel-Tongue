@@ -134,8 +134,9 @@ class Dialect
         // Retrieve the current URL components
         $parsed_url = $this->parsed_url;
 
-        // Add locale to the host
-        $parsed_url['host'] = $locale.'.'.Localization::domain();
+    
+        $parsed_url['host'] = $this->addLocaleToHost($locale);
+
 
         // Resolve the translated route path for the given route name
         $translatedPath = Accent::findRoutePathByName($routeName, $locale);
@@ -150,6 +151,24 @@ class Dialect
         }
 
         return Accent::unparseUrl($parsed_url);
+    }
+
+    /**
+     * If we have beautify on and the given $locale is the same
+     * to the current locale and to the fallbackLocal. 
+     * We don't need to add a subdomain to the host
+     * 
+     * @param string $locale
+     * @return string
+     */
+    protected function addLocaleToHost($locale) 
+    {
+        if(Config::beautify() && $locale === tongue()->current() && $locale === Config::fallbackLocale()){
+             return Localization::domain();
+        }
+
+        // Add locale to the host
+        return $locale.'.'.Localization::domain();
     }
 
     /**

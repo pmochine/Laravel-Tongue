@@ -98,6 +98,14 @@ class DialectTest extends TestCase
         $this->sendRequest('GET', $this->enPathWithParameter1, 'en');
 
         $this->assertEquals([
+            'en' => $this->getUri($this->enPathWithParameter1), //no subdomain because of beautify
+            'de' => $this->getUri($this->dePathWithParameter1, 'de'),
+        ], array_only(app('dialect')->translateAll(false), ['en', 'de']));
+
+        //With beautify_off
+        app('config')->set('localization.beautify_url', false);
+
+        $this->assertEquals([
             'en' => $this->getUri($this->enPathWithParameter1, 'en'),
             'de' => $this->getUri($this->dePathWithParameter1, 'de'),
         ], array_only(app('dialect')->translateAll(false), ['en', 'de']));
@@ -118,6 +126,9 @@ class DialectTest extends TestCase
     /** @test */
     public function it_translates_a_route_into_an_url()
     {
+        //when beautify is off
+        app('config')->set('localization.beautify_url', false);
+
         $this->setRequestContext('GET', '');
 
         $this->assertEquals(
@@ -143,5 +154,35 @@ class DialectTest extends TestCase
             $this->getUri($this->enPathWithParameter1, 'en'),
             app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters)
         );
+        
+        //beautify is on, so some url won't have subdomains 
+        app('config')->set('localization.beautify_url', true);
+
+        $this->setRequestContext('GET', '');
+
+        $this->assertEquals(
+            $this->getUri($this->dePathWithoutParameter, 'de'),
+            app('dialect')->translate($this->routeNameWithoutParameter, null, 'de')
+        );
+
+        $this->assertEquals(
+            $this->getUri($this->enPathWithParameter1),
+            app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters, 'en')
+        );
+
+        $this->setRequestContext('GET', '', 'de');
+
+        $this->assertEquals(
+            $this->getUri($this->dePathWithParameter1, 'de'),
+            app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters)
+        );
+
+        $this->setRequestContext('GET', '', 'en');
+
+        $this->assertEquals(
+            $this->getUri($this->enPathWithParameter1),
+            app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters)
+        );
     }
+
 }
