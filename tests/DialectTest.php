@@ -154,8 +154,8 @@ class DialectTest extends TestCase
             $this->getUri($this->enPathWithParameter1, 'en'),
             app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters)
         );
-        
-        //beautify is on, so some url won't have subdomains 
+
+        //beautify is on, so some url won't have subdomains
         app('config')->set('localization.beautify_url', true);
 
         $this->setRequestContext('GET', '');
@@ -184,5 +184,4 @@ class DialectTest extends TestCase
             app('dialect')->translate($this->routeNameWithParameter, $this->routeParameters)
         );
     }
-
 }
