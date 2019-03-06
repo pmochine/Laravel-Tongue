@@ -4,6 +4,7 @@ namespace Pmochine\LaravelTongue\Tests;
 
 use Pmochine\LaravelTongue\Facades\Dialect;
 use Pmochine\LaravelTongue\ServiceProvider;
+use Illuminate\Support\Arr;
 
 class DialectTest extends TestCase
 {
@@ -100,7 +101,7 @@ class DialectTest extends TestCase
         $this->assertEquals([
             'en' => $this->getUri($this->enPathWithParameter1), //no subdomain because of beautify
             'de' => $this->getUri($this->dePathWithParameter1, 'de'),
-        ], array_only(app('dialect')->translateAll(false), ['en', 'de']));
+        ], Arr::only(app('dialect')->translateAll(false), ['en', 'de']));
 
         //With beautify_off
         app('config')->set('localization.beautify_url', false);
@@ -108,7 +109,7 @@ class DialectTest extends TestCase
         $this->assertEquals([
             'en' => $this->getUri($this->enPathWithParameter1, 'en'),
             'de' => $this->getUri($this->dePathWithParameter1, 'de'),
-        ], array_only(app('dialect')->translateAll(false), ['en', 'de']));
+        ], Arr::only(app('dialect')->translateAll(false), ['en', 'de']));
     }
 
     /** @test */

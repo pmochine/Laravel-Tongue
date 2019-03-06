@@ -20,13 +20,13 @@
   ],
    "require": {
     "php": ">=7.0",
-    "laravel/framework": "~5.4||~5.5||~5.6||~5.7",
+    "laravel/framework": "~5.4||~5.5||~5.6||~5.7||~5.8",
     "layershifter/tld-extract": "^1.2||^2.0"
   },
   "require-dev": {
     "orchestra/testbench": "~3.4",
     "orchestra/testbench-browser-kit": "~3.4",
-    "phpunit/phpunit": "7.0.*"
+    "phpunit/phpunit": "7.5.*"
   },
   "autoload": {
     "psr-4": {

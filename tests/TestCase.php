@@ -13,7 +13,7 @@ class TestCase extends OrchestraTestCase
 
     protected $defaultLocale = 'en';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
