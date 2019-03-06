@@ -2,9 +2,9 @@
 
 namespace Pmochine\LaravelTongue\Localization;
 
+use Illuminate\Support\Arr;
 use Pmochine\LaravelTongue\Misc\Config;
 use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Support\Arr;
 
 class Localization
 {
@@ -20,8 +20,8 @@ class Localization
     {
         $locale = self::fromUrl();
 
-        if (!$locale || !tongue()->isSpeaking($locale)) {
-            if (!Config::beautify()) {
+        if (! $locale || ! tongue()->isSpeaking($locale)) {
+            if (! Config::beautify()) {
                 return Config::fallbackLocale(); //redirects see test it_ignoes_cookies_and_redirects....
             }
 
@@ -86,7 +86,7 @@ class Localization
      */
     protected static function languageIsSet()
     {
-        return !app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
+        return ! app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
     }
 
     /**
@@ -103,7 +103,7 @@ class Localization
             return cookie()->queue(cookie()->forever(self::COOKIE, $locale));
         }
 
-        if (!request()->hasCookie(self::COOKIE)) {
+        if (! request()->hasCookie(self::COOKIE)) {
             return;
         }
 
