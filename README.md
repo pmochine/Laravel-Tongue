@@ -18,7 +18,10 @@
 
 **If you are looking for an easy package for subdomain multilingual urls, this package is for you.  😜**
 
- >***Prerequisites**: PHP >=7.0 and at least Laravel >=5.4
+ **Old Way**: `https://example.com/de`, `https://example.com/fr` etc. <br>
+ **New Way**: `https://de.example.com`, `https://fr.example.com` etc.
+
+ >***Prerequisites**: PHP >=7.0 and at least 5.4 <= Laravel <=5.8
 
 ## Installation in 4 Steps*
 
