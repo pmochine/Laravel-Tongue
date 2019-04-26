@@ -9,6 +9,11 @@ class Config
         return config('localization.subdomains', []);
     }
 
+    public static function customSubdomains()
+    {
+        return config('localization.custom_subdomains', []);
+    }
+
     public static function beautify()
     {
         return config('localization.beautify_url');

@@ -5,6 +5,7 @@ namespace Pmochine\LaravelTongue\Tests;
 use Pmochine\LaravelTongue\Facades\Tongue;
 use Pmochine\LaravelTongue\ServiceProvider;
 use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TongueTest extends TestCase
 {
@@ -54,6 +55,9 @@ class TongueTest extends TestCase
     /** @test */
     public function it_does_not_redirect_if_locale_is_not_missing()
     {
+        //default locale is en
+        $this->assertEquals(app()->getLocale(), 'en');
+
         $this->sendRequest('GET', $this->pathLocalized, 'de');
 
         $this->assertEquals(app()->getLocale(), 'de');
@@ -228,11 +232,43 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_does_redirect_when_subdomain_is_not_found_on_subdomains_list()
+    public function it_throws_404_when_subdomain_is_not_found_on_subdomains_list()
     {
-        $this->sendRequest('GET', $this->pathLocalized, 'admin');
+        $this->expectException(NotFoundHttpException::class);
 
-        $this->assertTrue(app('tongue')->twister());
+        $this->sendRequest('GET', $this->pathLocalized, 'admin');
+    }
+
+    /** @test */
+    public function it_sets_the_language_of_the_page_according_to_the_custom_subdomain()
+    {
+        app('config')->set('localization.custom_subdomains', ['gewinnen' => 'de']);
+
+        $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
+
+        $this->assertEquals($this->app->getLocale(), 'de');
+
+        $this->assertFalse(app('tongue')->twister());
+
+        $this->assertResponseOk();
+    }
+
+    /** @test */
+    public function it_throws_404_when_custom_subdomain_does_not_exist()
+    {
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
+    }
+
+    /** @test */
+    public function it_throws_404_when_custom_subdomain_locale_does_not_exist_in_supported_list()
+    {
+        app('config')->set('localization.custom_subdomains', ['gewinnen' => 'ff']);
+
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
     }
 
     /** @test */
@@ -290,5 +326,26 @@ class TongueTest extends TestCase
         $this->app['config']->set('localization.supportedLocales', $supportedLocales);
 
         $this->assertEquals($supportedLocales, app('tongue')->speaking()->all());
+    }
+
+    /** @test */
+    public function it_returns_the_subdomains_and_can_validate_it()
+    {
+        app('config')->set('localization.subdomains', $subdomains = ['admin']);
+
+        $this->assertEquals($subdomains, app('tongue')->speaking('subdomains'));
+
+        $this->assertTrue(app('tongue')->speaking('subdomains', 'admin'));
+        $this->assertFalse(app('tongue')->speaking('subdomains', 'blubb'));
+    }
+
+    /** @test */
+    public function it_returns_the_custom_subdomains()
+    {
+        app('config')->set('localization.custom_subdomains', $subdomains = ['gewinnen' => 'de']);
+
+        $this->assertEquals($subdomains, app('tongue')->speaking('custom-subdomains'));
+
+        $this->assertEquals('de', app('tongue')->speaking('custom-subdomains', 'gewinnen'));
     }
 }

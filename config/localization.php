@@ -16,10 +16,26 @@ return [
     | subdomains that are whitelisted
     |--------------------------------------------------------------------------
     |
-    | for example 'admin', 'archontas', 'nova' etc.
+    | If you don't want to be redirected, when you have special subdomains
+    | for example 'admin', 'archontas', 'nova' etc.    
     |
     */
     'subdomains' => [],
+    /*
+    |--------------------------------------------------------------------------
+    | custom locale subdomains 
+    |--------------------------------------------------------------------------
+    |
+    | Let's say you don't want to use locale as a subdomain.
+    | You can add your custom subdomains here. Example: 
+    | gewinnen.domain.com --> "de"
+    | gagner.domain.com --> "fr",
+    |
+    */
+    'custom_subdomains' => [
+        //'gewinnen' => 'de', //important: it has to match with an active locale from the supportedLocales list
+        //'gagner' => 'fr'
+    ],
     /*
     |--------------------------------------------------------------------------
     | https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language

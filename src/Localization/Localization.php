@@ -12,20 +12,37 @@ class Localization
     const COOKIE = 'tongue-locale';
 
     /**
-     * Finds the locale of the domain.
+     * The goal is to find the language (the locale).
+     * We look at the subdomain or in the cookies or browser language
      *
-     * @return stirng|exception [Finds the locale of the url, throws exception if wrong]
+     * @return stirng [Finds the locale of the url]
      */
     public static function decipherTongue()
     {
         $locale = self::fromUrl();
 
-        if (! $locale || ! tongue()->isSpeaking($locale)) {
-            if (! Config::beautify()) {
-                return Config::fallbackLocale(); //redirects see test it_ignoes_cookies_and_redirects....
+        // there is no subdomain found
+        if ($locale === false) {
+            // this could be a future bug
+            // when no middleware is active the language is not set right
+            // domain.com could be in german etc...
+            if (!Config::beautify()) {
+                // if the middleware is active we should be redirected to en.domain.com
+                // if not the fallback language is going to be used
+                return Config::fallbackLocale();
             }
+            // we are checking if we have languages set in cookies or in the browser
+            return self::currentTongue();
+        }
 
-            $locale = self::currentTongue();
+        // could be a custom subdomain
+        if (!tongue()->isSpeaking($locale)) {
+            // check if it is a white listed domain
+            if (tongue()->speaking('subdomains', $locale)) {
+                return self::currentTongue();
+            }
+            // check if we have a custom locale subdomain, if not it returns a null
+            $locale = tongue()->speaking('custom-subdomains', $locale);
         }
 
         return $locale;
@@ -86,7 +103,7 @@ class Localization
      */
     protected static function languageIsSet()
     {
-        return ! app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
+        return !app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
     }
 
     /**
@@ -103,7 +120,7 @@ class Localization
             return cookie()->queue(cookie()->forever(self::COOKIE, $locale));
         }
 
-        if (! request()->hasCookie(self::COOKIE)) {
+        if (!request()->hasCookie(self::COOKIE)) {
             return;
         }
 
