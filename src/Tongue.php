@@ -47,7 +47,7 @@ class Tongue
     {
         $locale = $this->app->getLocale();
 
-        if (! $key) {
+        if (!$key) {
             return $locale;
         }
 
@@ -93,7 +93,7 @@ class Tongue
         }
 
         //custom subdomains with locale. gewinnen.domain.com -> de as locale
-        if ($customLocale = tongue()->speaking('custom-subdomains', $locale)) {
+        if ($customLocale = tongue()->speaking('aliases', $locale)) {
             //but we need to check again if it is spoken or not
             return $this->current() != $customLocale;
         }
@@ -101,7 +101,7 @@ class Tongue
         //fallback language is the same as the current language
         if (Config::beautify() && $this->current() === Config::fallbackLocale()) {
             //didn't found locale means browser is set to exmaple.com
-            if (! $locale) {
+            if (!$locale) {
                 return false;
             }
             //browser is set to en.example.com but should be forced back to example.com
@@ -123,7 +123,7 @@ class Tongue
      */
     public function speaks(string $locale)
     {
-        if (! $this->isSpeaking($locale)) {
+        if (!$this->isSpeaking($locale)) {
             return abort(404); //oder error?
         }
 
@@ -137,8 +137,8 @@ class Tongue
         $regional = $this->speaking('regional', $locale);
 
         if ($regional) {
-            setlocale(LC_TIME, $regional.'.UTF-8');
-            setlocale(LC_MONETARY, $regional.'.UTF-8');
+            setlocale(LC_TIME, $regional . '.UTF-8');
+            setlocale(LC_MONETARY, $regional . '.UTF-8');
         }
 
         return $this;
@@ -165,11 +165,11 @@ class Tongue
     {
         $locales = Config::supportedLocales();
 
-        if (empty($locales) || ! is_array($locales)) {
+        if (empty($locales) || !is_array($locales)) {
             throw new SupportedLocalesNotDefined();
         }
 
-        if (! $key) {
+        if (!$key) {
             return collect($locales);
         }
 
@@ -181,11 +181,11 @@ class Tongue
             return $this->getSubdomains($locale);
         }
 
-        if ($key === 'custom-subdomains') {
-            return $this->getCustomSubdomains($locale);
+        if ($key === 'aliases') {
+            return $this->getAliases($locale);
         }
 
-        if (! Arr::has($locales, "{$locale}.{$key}")) {
+        if (!Arr::has($locales, "{$locale}.{$key}")) {
             throw new SupportedLocalesNotDefined();
         }
 
@@ -225,7 +225,7 @@ class Tongue
     {
         $bcp47 = data_get($locales, "{$locale}.regional");
 
-        if (! $bcp47) {
+        if (!$bcp47) {
             return $locale;
         } //locale is the "minimum" of BCP 47
 
@@ -255,9 +255,9 @@ class Tongue
      *
      * @return  array|string
      */
-    protected function getCustomSubdomains(string $subdomain = null)
+    protected function getAliases(string $subdomain = null)
     {
-        $domains = Config::customSubdomains();
+        $domains = Config::aliases();
 
         if (is_null($subdomain)) {
             return $domains;

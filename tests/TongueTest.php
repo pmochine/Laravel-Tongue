@@ -240,9 +240,9 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_sets_the_language_of_the_page_according_to_the_custom_subdomain()
+    public function it_sets_the_language_of_the_page_according_to_the_aliases()
     {
-        app('config')->set('localization.custom_subdomains', ['gewinnen' => 'de']);
+        app('config')->set('localization.aliases', ['gewinnen' => 'de']);
 
         $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
 
@@ -254,7 +254,7 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_404_when_custom_subdomain_does_not_exist()
+    public function it_throws_404_when_aliases_does_not_exist()
     {
         $this->expectException(NotFoundHttpException::class);
 
@@ -262,9 +262,9 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_404_when_custom_subdomain_locale_does_not_exist_in_supported_list()
+    public function it_throws_404_when_aliases_locale_does_not_exist_in_supported_list()
     {
-        app('config')->set('localization.custom_subdomains', ['gewinnen' => 'ff']);
+        app('config')->set('localization.aliases', ['gewinnen' => 'ff']);
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -359,12 +359,12 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_the_custom_subdomains()
+    public function it_returns_the_aliases()
     {
-        app('config')->set('localization.custom_subdomains', $subdomains = ['gewinnen' => 'de']);
+        app('config')->set('localization.aliases', $subdomains = ['gewinnen' => 'de']);
 
-        $this->assertEquals($subdomains, app('tongue')->speaking('custom-subdomains'));
+        $this->assertEquals($subdomains, app('tongue')->speaking('aliases'));
 
-        $this->assertEquals('de', app('tongue')->speaking('custom-subdomains', 'gewinnen'));
+        $this->assertEquals('de', app('tongue')->speaking('aliases', 'gewinnen'));
     }
 }

@@ -35,7 +35,7 @@ return [
     'subdomains' => [],
     /*
     |--------------------------------------------------------------------------
-    | custom locale subdomains
+    | custom locale subdomains via aliases
     |--------------------------------------------------------------------------
     |
     | Let's say you don't want to use locale as a subdomain.
@@ -44,7 +44,7 @@ return [
     | gagner.domain.com --> "fr",
     |
     */
-    'custom_subdomains' => [
+    'aliases' => [
         //'gewinnen' => 'de', //important: it has to match with an active locale from the supportedLocales list
         //'gagner' => 'fr'
     ],

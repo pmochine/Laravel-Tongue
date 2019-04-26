@@ -14,9 +14,9 @@ class Config
         return config('localization.subdomains', []);
     }
 
-    public static function customSubdomains()
+    public static function aliases()
     {
-        return config('localization.custom_subdomains', []);
+        return config('localization.aliases', []);
     }
 
     public static function beautify()
