@@ -13,7 +13,7 @@ class Localization
 
     /**
      * The goal is to find the language (the locale).
-     * We look at the subdomain or in the cookies or browser language
+     * We look at the subdomain or in the cookies or browser language.
      *
      * @return stirng [Finds the locale of the url]
      */
@@ -26,7 +26,7 @@ class Localization
             // this could be a future bug
             // when no middleware is active the language is not set right
             // domain.com could be in german etc...
-            if (!Config::beautify()) {
+            if (! Config::beautify()) {
                 // if the middleware is active we should be redirected to en.domain.com
                 // if not the fallback language is going to be used
                 return Config::fallbackLocale();
@@ -36,7 +36,7 @@ class Localization
         }
 
         // could be a custom subdomain
-        if (!tongue()->isSpeaking($locale)) {
+        if (! tongue()->isSpeaking($locale)) {
             // check if it is a white listed domain
             if (tongue()->speaking('subdomains', $locale)) {
                 return self::currentTongue();
@@ -117,7 +117,7 @@ class Localization
      */
     protected static function languageIsSet()
     {
-        return !app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
+        return ! app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
     }
 
     /**
@@ -134,7 +134,7 @@ class Localization
             return cookie()->queue(cookie()->forever(self::COOKIE, $locale));
         }
 
-        if (!request()->hasCookie(self::COOKIE)) {
+        if (! request()->hasCookie(self::COOKIE)) {
             return;
         }
 
