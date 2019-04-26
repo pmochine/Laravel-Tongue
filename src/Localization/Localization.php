@@ -62,23 +62,24 @@ class Localization
 
     /**
      * Gets the registrable Domain of the website from the config.
-     * If not set we are going to get it with TLDExtract
+     * If not set we are going to get it with TLDExtract.
      * @return string
      */
     public static function domain(): string
     {
-        if ($domain = Config::domain()) return $domain;
+        if ($domain = Config::domain()) {
+            return $domain;
+        }
 
         return self::extractDomain();
     }
 
     /**
-     * 
      * Gets the registrable Domain of the website.
      *
      * https://github.com/layershifter/TLDExtract
      *
-     * @return  string  
+     * @return  string
      */
     protected static function extractDomain(): string
     {
