@@ -3,6 +3,18 @@
 return [
     /*
     |--------------------------------------------------------------------------
+    | Domain name
+    |--------------------------------------------------------------------------
+    |
+    | Here you may change the name of the domain used in your application.
+    | By default, the domain is read from the .env file.
+    | Example: APP_DOMAIN=185ad73e.eu.ngrok.io (only because of this we know what your real domain is)
+    |
+    */
+    'domain' => env('APP_DOMAIN'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Beautify url
     |--------------------------------------------------------------------------
     |

@@ -4,6 +4,11 @@ namespace Pmochine\LaravelTongue\Misc;
 
 class Config
 {
+    public static function domain()
+    {
+        return config('localization.domain');
+    }
+
     public static function subdomains()
     {
         return config('localization.subdomains', []);

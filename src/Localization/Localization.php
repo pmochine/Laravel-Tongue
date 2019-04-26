@@ -57,16 +57,30 @@ class Localization
         $hostname = explode('.', self::domain())[0];
         $locale = explode('.', request()->getHost())[0];
 
-        return $hostname === $locale ? false : $locale;
+        return  $hostname === $locale ? false : $locale;
     }
 
     /**
+     * Gets the registrable Domain of the website from the config.
+     * If not set we are going to get it with TLDExtract
+     * @return string
+     */
+    public static function domain(): string
+    {
+        if ($domain = Config::domain()) return $domain;
+
+        return self::extractDomain();
+    }
+
+    /**
+     * 
      * Gets the registrable Domain of the website.
      *
      * https://github.com/layershifter/TLDExtract
-     * @return string
+     *
+     * @return  string  
      */
-    public static function domain()
+    protected static function extractDomain(): string
     {
         $extract = new \LayerShifter\TLDExtract\Extract();
 

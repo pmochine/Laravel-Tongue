@@ -272,6 +272,25 @@ class TongueTest extends TestCase
     }
 
     /** @test */
+    public function it_can_find_locale_from_complicated_domains()
+    {
+        //to set the request host to this domain
+        $this->domain = '155ad73e.eu.ngrok.io';
+        //to get the domain from env
+        app('config')->set('localization.domain', '155ad73e.eu.ngrok.io');
+
+        $this->sendRequest('GET', $this->pathLocalized);
+
+        $this->assertEquals(app()->getLocale(), 'en');
+
+        $this->sendRequest('GET', $this->pathLocalized, 'de');
+
+        $this->assertEquals(app()->getLocale(), 'de');
+
+        $this->assertResponseOk();
+    }
+
+    /** @test */
     public function it_returns_the_current_app_locale()
     {
         $this->app->setLocale('fr');
