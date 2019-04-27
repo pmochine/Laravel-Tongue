@@ -2,24 +2,25 @@
 
 namespace Pmochine\LaravelTongue;
 
-use Illuminate\Support\Arr;
 use Illuminate\Foundation\Application;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Localization\Localization;
-use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
+use Illuminate\Routing\Redirector;
+use Pmochine\LaravelTongue\Localization\Locale;
+use Pmochine\LaravelTongue\Misc\ConfigList;
 
 class Tongue
 {
     /**
-     * Our instance of the Laravel app.
+     * The class that handles the locale methods
      *
-     * @var Illuminate\Foundation\Application
+     * @var Pmochine\LaravelTongue\Localization\Locale
      */
-    protected $app = '';
+    protected $locale;
 
     public function __construct(Application $app)
     {
-        $this->app = $app;
+        $this->locale = new Locale($app);
     }
 
     /**
@@ -28,9 +29,9 @@ class Tongue
      *
      * @return Tongue :P
      */
-    public function detect()
+    public function detect(): self
     {
-        $locale = $this->findLocale();
+        $locale = $this->locale->find();
 
         $this->speaks($locale);
 
@@ -43,9 +44,9 @@ class Tongue
      *
      * @return  string
      */
-    public function current($key = null)
+    public function current($key = null): string
     {
-        $locale = $this->app->getLocale();
+        $locale = $this->locale->get();
 
         if (!$key) {
             return $locale;
@@ -61,18 +62,9 @@ class Tongue
      *
      * @return string
      */
-    public function leftOrRight()
+    public function leftOrRight(): string
     {
-        switch (Config::supportedLocales()[$this->current()]['script']) {
-            case 'Arab':
-            case 'Hebr':
-            case 'Mong':
-            case 'Tfng':
-            case 'Thaa':
-                return 'rtl';
-            default:
-                return 'ltr';
-        }
+        return $this->locale->scriptDirection($this->current('script'));
     }
 
     /**
@@ -83,7 +75,7 @@ class Tongue
      *
      * @return bool (yes if its not speakable)
      */
-    public function twister()
+    public function twister(): bool
     {
         $locale = Localization::fromUrl();
 
@@ -121,25 +113,14 @@ class Tongue
      * @param  string $locale
      * @return Tongue :P
      */
-    public function speaks(string $locale)
+    public function speaks(string $locale): self
     {
         if (!$this->isSpeaking($locale)) {
-            return abort(404); //oder error?
+            //locale does not exist.
+            return abort(404);
         }
 
-        $this->app->setLocale($this->locale = $locale);
-
-        if ($locale != Localization::cookie() && Config::cookieLocalization()) {
-            Localization::cookie($locale);
-        }
-
-        // Regional locale such as de_DE, so formatLocalized works in Carbon
-        $regional = $this->speaking('regional', $locale);
-
-        if ($regional) {
-            setlocale(LC_TIME, $regional . '.UTF-8');
-            setlocale(LC_MONETARY, $regional . '.UTF-8');
-        }
+        $this->locale->save($locale);
 
         return $this;
     }
@@ -150,7 +131,7 @@ class Tongue
      *
      * @return Illuminate\Routing\Redirector
      */
-    public function back()
+    public function back(): Redirector
     {
         return dialect()->redirect(dialect()->redirectUrl(url()->previous()));
     }
@@ -161,47 +142,11 @@ class Tongue
      *
      * @return collection|string|array|null
      */
-    public function speaking($key = null, $locale = null)
+    public function speaking(string $key = null, string $locale = null)
     {
-        $locales = Config::supportedLocales();
-
-        if (empty($locales) || !is_array($locales)) {
-            throw new SupportedLocalesNotDefined();
-        }
-
-        if (!$key) {
-            return collect($locales);
-        }
-
-        if ($key === 'BCP47') {
-            return $this->BCP47($locale, $locales);
-        }
-
-        if ($key === 'subdomains') {
-            return $this->getSubdomains($locale);
-        }
-
-        if ($key === 'aliases') {
-            return $this->getAliases($locale);
-        }
-
-        if (!Arr::has($locales, "{$locale}.{$key}")) {
-            throw new SupportedLocalesNotDefined();
-        }
-
-        return data_get($locales, "{$locale}.{$key}");
+        return (new ConfigList)->lookup($key, $locale);
     }
 
-    /**
-     * Finds the Subdomain in the URL.
-     * Like en, de...
-     *
-     * @return string
-     */
-    protected function findLocale()
-    {
-        return Localization::decipherTongue();
-    }
 
     /**
      * Checks if your page is speaking the language.
@@ -209,64 +154,8 @@ class Tongue
      * @param  string  $locale
      * @return bool
      */
-    public function isSpeaking($locale)
+    public function isSpeaking(string $locale): bool
     {
-        return array_key_exists($locale, Config::supportedLocales());
-    }
-
-    /**
-     * Gets the BCP 47 Value of the regional
-     * See for more: http://schneegans.de/lv/?tags=en&format=text.
-     *
-     * @param  string $locale
-     * @param  array $loacles [the list in the config file]
-     */
-    protected function BCP47($locale, $locales)
-    {
-        $bcp47 = data_get($locales, "{$locale}.regional");
-
-        if (!$bcp47) {
-            return $locale;
-        } //locale is the "minimum" of BCP 47
-
-        //regional value needs to replace underscore
-        return str_replace('_', '-', $bcp47);
-    }
-
-    /**
-     * @param   string  $subdomain  [like "admin"]
-     *
-     * @return  array|bool
-     */
-    protected function getSubdomains(string $subdomain = null)
-    {
-        if (is_null($subdomain)) {
-            return Config::subdomains();
-        }
-
-        return in_array($subdomain, Config::subdomains());
-    }
-
-    /**
-     * Gets the array of the config, or gets the locale value of a subdomain.
-     * Like: "gewinnen" -> "de".
-     *
-     * @param   string  $subdomain
-     *
-     * @return  array|string
-     */
-    protected function getAliases(string $subdomain = null)
-    {
-        $domains = Config::aliases();
-
-        if (is_null($subdomain)) {
-            return $domains;
-        }
-
-        if (array_key_exists($subdomain, $domains)) {
-            return $domains[$subdomain];
-        }
-
-        return '';
+        return $this->speaking()->has($locale);
     }
 }

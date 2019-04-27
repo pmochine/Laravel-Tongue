@@ -290,6 +290,32 @@ class TongueTest extends TestCase
         $this->assertResponseOk();
     }
 
+    /** 
+     * Bug 26.04.19
+     * Wouldn't let me change the locale
+     * @test */
+    public function it_redirects_correctly_to_default_when_cookie_says_other()
+    {
+        // this is just to set the cookies for language de.
+        $this->sendRequest('GET', $this->pathLocalized, 'de');
+
+        //first part goes to en.example.com but redirects us to example.com
+        $this->sendRequest('GET', $this->pathLocalized, 'en');
+
+        $this->assertEquals($this->app->getLocale(), 'en');
+
+        $this->assertTrue(app('tongue')->twister());
+
+        $this->assertResponseStatus(302);
+
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized));
+
+        //but now we should stay on example.com (bug was that we returned to de.example)
+        $this->sendRequest('GET', $this->pathLocalized);
+
+        $this->assertResponseStatus(200);
+    }
+
     /** @test */
     public function it_returns_the_current_app_locale()
     {

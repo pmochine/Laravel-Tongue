@@ -15,7 +15,7 @@ class Localization
      * The goal is to find the language (the locale).
      * We look at the subdomain or in the cookies or browser language.
      *
-     * @return stirng [Finds the locale of the url]
+     * @return string [Finds the locale of the url]
      */
     public static function decipherTongue()
     {
