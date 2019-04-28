@@ -2,14 +2,14 @@
 
 namespace Pmochine\LaravelTongue\Tests\Unit;
 
-use Pmochine\LaravelTongue\Tests\TestCase;
-use Pmochine\LaravelTongue\ServiceProvider;
 use Pmochine\LaravelTongue\Misc\Url;
 use Pmochine\LaravelTongue\Misc\Config;
+use Pmochine\LaravelTongue\Tests\TestCase;
+use Pmochine\LaravelTongue\ServiceProvider;
 
 /**
  * First we check it with a simple domain (like laraveltongue.dev)
- * In the second part a complicated domain like '155ad73e.eu.ngrok.io'
+ * In the second part a complicated domain like '155ad73e.eu.ngrok.io'.
  */
 class UrlTest extends TestCase
 {
@@ -18,7 +18,7 @@ class UrlTest extends TestCase
     protected $longDomain = '155ad73e.eu.ngrok.io';
 
     /**
-     * Get package providers. To read the config file
+     * Get package providers. To read the config file.
      *
      * @param \Illuminate\Foundation\Application $app
      *
@@ -31,7 +31,7 @@ class UrlTest extends TestCase
 
     /**
      * First part with a simple domain
-     * No need to set env APP_DOMAIN
+     * No need to set env APP_DOMAIN.
      */
 
     /** @test */
@@ -55,7 +55,7 @@ class UrlTest extends TestCase
     {
         $this->sendRequest('GET', $this->pathLocalized, 'de');
 
-        $this->assertEquals('de.' . $this->domain, Url::host());
+        $this->assertEquals('de.'.$this->domain, Url::host());
     }
 
     /** @test */
@@ -102,7 +102,6 @@ class UrlTest extends TestCase
 
         $this->assertEquals('155ad73e.eu.ngrok', Url::domainName());
     }
-
 
     /** @test */
     public function it_returns_subdomain_with_long_domain_name()

@@ -20,7 +20,9 @@ class Cookie
 
     public function get(): ?string
     {
-        if (!$this->has()) return null;
+        if (! $this->has()) {
+            return null;
+        }
 
         try {
             //Somehow I got this error: unserialize(): Error at offset 0 of 2 bytes

@@ -2,16 +2,18 @@
 
 namespace Pmochine\LaravelTongue;
 
+use Illuminate\Routing\Redirector;
 use Illuminate\Foundation\Application;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Localization\Localization;
 use Pmochine\LaravelTongue\Localization\Locale;
 use Pmochine\LaravelTongue\Misc\ConfigList;
 
+
 class Tongue
 {
     /**
-     * The class that handles the locale methods
+     * The class that handles the locale methods.
      *
      * @var Pmochine\LaravelTongue\Localization\Locale
      */
@@ -143,7 +145,6 @@ class Tongue
     {
         return (new ConfigList)->lookup($key, $locale);
     }
-
 
     /**
      * Checks if your page is speaking the language.
