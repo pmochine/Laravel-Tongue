@@ -28,7 +28,7 @@ class Url
      */
     protected static function configDomainIsSet(): bool
     {
-        if (!$domain = Config::domain()) {
+        if (! $domain = Config::domain()) {
             return false;
         } // config was not set
 
