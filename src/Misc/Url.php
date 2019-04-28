@@ -2,8 +2,8 @@
 
 namespace Pmochine\LaravelTongue\Misc;
 
-use LayerShifter\TLDExtract\Extract;
 use Illuminate\Support\Str;
+use LayerShifter\TLDExtract\Extract;
 
 class Url
 {
@@ -19,16 +19,18 @@ class Url
 
     /**
      * This is actually not that important. Only if you have
-     * complicated domains like '155ad73e.eu.ngrok.io', whe I just 
+     * complicated domains like '155ad73e.eu.ngrok.io', whe I just
      * cannot tell what the real domain is.
-     * 
+     *
      * It is true when e.g.: '155ad73e.eu.ngrok.io' contains in 'yoursubdomain.155ad73e.eu.ngrok.io'
      *
-     * @return  bool  
+     * @return  bool
      */
     protected static function configDomainIsSet(): bool
     {
-        if (!$domain = Config::domain()) return false; // config was not set
+        if (! $domain = Config::domain()) {
+            return false;
+        } // config was not set
 
         //the host could have a different domain, thats why we check it here
         return Str::contains(self::host(), $domain);
@@ -51,6 +53,7 @@ class Url
     public static function domainName(): string
     {
         $TLD = substr(self::domain(), strrpos(self::domain(), '.'));
+
         return Str::replaceLast($TLD, '', self::domain());
     }
 

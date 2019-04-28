@@ -3,9 +3,9 @@
 namespace Pmochine\LaravelTongue\Tests\Feature;
 
 use Pmochine\LaravelTongue\Facades\Tongue;
+use Pmochine\LaravelTongue\Tests\TestCase;
 use Pmochine\LaravelTongue\ServiceProvider;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Pmochine\LaravelTongue\Tests\TestCase;
 
 class TongueTest extends TestCase
 {

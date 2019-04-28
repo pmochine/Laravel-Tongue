@@ -8,9 +8,8 @@ use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
 
 class TongueTest extends TestCase
 {
-
     /**
-     * Get package providers. To read the config file
+     * Get package providers. To read the config file.
      *
      * @param \Illuminate\Foundation\Application $app
      *
