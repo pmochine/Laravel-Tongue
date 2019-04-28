@@ -2,17 +2,17 @@
 
 namespace Pmochine\LaravelTongue;
 
+use Illuminate\Routing\Redirector;
 use Illuminate\Foundation\Application;
 use Pmochine\LaravelTongue\Misc\Config;
-use Pmochine\LaravelTongue\Localization\Localization;
-use Illuminate\Routing\Redirector;
-use Pmochine\LaravelTongue\Localization\Locale;
 use Pmochine\LaravelTongue\Misc\ConfigList;
+use Pmochine\LaravelTongue\Localization\Locale;
+use Pmochine\LaravelTongue\Localization\Localization;
 
 class Tongue
 {
     /**
-     * The class that handles the locale methods
+     * The class that handles the locale methods.
      *
      * @var Pmochine\LaravelTongue\Localization\Locale
      */
@@ -44,7 +44,7 @@ class Tongue
      */
     public function current($key = null): string
     {
-        if (!$key) {
+        if (! $key) {
             return $this->locale->get();
         }
 
@@ -89,7 +89,7 @@ class Tongue
         //fallback language is the same as the current language
         if (Config::beautify() && $this->current() === Config::fallbackLocale()) {
             //didn't found locale means browser is set to exmaple.com
-            if (!$locale) {
+            if (! $locale) {
                 return false;
             }
             //browser is set to en.example.com but should be forced back to example.com
@@ -111,7 +111,7 @@ class Tongue
      */
     public function speaks(string $locale): self
     {
-        if (!$this->isSpeaking($locale)) {
+        if (! $this->isSpeaking($locale)) {
             //locale does not exist.
             return abort(404);
         }
@@ -142,7 +142,6 @@ class Tongue
     {
         return (new ConfigList)->lookup($key, $locale);
     }
-
 
     /**
      * Checks if your page is speaking the language.

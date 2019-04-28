@@ -2,15 +2,14 @@
 
 namespace Pmochine\LaravelTongue\Tests\Unit;
 
-use Pmochine\LaravelTongue\Tests\TestCase;
 use Pmochine\LaravelTongue\Misc\Config;
+use Pmochine\LaravelTongue\Tests\TestCase;
 use Pmochine\LaravelTongue\ServiceProvider;
 
 class ConfigTest extends TestCase
 {
-
     /**
-     * Get package providers. To read the config file
+     * Get package providers. To read the config file.
      *
      * @param \Illuminate\Foundation\Application $app
      *
