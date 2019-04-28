@@ -47,10 +47,10 @@ If you want to use it, open `app/Http/kernel.php` and register this route middle
 ```
 
 ### 4: Add in your Env 🔑
-
-      APP_DOMAIN=yourdomain.com #(Optional) Important for domains with many dots (like: '155ad73e.eu.ngrok.io')
+```shell
+      APP_DOMAIN=yourdomain.com #Only important for domains with many dots like: '155ad73e.eu.ngrok.io'
       SESSION_DOMAIN=.yourdomain.com #Read down below why
-    
+```
   **Important!** Note the dot before the domain name. Now the session is availabe in every subdomain 🙃. This is important, because you want to save all your cookie 🍪 data in one place and not in many other.
 
 
