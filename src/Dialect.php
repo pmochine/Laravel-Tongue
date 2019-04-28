@@ -7,6 +7,7 @@ use Illuminate\Foundation\Application;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Accent\Accent;
 use Pmochine\LaravelTongue\Localization\Localization;
+use Pmochine\LaravelTongue\Misc\Url;
 
 /**
  * This class was written by
@@ -50,7 +51,7 @@ class Dialect
     {
         $parsed_url = parse_url($url ?? request()->fullUrl());
 
-        $domain = Localization::domain();
+        $domain = Url::domain();
 
         if (Config::beautify() && Localization::fromUrl() === Config::fallbackLocale()) {
             $parsed_url['host'] = $domain;
@@ -162,11 +163,11 @@ class Dialect
     protected function addLocaleToHost($locale)
     {
         if (Config::beautify() && $locale === tongue()->current() && $locale === Config::fallbackLocale()) {
-            return Localization::domain();
+            return Url::domain();
         }
 
         // Add locale to the host
-        return $locale . '.' . Localization::domain();
+        return $locale . '.' . Url::domain();
     }
 
     /**

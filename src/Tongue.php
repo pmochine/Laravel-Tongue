@@ -31,9 +31,7 @@ class Tongue
      */
     public function detect(): self
     {
-        $locale = $this->locale->find();
-
-        $this->speaks($locale);
+        $this->speaks($this->locale->find());
 
         return $this;
     }
@@ -46,13 +44,11 @@ class Tongue
      */
     public function current($key = null): string
     {
-        $locale = $this->locale->get();
-
         if (!$key) {
-            return $locale;
+            return $this->locale->get();
         }
 
-        return $this->speaking($key, $locale);
+        return $this->speaking($key, $this->locale->get());
     }
 
     /**
@@ -87,7 +83,7 @@ class Tongue
         //custom subdomains with locale. gewinnen.domain.com -> de as locale
         if ($customLocale = tongue()->speaking('aliases', $locale)) {
             //but we need to check again if it is spoken or not
-            return $this->current() != $customLocale;
+            return $this->current() !== $customLocale;
         }
 
         //fallback language is the same as the current language
@@ -103,7 +99,7 @@ class Tongue
         }
 
         //decipher from
-        return $this->current() != $locale;
+        return $this->current() !== $locale;
     }
 
     /**

@@ -103,7 +103,7 @@ class Locale
     }
 
     /**
-     * Finds the Subdomain in the URL.
+     * Finds the locale in the URL.
      * Like en, de...
      *
      * @return string

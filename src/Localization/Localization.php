@@ -4,12 +4,11 @@ namespace Pmochine\LaravelTongue\Localization;
 
 use Illuminate\Support\Arr;
 use Pmochine\LaravelTongue\Misc\Config;
-use Illuminate\Contracts\Encryption\DecryptException;
+use Pmochine\LaravelTongue\Misc\Cookie;
+use Pmochine\LaravelTongue\Misc\Url;
 
 class Localization
 {
-    /** Name of the cookie */
-    const COOKIE = 'tongue-locale';
 
     /**
      * The goal is to find the language (the locale).
@@ -54,40 +53,7 @@ class Localization
      */
     public static function fromUrl()
     {
-        $hostname = explode('.', self::domain())[0];
-        $locale = explode('.', request()->getHost())[0];
-
-        return  $hostname === $locale ? false : $locale;
-    }
-
-    /**
-     * Gets the registrable Domain of the website from the config.
-     * If not set we are going to get it with TLDExtract.
-     * @return string
-     */
-    public static function domain(): string
-    {
-        if ($domain = Config::domain()) {
-            return $domain;
-        }
-
-        return self::extractDomain();
-    }
-
-    /**
-     * Gets the registrable Domain of the website.
-     *
-     * https://github.com/layershifter/TLDExtract
-     *
-     * @return  string
-     */
-    protected static function extractDomain(): string
-    {
-        $extract = new \LayerShifter\TLDExtract\Extract();
-
-        $result = $extract->parse(request()->getHost());
-
-        return $result->getRegistrableDomain();
+        return  Url::hasSubdomain() ? Url::subdomain() : false;
     }
 
     /**
@@ -96,7 +62,7 @@ class Localization
      *
      * @return string
      */
-    protected static function currentTongue()
+    protected static function currentTongue(): string
     {
         if (Config::cookieLocalization() && $locale = self::cookie()) {
             return $locale;
@@ -116,7 +82,7 @@ class Localization
      *
      * @return bool
      */
-    protected static function languageIsSet()
+    protected static function languageIsSet(): bool
     {
         return !app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
     }
@@ -131,26 +97,13 @@ class Localization
      */
     public static function cookie($locale = null)
     {
-        if ($locale != null) {
-            return cookie()->queue(cookie()->forever(self::COOKIE, $locale));
-        }
+        $cookie = new Cookie('tongue-locale'); //Name of the cookie
 
-        if (!request()->hasCookie(self::COOKIE)) {
+        if ($locale !== null) {
+            $cookie->save($locale);
             return;
         }
 
-        try {
-            //Somehow I got this error: unserialize(): Error at offset 0 of 2 bytes
-            //I needed to change decrypt(value, unserialize = false);
-            return app('encrypter')->decrypt(request()->cookie(self::COOKIE), false);
-        } catch (DecryptException $e) {
-            //Somehow the middleware for decrypting does not kick in here...
-            //but it even fails if we use php artisan <something> (weird)
-            //if it happes we can simply give it normally back
-            return request()->cookie(self::COOKIE);
-        } catch (Exception $e) {
-            //So I don't return a cookie in that case
-            return;
-        }
+        return $cookie->get();
     }
 }
