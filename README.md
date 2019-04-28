@@ -48,9 +48,10 @@ If you want to use it, open `app/Http/kernel.php` and register this route middle
 
 ### 4: Add in your Env 🔑
 
-      SESSION_DOMAIN=.exmaple.com
+      APP_DOMAIN=yourdomain.com #(Optional) Important for domains with many dots (like: '155ad73e.eu.ngrok.io')
+      SESSION_DOMAIN=.yourdomain.com #Read down below why
     
-  **Important!** Note the dot before the domain name. Now the session is availabe in every subdomain 🙃. 
+  **Important!** Note the dot before the domain name. Now the session is availabe in every subdomain 🙃. This is important, because you want to save all your cookie 🍪 data in one place and not in many other.
 
 
 
@@ -124,6 +125,10 @@ Once you have imported the config file, you will find it at `config/localization
 
 ### Configuration values
 
+- `domain` (default: `null`)
+
+You don't need to worry about this, only when you are using domains with multiple dots, like: `155ad73e.eu.ngrok.io`. Without it, we cannot check what your subdomain is.
+
 - `beautify_url` (default: `true`)
 
 Makes the URL BEAUTIFUL 💁‍♀️. ( Use to set fallback language to mydomain.com and not to en.mydomain.com). That is why I even created this package. I just could not find this! 😭
@@ -131,6 +136,13 @@ Makes the URL BEAUTIFUL 💁‍♀️. ( Use to set fallback language to mydomai
 - `subdomains` (default: `[]`)
 
 Sometimes you would like to have your admin panel as a subdomain url. Here you can whitelist those subdomains (only important if those urls are using the [middleware](https://github.com/pmochine/Laravel-Tongue#middleware-)).
+
+- `aliases` (default: `[]`)
+Sometimes you would like to specify aliases to use custom subdomains instead of locale codes. For example: 
+```
+  gewinnen.domain.com --> "de"
+  gagner.domain.com --> "fr",
+```
 
 - `acceptLanguage` (default: `true`)
 
@@ -230,6 +242,17 @@ Examples:
   $keys = tongue()->speaking()->keys()->all(); //['en','de',..]
   $sorted = tongue()->speaking()->sort()->all(); //['de','en',..]
 ```
+
+Additionally, you can even get some addtional information:
+
+```php
+  tongue()->speaking('BCP47', 'en'); // en-GB
+  tongue()->speaking('subdomains'); // ['admin']
+  tongue()->speaking('subdomains', 'admin'); // true
+  tongue()->speaking('aliases'); // ['gewinnen' => 'de', 'gagner' => 'fr]
+  tongue()->speaking('aliases', 'gewinnen'); //' de'
+```
+
 
 ### Get the current language that is set
 ```php

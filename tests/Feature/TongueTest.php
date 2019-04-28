@@ -249,11 +249,19 @@ class TongueTest extends TestCase
     /** @test */
     public function it_sets_the_language_of_the_page_according_to_the_aliases()
     {
-        app('config')->set('localization.aliases', ['gewinnen' => 'de']);
+        app('config')->set('localization.aliases', ['gewinnen' => 'de', 'winning' => 'en']);
 
         $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
 
         $this->assertEquals($this->app->getLocale(), 'de');
+
+        $this->assertFalse(app('tongue')->twister());
+
+        $this->assertResponseOk();
+
+        $this->sendRequest('GET', $this->pathLocalized, 'winning');
+
+        $this->assertEquals($this->app->getLocale(), 'en');
 
         $this->assertFalse(app('tongue')->twister());
 
