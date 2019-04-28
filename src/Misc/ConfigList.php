@@ -11,11 +11,11 @@ class ConfigList
     {
         $locales = Config::supportedLocales();
 
-        if (empty($locales) || !is_array($locales)) {
+        if (empty($locales) || ! is_array($locales)) {
             throw new SupportedLocalesNotDefined();
         }
 
-        if (!$key) {
+        if (! $key) {
             return collect($locales);
         }
 
@@ -31,7 +31,7 @@ class ConfigList
             return $this->getAliases($locale);
         }
 
-        if (!Arr::has($locales, "{$locale}.{$key}")) {
+        if (! Arr::has($locales, "{$locale}.{$key}")) {
             throw new SupportedLocalesNotDefined();
         }
 
@@ -50,7 +50,7 @@ class ConfigList
     {
         $bcp47 = data_get($locales, "{$locale}.regional");
 
-        if (!$bcp47) {
+        if (! $bcp47) {
             return $locale;
         } //locale is the "minimum" of BCP 47
 

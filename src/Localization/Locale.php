@@ -75,8 +75,8 @@ class Locale
         $regional = tongue()->speaking('regional', $locale);
 
         if ($regional && is_string($regional)) {
-            setlocale(LC_TIME, $regional . '.UTF-8');
-            setlocale(LC_MONETARY, $regional . '.UTF-8');
+            setlocale(LC_TIME, $regional.'.UTF-8');
+            setlocale(LC_MONETARY, $regional.'.UTF-8');
         }
     }
 
