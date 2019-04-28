@@ -1,10 +1,11 @@
 <?php
 
-namespace Pmochine\LaravelTongue\Tests;
+namespace Pmochine\LaravelTongue\Tests\Feature;
 
 use Illuminate\Support\Arr;
 use Pmochine\LaravelTongue\Facades\Dialect;
 use Pmochine\LaravelTongue\ServiceProvider;
+use Pmochine\LaravelTongue\Tests\TestCase;
 
 class DialectTest extends TestCase
 {

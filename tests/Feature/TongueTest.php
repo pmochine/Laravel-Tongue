@@ -1,11 +1,11 @@
 <?php
 
-namespace Pmochine\LaravelTongue\Tests;
+namespace Pmochine\LaravelTongue\Tests\Feature;
 
 use Pmochine\LaravelTongue\Facades\Tongue;
 use Pmochine\LaravelTongue\ServiceProvider;
-use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Pmochine\LaravelTongue\Tests\TestCase;
 
 class TongueTest extends TestCase
 {
@@ -288,109 +288,5 @@ class TongueTest extends TestCase
         $this->assertEquals(app()->getLocale(), 'de');
 
         $this->assertResponseOk();
-    }
-
-    /** 
-     * Bug 26.04.19
-     * Wouldn't let me change the locale
-     * @test */
-    public function it_redirects_correctly_to_default_when_cookie_says_other()
-    {
-        // this is just to set the cookies for language de.
-        $this->sendRequest('GET', $this->pathLocalized, 'de');
-
-        //first part goes to en.example.com but redirects us to example.com
-        $this->sendRequest('GET', $this->pathLocalized, 'en');
-
-        $this->assertEquals($this->app->getLocale(), 'en');
-
-        $this->assertTrue(app('tongue')->twister());
-
-        $this->assertResponseStatus(302);
-
-        $this->assertRedirectedTo($this->getUri($this->pathLocalized));
-
-        //but now we should stay on example.com (bug was that we returned to de.example)
-        $this->sendRequest('GET', $this->pathLocalized);
-
-        $this->assertResponseStatus(200);
-    }
-
-    /** @test */
-    public function it_returns_the_current_app_locale()
-    {
-        $this->app->setLocale('fr');
-
-        $this->assertEquals(app('tongue')->current(), $this->app->getLocale());
-    }
-
-    /** @test */
-    public function it_returns_the_current_name_or_other_keys()
-    {
-        $this->app->setLocale('de');
-
-        $this->assertEquals(app('tongue')->current('name'), 'German');
-
-        $this->assertEquals(app('tongue')->current('script'), 'Latn');
-
-        $this->assertEquals(app('tongue')->current('native'), 'Deutsch');
-
-        $this->assertEquals(app('tongue')->current('regional'), 'de_DE');
-
-        $this->assertEquals(app('tongue')->current('BCP47'), 'de-DE');
-    }
-
-    /** @test */
-    public function it_throws_an_exception_if_key_does_not_exist()
-    {
-        $this->app->setLocale('de');
-
-        $this->expectException(SupportedLocalesNotDefined::class);
-
-        app('tongue')->current('namr');
-    }
-
-    /** @test */
-    public function it_returns_the_direction_of_the_spoken_language()
-    {
-        $this->assertEquals('ltr', app('tongue')->leftOrRight());
-
-        $this->app->setLocale('es');
-
-        $this->assertEquals('ltr', app('tongue')->leftOrRight());
-    }
-
-    /**
-     * Important to note. I just don't want to test the full array...
-     * @test
-     */
-    public function it_returns_the_available_locales()
-    {
-        $supportedLocales = ['en', 'es', 'fr', 'de'];
-
-        $this->app['config']->set('localization.supportedLocales', $supportedLocales);
-
-        $this->assertEquals($supportedLocales, app('tongue')->speaking()->all());
-    }
-
-    /** @test */
-    public function it_returns_the_subdomains_and_can_validate_it()
-    {
-        app('config')->set('localization.subdomains', $subdomains = ['admin']);
-
-        $this->assertEquals($subdomains, app('tongue')->speaking('subdomains'));
-
-        $this->assertTrue(app('tongue')->speaking('subdomains', 'admin'));
-        $this->assertFalse(app('tongue')->speaking('subdomains', 'blubb'));
-    }
-
-    /** @test */
-    public function it_returns_the_aliases()
-    {
-        app('config')->set('localization.aliases', $subdomains = ['gewinnen' => 'de']);
-
-        $this->assertEquals($subdomains, app('tongue')->speaking('aliases'));
-
-        $this->assertEquals('de', app('tongue')->speaking('aliases', 'gewinnen'));
     }
 }
