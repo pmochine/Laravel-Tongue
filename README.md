@@ -297,7 +297,7 @@ Or in a controller far far away...
 ```
 ## Upgrade Guide 🎢
 ### Upgrade to 2.x.x from 1.x.x
-There a little changes that might be important for you.
+There are little changes that might be important for you.
 
 - We added two new config elements in localization. `domain` and `aliases`. Add these like [here](https://github.com/pmochine/Laravel-Tongue/blob/master/config/localization.php).
 - Add `APP_DOMAIN` in your .env if you have a complicated domain, like: `155ad73e.eu.ngrok.io`
