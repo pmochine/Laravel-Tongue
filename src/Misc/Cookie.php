@@ -20,7 +20,7 @@ class Cookie
 
     public function get(): ?string
     {
-        if (!$this->has()) {
+        if (! $this->has()) {
             return null;
         }
 
@@ -43,7 +43,9 @@ class Cookie
     {
         $result = request()->cookie($this->key);
 
-        if (is_array($result)) return null;
+        if (is_array($result)) {
+            return null;
+        }
 
         return $result;
     }
