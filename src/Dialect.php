@@ -227,6 +227,8 @@ class Dialect
     /**
      * Redirect back to the latest locale.
      * Used, when no language is found.
+     * 
+     * @return \Illuminate\Http\RedirectResponse;
      */
     public function redirectBackToLatest()
     {

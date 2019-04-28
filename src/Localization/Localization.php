@@ -96,14 +96,14 @@ class Localization
      * @param  string $locale
      * @return string|null
      */
-    public static function cookie($locale = null)
+    public static function cookie(string $locale = null): ?string
     {
         $cookie = new Cookie('tongue-locale'); //Name of the cookie
 
         if ($locale !== null) {
             $cookie->save($locale);
 
-            return;
+            return null;
         }
 
         return $cookie->get();

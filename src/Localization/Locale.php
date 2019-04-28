@@ -10,7 +10,7 @@ class Locale
     /**
      * Our instance of the Laravel app.
      *
-     * @var Illuminate\Foundation\Application
+     * @var \Illuminate\Foundation\Application
      */
     protected $app = '';
 
@@ -75,8 +75,8 @@ class Locale
         $regional = tongue()->speaking('regional', $locale);
 
         if ($regional) {
-            setlocale(LC_TIME, $regional.'.UTF-8');
-            setlocale(LC_MONETARY, $regional.'.UTF-8');
+            setlocale(LC_TIME, $regional . '.UTF-8');
+            setlocale(LC_MONETARY, $regional . '.UTF-8');
         }
     }
 
