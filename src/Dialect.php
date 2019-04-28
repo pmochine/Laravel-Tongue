@@ -223,4 +223,15 @@ class Dialect
 
         return false;
     }
+
+    /**
+     * Redirect back to the default language.
+     * Used, when no language is found.
+     */
+    public function redirectBackToDefault()
+    {
+        tongue()->speaks(Config::fallbackLocale());
+
+        return dialect()->redirect(dialect()->redirectUrl());
+    }
 }

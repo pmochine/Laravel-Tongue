@@ -37,11 +37,13 @@ class Localization
         // could be a custom subdomain
         if (!tongue()->isSpeaking($locale)) {
             // check if it is a white listed domain
+
             if (tongue()->speaking('subdomains', $locale)) {
                 return self::currentTongue();
             }
+
             // check if we have a custom locale subdomain, if not it returns a null
-            $locale = tongue()->speaking('aliases', $locale);
+            $locale = tongue()->speaking('aliases', $locale) ?: $locale;
         }
 
         return $locale;

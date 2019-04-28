@@ -5,7 +5,6 @@ namespace Pmochine\LaravelTongue;
 use Illuminate\Foundation\Application;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Localization\Localization;
-use Illuminate\Routing\Redirector;
 use Pmochine\LaravelTongue\Localization\Locale;
 use Pmochine\LaravelTongue\Misc\ConfigList;
 
@@ -107,13 +106,13 @@ class Tongue
      * Set the locale.
      *
      * @param  string $locale
-     * @return Tongue :P
+     * @return Tongue|Redirector
      */
-    public function speaks(string $locale): self
+    public function speaks(string $locale)
     {
         if (!$this->isSpeaking($locale)) {
             //locale does not exist.
-            return abort(404);
+            return dialect()->redirectBackToDefault();
         }
 
         $this->locale->save($locale);
@@ -127,10 +126,12 @@ class Tongue
      *
      * @return Illuminate\Routing\Redirector
      */
-    public function back(): Redirector
+    public function back()
     {
         return dialect()->redirect(dialect()->redirectUrl(url()->previous()));
     }
+
+
 
     /**
      * Gets the collection list of all languages,

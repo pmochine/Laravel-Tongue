@@ -4,7 +4,6 @@ namespace Pmochine\LaravelTongue\Tests\Feature;
 
 use Pmochine\LaravelTongue\Facades\Tongue;
 use Pmochine\LaravelTongue\ServiceProvider;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Pmochine\LaravelTongue\Tests\TestCase;
 
 class TongueTest extends TestCase
@@ -220,6 +219,14 @@ class TongueTest extends TestCase
     }
 
     /** @test */
+    public function it_redirects_to_default_when_locale_is_not_found_on_supported_list()
+    {
+        $this->sendRequest('GET', $this->pathLocalized, 'ff');
+
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
+    }
+
+    /** @test */
     public function it_does_not_redirect_when_subdomain_is_white_listed()
     {
         app('config')->set('localization.subdomains', ['admin']);
@@ -232,11 +239,11 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_404_when_subdomain_is_not_found_on_subdomains_list()
+    public function it_redirects_to_default_when_subdomain_is_not_found_on_subdomains_list()
     {
-        $this->expectException(NotFoundHttpException::class);
-
         $this->sendRequest('GET', $this->pathLocalized, 'admin');
+
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
     }
 
     /** @test */
@@ -254,21 +261,21 @@ class TongueTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_404_when_aliases_does_not_exist()
+    public function it_redirects_to_default_when_aliases_does_not_exist()
     {
-        $this->expectException(NotFoundHttpException::class);
-
         $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
+
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
     }
 
     /** @test */
-    public function it_throws_404_when_aliases_locale_does_not_exist_in_supported_list()
+    public function it_redirects_to_default_when_aliases_locale_does_not_exist_in_supported_list()
     {
         app('config')->set('localization.aliases', ['gewinnen' => 'ff']);
 
-        $this->expectException(NotFoundHttpException::class);
-
         $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
+
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
     }
 
     /** @test */
