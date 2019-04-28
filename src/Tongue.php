@@ -44,7 +44,7 @@ class Tongue
      */
     public function current($key = null): string
     {
-        if (! $key) {
+        if (!$key) {
             return $this->locale->get();
         }
 
@@ -89,7 +89,7 @@ class Tongue
         //fallback language is the same as the current language
         if (Config::beautify() && $this->current() === Config::fallbackLocale()) {
             //didn't found locale means browser is set to exmaple.com
-            if (! $locale) {
+            if (!$locale) {
                 return false;
             }
             //browser is set to en.example.com but should be forced back to example.com
@@ -111,9 +111,9 @@ class Tongue
      */
     public function speaks(string $locale)
     {
-        if (! $this->isSpeaking($locale)) {
+        if (!$this->isSpeaking($locale)) {
             //locale does not exist.
-            return dialect()->redirectBackToDefault();
+            return dialect()->redirectBackToLatest();
         }
 
         $this->locale->save($locale);

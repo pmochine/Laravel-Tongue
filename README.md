@@ -295,7 +295,14 @@ Or in a controller far far away...
     return tongue()->speaks($locale)->back();
   } 
 ```
-    
+## Upgrade Guide 🎢
+### Upgrade to 2.x.x from 1.x.x
+There a little changes that might be important for you.
+
+- We added two new config elements in localization. `domain` and `aliases`. Add these like [here](https://github.com/pmochine/Laravel-Tongue/blob/master/config/localization.php).
+- Add `APP_DOMAIN` in your .env if you have a complicated domain, like: `155ad73e.eu.ngrok.io`
+- Now you are able to use aliases in your subdomain. For example: `gewinnen.domain.com --> "de"`
+- If a subdomain is invalid, it returns to the latest valid locale subdomain.
  
 ## Security
 
