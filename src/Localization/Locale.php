@@ -74,9 +74,9 @@ class Locale
         // Regional locale such as de_DE, so formatLocalized works in Carbon
         $regional = tongue()->speaking('regional', $locale);
 
-        if ($regional) {
-            setlocale(LC_TIME, $regional.'.UTF-8');
-            setlocale(LC_MONETARY, $regional.'.UTF-8');
+        if ($regional && is_string($regional)) {
+            setlocale(LC_TIME, $regional . '.UTF-8');
+            setlocale(LC_MONETARY, $regional . '.UTF-8');
         }
     }
 

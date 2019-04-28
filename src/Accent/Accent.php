@@ -19,19 +19,19 @@ class Accent
             return '';
         }
         $url = '';
-        $url .= isset($parsed_url['scheme']) ? $parsed_url['scheme'].'://' : '';
+        $url .= isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
         $url .= isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $url .= isset($parsed_url['port']) ? ':'.$parsed_url['port'] : '';
+        $url .= isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
         $user = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass = isset($parsed_url['pass']) ? ':'.$parsed_url['pass'] : '';
-        $url .= $user.(($user || $pass) ? "$pass@" : '');
-        if (! empty($url)) {
-            $url .= isset($parsed_url['path']) ? '/'.ltrim($parsed_url['path'], '/') : '';
+        $pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
+        $url .= $user . (($user || $pass) ? "$pass@" : '');
+        if (!empty($url)) {
+            $url .= isset($parsed_url['path']) ? '/' . ltrim($parsed_url['path'], '/') : '';
         } elseif (empty($url)) {
             $url .= isset($parsed_url['path']) ? $parsed_url['path'] : '';
         }
-        $url .= isset($parsed_url['query']) ? '?'.$parsed_url['query'] : '';
-        $url .= isset($parsed_url['fragment']) ? '#'.$parsed_url['fragment'] : '';
+        $url .= isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        $url .= isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
         return $url;
     }
@@ -70,16 +70,16 @@ class Accent
     /**
      * Change route attributes for the ones in the $attributes array.
      *
-     * @param $attributes array Array of attributes
-     * @param string $route string route to substitute
+     * @param array $attributes  Array of attributes
+     * @param string $route route to substitute
      *
      * @return string route with attributes changed
      */
     public static function substituteAttributesInRoute($attributes, $route)
     {
         foreach ($attributes as $key => $value) {
-            $route = str_replace('{'.$key.'}', $value, $route);
-            $route = str_replace('{'.$key.'?}', $value, $route);
+            $route = str_replace('{' . $key . '}', $value, $route);
+            $route = str_replace('{' . $key . '?}', $value, $route);
         }
 
         // delete empty optional arguments that are not in the $attributes array
