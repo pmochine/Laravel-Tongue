@@ -22,7 +22,7 @@
  **New Way**: `https://de.example.com`, `https://fr.example.com` etc.
 
  >***Prerequisites**: PHP >=7.2 and Laravel 6.0
- >***Older Laravel Versions**: [Install version 2.0.0](/#support-for-laravel-5.x.x)
+ >***Older Laravel Versions**: [Install version 2.0.0](https://github.com/pmochine/Laravel-Tongue#support-for-laravel-5xx)
 
 ## Installation in 4 Steps*
 
