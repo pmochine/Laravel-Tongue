@@ -19,14 +19,14 @@
     }
   ],
    "require": {
-    "php": ">=7.0",
-    "laravel/framework": "~5.4||~5.5||~5.6||~5.7||~5.8",
-    "layershifter/tld-extract": "^1.2||^2.0"
+    "php": ">=7.2",
+    "laravel/framework": "~6.0",
+    "layershifter/tld-extract": "^2.0"
   },
   "require-dev": {
-    "orchestra/testbench": "~3.4",
-    "orchestra/testbench-browser-kit": "~3.4",
-    "phpunit/phpunit": "7.5.*"
+    "orchestra/testbench": "~4.0",
+    "orchestra/testbench-browser-kit": "~4.0",
+    "phpunit/phpunit": "^8.3"
   },
   "autoload": {
     "psr-4": {

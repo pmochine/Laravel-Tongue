@@ -21,7 +21,8 @@
  **Old Way**: `https://example.com/de`, `https://example.com/fr` etc. <br>
  **New Way**: `https://de.example.com`, `https://fr.example.com` etc.
 
- >***Prerequisites**: PHP >=7.0 and at least 5.4 <= Laravel <=5.8
+ >***Prerequisites**: PHP >=7.2 and Laravel 6.0
+ >***Older Laravel Versions**: [Install version 2.0.0](/#support-for-laravel-5.x.x)
 
 ## Installation in 4 Steps*
 
@@ -303,6 +304,17 @@ There are little changes that might be important for you.
 - Add `APP_DOMAIN` in your .env if you have a complicated domain, like: `155ad73e.eu.ngrok.io`
 - Now you are able to use aliases in your subdomain. For example: `gewinnen.domain.com --> "de"`
 - If a subdomain is invalid, it returns to the latest valid locale subdomain.
+
+### Support for Laravel 5.x.x
+
+If you want to use:
+>PHP >=7.0 and at least 5.4 <= Laravel <=5.8
+
+you need to download the version 2.0.0 or lower.
+
+```bash
+  composer require pmochine/laravel-tongue:2.0.0
+```
  
 ## Security
 
