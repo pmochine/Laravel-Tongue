@@ -226,12 +226,21 @@ You can pass `false` as parameter so it won't explude the current URL.
 ### Translate URL to the language you want
 
 ```php
-  <a href="{{ dialect()->translate('user_profile', [ 'username' => 'JohnDoe' ], 'fr') }}">See JohnDoe's profile</a>
+  <a href="{{ dialect()->translate('routes.user_profile', [ 'username' => 'JohnDoe' ], 'fr') }}">See JohnDoe's profile</a>
+  // Result: https://fr.example.com/utilisateur/JohnDoe 
 ```
+ > Remember: Set the translation in the lang folder
 
 Use `dialect()->translate($routeName, $routeAttributes = null, $locale = null)` to generate an alternate version of the given route. This will return an url with the proper subdomain and also translate the uri if necessary.
 
 You can pass route parameters if necessary. If you don't give a specific locale, it will use the current locale ☺️.
+
+### Redirect URL to the language you want
+
+```php
+  <a href="{{ dialect()->redirectUrl(route('home'), 'fr') }}">See Homepage in French</a>
+  // Result: https://fr.example.com 
+```
 
 ### Get your config supported locale list
 ```php
