@@ -19,19 +19,19 @@ class Accent
             return '';
         }
         $url = '';
-        $url .= isset($parsed_url['scheme']) ? $parsed_url['scheme'].'://' : '';
+        $url .= isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
         $url .= isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $url .= isset($parsed_url['port']) ? ':'.$parsed_url['port'] : '';
+        $url .= isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
         $user = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass = isset($parsed_url['pass']) ? ':'.$parsed_url['pass'] : '';
-        $url .= $user.(($user || $pass) ? "$pass@" : '');
-        if (! empty($url)) {
-            $url .= isset($parsed_url['path']) ? '/'.ltrim($parsed_url['path'], '/') : '';
+        $pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
+        $url .= $user . (($user || $pass) ? "$pass@" : '');
+        if (!empty($url)) {
+            $url .= isset($parsed_url['path']) ? '/' . ltrim($parsed_url['path'], '/') : '';
         } elseif (empty($url)) {
             $url .= isset($parsed_url['path']) ? $parsed_url['path'] : '';
         }
-        $url .= isset($parsed_url['query']) ? '?'.$parsed_url['query'] : '';
-        $url .= isset($parsed_url['fragment']) ? '#'.$parsed_url['fragment'] : '';
+        $url .= isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        $url .= isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
         return $url;
     }
@@ -52,16 +52,18 @@ class Accent
 
     /**
      * Find the route path matching the given route name.
+     * Important: Translator can give you an array as well.
      *
      * @param string      $routeName
      * @param string|null $locale
      *
-     * @return mixed
+     * @return string|false
      */
     public static function findRoutePathByName($routeName, $locale = null)
     {
         if (app('translator')->has($routeName, $locale)) {
-            return app('translator')->get($routeName, [], $locale);
+            $name = app('translator')->get($routeName, [], $locale);
+            return is_string($name) ? $name : false;
         }
 
         return false;
@@ -78,8 +80,8 @@ class Accent
     public static function substituteAttributesInRoute($attributes, $route)
     {
         foreach ($attributes as $key => $value) {
-            $route = str_replace('{'.$key.'}', $value, $route);
-            $route = str_replace('{'.$key.'?}', $value, $route);
+            $route = str_replace('{' . $key . '}', $value, $route);
+            $route = str_replace('{' . $key . '?}', $value, $route);
         }
 
         // delete empty optional arguments that are not in the $attributes array
