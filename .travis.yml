@@ -7,16 +7,25 @@ notifications:
         on_success: never
         on_failure: always
 
-php:
-  - 7.2
-
-env:
-  - LARAVEL_VERSION=6.0.*
+matrix:
+  include:
+    - php: 7.2
+      env: LARAVEL_VERSION='6.0*' TESTBENCH='4.0'
+    - php: 7.3
+      env: LARAVEL_VERSION='6.0*' TESTBENCH='4.0'
+    - php: 7.4
+      env: LARAVEL_VERSION='6.0*' TESTBENCH='4.0'
+    - php: 7.2
+      env: LARAVEL_VERSION='7.*' TESTBENCH='5.0'
+    - php: 7.3
+      env: LARAVEL_VERSION='7.*' TESTBENCH='5.0'
+    - php: 7.4
+      env: LARAVEL_VERSION='7.*' TESTBENCH='5.0'
 
 before_install:
   - travis_retry composer self-update --stable -n
   - composer validate --no-check-all --strict
-  - composer require "laravel/framework:${LARAVEL_VERSION}" --no-update -n
+  - composer require "laravel/framework:${LARAVEL_VERSION}" "orchestra/testbench:${TESTBENCH}" "orchestra/testbench-browser-kit:${TESTBENCH}" --no-update -n
 
 install:
   - travis_retry composer install --no-suggest --prefer-dist -n -o
