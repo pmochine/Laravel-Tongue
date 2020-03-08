@@ -2,10 +2,10 @@
 
 namespace Pmochine\LaravelTongue\Tests\Unit;
 
-use Pmochine\LaravelTongue\Misc\Url;
 use Pmochine\LaravelTongue\Misc\Config;
-use Pmochine\LaravelTongue\Tests\TestCase;
+use Pmochine\LaravelTongue\Misc\Url;
 use Pmochine\LaravelTongue\ServiceProvider;
+use Pmochine\LaravelTongue\Tests\TestCase;
 
 /**
  * First we check it with a simple domain (like laraveltongue.dev)

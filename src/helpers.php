@@ -1,7 +1,7 @@
 <?php
 
-use Pmochine\LaravelTongue\Tongue;
 use Pmochine\LaravelTongue\Dialect;
+use Pmochine\LaravelTongue\Tongue;
 
 if (! function_exists('tongue')) {
     function tongue()

@@ -3,8 +3,8 @@
 namespace Pmochine\LaravelTongue\Tests\Unit;
 
 use Pmochine\LaravelTongue\Misc\Config;
-use Pmochine\LaravelTongue\Tests\TestCase;
 use Pmochine\LaravelTongue\ServiceProvider;
+use Pmochine\LaravelTongue\Tests\TestCase;
 
 class ConfigTest extends TestCase
 {

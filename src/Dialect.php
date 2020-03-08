@@ -2,12 +2,12 @@
 
 namespace Pmochine\LaravelTongue;
 
-use Pmochine\LaravelTongue\Misc\Url;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Foundation\Application;
-use Pmochine\LaravelTongue\Misc\Config;
+use Illuminate\Http\RedirectResponse;
 use Pmochine\LaravelTongue\Accent\Accent;
 use Pmochine\LaravelTongue\Localization\Localization;
+use Pmochine\LaravelTongue\Misc\Config;
+use Pmochine\LaravelTongue\Misc\Url;
 
 /**
  * This class was written by

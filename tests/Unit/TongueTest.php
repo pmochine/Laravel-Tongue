@@ -2,9 +2,9 @@
 
 namespace Pmochine\LaravelTongue\Tests\Unit;
 
-use Pmochine\LaravelTongue\Tests\TestCase;
-use Pmochine\LaravelTongue\ServiceProvider;
 use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
+use Pmochine\LaravelTongue\ServiceProvider;
+use Pmochine\LaravelTongue\Tests\TestCase;
 
 class TongueTest extends TestCase
 {

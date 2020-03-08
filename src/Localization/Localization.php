@@ -3,9 +3,9 @@
 namespace Pmochine\LaravelTongue\Localization;
 
 use Illuminate\Support\Arr;
-use Pmochine\LaravelTongue\Misc\Url;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Misc\Cookie;
+use Pmochine\LaravelTongue\Misc\Url;
 
 class Localization
 {
