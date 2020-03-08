@@ -130,7 +130,7 @@ class TestCase extends OrchestraTestCase
      *
      * @return bool
      */
-    protected function responseHasCookies(Response $response, $cookies)
+    protected function responseHasCookies($response, $cookies)
     {
         $responseCookies = $response->headers->getCookies();
 
