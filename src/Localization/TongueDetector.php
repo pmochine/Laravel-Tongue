@@ -2,8 +2,8 @@
 
 namespace Pmochine\LaravelTongue\Localization;
 
-use Locale;
 use Illuminate\Http\Request;
+use Locale;
 
 /**
  * Class was originally written by Mcamara.

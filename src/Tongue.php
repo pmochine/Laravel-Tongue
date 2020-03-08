@@ -3,10 +3,10 @@
 namespace Pmochine\LaravelTongue;
 
 use Illuminate\Foundation\Application;
-use Pmochine\LaravelTongue\Misc\Config;
-use Pmochine\LaravelTongue\Misc\ConfigList;
 use Pmochine\LaravelTongue\Localization\Locale;
 use Pmochine\LaravelTongue\Localization\Localization;
+use Pmochine\LaravelTongue\Misc\Config;
+use Pmochine\LaravelTongue\Misc\ConfigList;
 
 class Tongue
 {
