@@ -47,7 +47,7 @@ class Dialect
      *
      * @return string
      */
-    public function redirectUrl($url = null)
+    public function redirectUrl($url = null, string $locale = null)
     {
         $parsed_url = parse_url($url ?? request()->fullUrl());
 
@@ -56,7 +56,11 @@ class Dialect
         if (Config::beautify() && Localization::fromUrl() === Config::fallbackLocale()) {
             $parsed_url['host'] = $domain;
         } else {
-            $parsed_url['host'] = tongue()->current().'.'.$domain;
+            $parsed_url['host'] = tongue()->current() . '.' . $domain;
+        }
+
+        if ($locale) {
+            $parsed_url['host'] = $locale . '.' . $domain;
         }
 
         return Accent::unparseUrl($parsed_url);
@@ -124,7 +128,7 @@ class Dialect
     public function translate($routeName, $routeAttributes = null, $locale = null)
     {
         // If no locale is given, we use the current locale
-        if (! $locale) {
+        if (!$locale) {
             $locale = tongue()->current();
         }
 
@@ -167,7 +171,7 @@ class Dialect
         }
 
         // Add locale to the host
-        return $locale.'.'.Url::domain();
+        return $locale . '.' . Url::domain();
     }
 
     /**
@@ -181,7 +185,7 @@ class Dialect
     {
         $routePath = Accent::findRoutePathByName($routeName);
 
-        if (! isset($this->translatedRoutes[$routeName])) {
+        if (!isset($this->translatedRoutes[$routeName])) {
             $this->translatedRoutes[$routeName] = $routePath;
         }
 

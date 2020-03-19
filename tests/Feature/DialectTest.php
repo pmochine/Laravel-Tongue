@@ -75,6 +75,22 @@ class DialectTest extends TestCase
     }
 
     /** @test */
+    public function it_redirects_url_into_a_specific_language()
+    {
+        $this->setRequestContext('GET', $this->dePathWithoutParameter, null, [], ['tongue-locale' => 'de']);
+
+        $enUri = $this->getUri('home', 'en');
+
+        $this->assertEquals($enUri, app('dialect')->redirectUrl($enUri, 'en'));
+
+        $this->setRequestContext('GET', $this->enPathWithoutParameter, null, [], ['tongue-locale' => 'en']);
+
+        $deUri = $this->getUri('home', 'de');
+
+        $this->assertEquals($deUri, app('dialect')->redirectUrl($deUri, 'de'));
+    }
+
+    /** @test */
     public function it_translates_the_current_route()
     {
         $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
