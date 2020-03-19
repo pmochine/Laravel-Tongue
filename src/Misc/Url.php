@@ -3,7 +3,6 @@
 namespace Pmochine\LaravelTongue\Misc;
 
 use Illuminate\Support\Str;
-use LayerShifter\TLDExtract\Extract;
 
 class Url
 {
@@ -28,7 +27,7 @@ class Url
      */
     protected static function configDomainIsSet(): bool
     {
-        if (! $domain = Config::domain()) {
+        if (!$domain = Config::domain()) {
             return false;
         } // config was not set
 
@@ -39,13 +38,13 @@ class Url
     /**
      * Gets the registrable Domain of the website.
      *
-     * https://github.com/layershifter/TLDExtract
+     * https://github.com/jeremykendall/php-domain-parser
      *
      * @return  string
      */
     protected static function extractDomain(): string
     {
-        $result = (new Extract())->parse(self::host());
+        $result = (new DomainParser)->resolve(self::host());
 
         return $result->getRegistrableDomain() ?: '';
     }
