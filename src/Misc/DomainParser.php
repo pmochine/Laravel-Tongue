@@ -22,7 +22,7 @@ class DomainParser
     }
 
     /**
-     * https://github.com/jeremykendall/php-domain-parser
+     * https://github.com/jeremykendall/php-domain-parser.
      *
      * @param   string  $url
      *
