@@ -1,7 +1,7 @@
 
 
 
-# Laravel Tongue 👅 - Multilingual subdomain urls and redirects
+# Laravel Tongue 👅 - Multilingual subdomain URLs and redirects
 
 
 [![Build Status](https://travis-ci.org/pmochine/Laravel-Tongue.svg?branch=master)](https://travis-ci.org/pmochine/Laravel-Tongue)
@@ -16,7 +16,7 @@
 
 ![Laravel Tongue](img/laravel-tongue.png)
 
-**If you are looking for an easy package for subdomain multilingual urls, this package is for you.  😜**
+**If you are looking for an easy package for subdomain multilingual URLs, this package is for you.  😜**
 
  **Old Way**: `https://example.com/de`, `https://example.com/fr` etc. <br>
  **New Way**: `https://de.example.com`, `https://fr.example.com` etc.
@@ -31,13 +31,13 @@
   composer require pmochine/laravel-tongue
 ```
 
-### 2: Publish Configuration File (you need to change some thingys so use it 😎)
+### 2: Publish Configuration File (you need to change some things to use it 😎)
 
 ```bash
   php artisan vendor:publish --provider="Pmochine\LaravelTongue\ServiceProvider" --tag="config"
 ```
 ### 3: Add the Middleware 🌐
-**Laravel Tongue** comes with a middleware that can be used to enforce the use of a language subdomain. For example: the user calls example.com it goes directly to fr.example.com. 
+**Laravel Tongue** comes with a middleware that can be used to enforce the use of a language subdomain. For example the user calls example.com it goes directly to fr.example.com. 
 
 If you want to use it, open `app/Http/kernel.php` and register this route middleware by adding it to the `routeMiddleware` (down below) array:
 
@@ -52,11 +52,11 @@ If you want to use it, open `app/Http/kernel.php` and register this route middle
   APP_DOMAIN=yourdomain.com #Only important for domains with many dots like: '155ad73e.eu.ngrok.io'
   SESSION_DOMAIN=.yourdomain.com #Read down below why
 ```
-  **Important!** Note the dot before the domain name. Now the session is availabe in every subdomain 🙃. This is important, because you want to save all your cookie 🍪 data in one place and not in many other.
+  **Important!** Note the dot before the domain name. Now the session is available in every subdomain 🙃. This is important because you want to save all your cookie 🍪 data in one place and not in many other.
 
 
 
-> ****Note*!** 📝 This step is optional if you use laravel>=5.5 with package auto discovery feature.
+> ****Note*!** 📝 This step is optional if you use laravel>=5.5 with package auto-discovery feature.
 > Add service provider to `config/app.php` in `providers` section
 >```php
 >    Pmochine\LaravelTongue\ServiceProvider::class,
@@ -84,7 +84,7 @@ Open `app/Providers/RouteServiceProvider.php` and add this
   ...
 ```
 
-Once you have done this, there is nothing more that you MUST do. Laravel application locale has been set and you can use other locale-dependant Laravel components (e.g. Translation) as you normally do.
+Once you have done this, there is nothing more that you MUST do. Laravel application locale has been set and you can use other locale-dependent Laravel components (e.g. Translation) as you normally do.
 
 ### Middleware 🌐
 
@@ -117,12 +117,27 @@ For more information about Middleware, please refer to <a href="http://laravel.c
     <body>
     ...
 ```
-The above `<html>` tag will always have a supported locale and directionality (‘ltr’ or ‘rtl’). The latter is important for right-to-left languages like Arabic and Hebrew, since the whole page layout will change for those.
+The above `<html>` tag will always have a supported locale and directionality (‘ltr’ or ‘rtl’). The latter is important for right-to-left languages like Arabic and Hebrew since the whole page layout will change for those.
 
 
 ## Configuration
 
 Once you have imported the config file, you will find it at `config/localization.php`.
+
+**Important**: Before you start changing the values, you still need to set the "main language" of your page. If your main language is `fr`, please add this to your `config/app.php` file under `'fallback_locale' => 'fr',`.
+
+We asume that your fallback language has always translated pages. We get the current locale via four ways: 
+
+1. First we determine the local with the subdomain of the URL the user is coming from
+  
+If there is no subdomain added, we get the locale from:
+
+2. an already set language cookie
+3. or the browsers prefered language
+4. or at the end we fall back to the `fallback_locale`
+
+>*Note*: The value `locale` in `config/app.php` has no impact and is going to overwritten by ` tongue()->detect();`  in `app/Providers/RouteServiceProvider.php`
+
 
 ### Configuration values
 
@@ -136,7 +151,7 @@ Makes the URL BEAUTIFUL 💁‍♀️. ( Use to set fallback language to mydomai
 
 - `subdomains` (default: `[]`)
 
-Sometimes you would like to have your admin panel as a subdomain url. Here you can whitelist those subdomains (only important if those urls are using the [middleware](https://github.com/pmochine/Laravel-Tongue#middleware-)).
+Sometimes you would like to have your admin panel as a subdomain URL. Here you can whitelist those subdomains (only important if those URLs are using the [middleware](https://github.com/pmochine/Laravel-Tongue#middleware-)).
 
 - `aliases` (default: `[]`)
 Sometimes you would like to specify aliases to use custom subdomains instead of locale codes. For example: 
@@ -147,7 +162,7 @@ Sometimes you would like to specify aliases to use custom subdomains instead of 
 
 - `acceptLanguage` (default: `true`)
 
-Use this option to enable or disable the use of the browser 💻 settings during the locale detection.
+Use this option to enable or disable the use of the browser 💻 settings during locale detection.
 
 - `cookie_localization` (default: `true`)
 
@@ -155,7 +170,7 @@ Use this option to enable or disable the use of cookies 🍪 during the locale d
 
 - `prevent_redirect` (default: `false`)
 
-Important for debugging, when you want to deactivate the middelware `speaks-tongue`.
+Important for debugging, when you want to deactivate the middleware `speaks-tongue`.
 
 - `supportedLocales` (default: `🇬🇧🇩🇪🇪🇸🇫🇷🇭🇺`)
 
@@ -201,7 +216,7 @@ Then, here is how you define translated routes in `routes/web.php`:
   });
 ```
 
-You can of course name the language files as you wish, and pass the proper prefix (routes. in the example) to the interpret() method.
+You can, of course, name the language files as you wish, and pass the proper prefix (routes. in the example) to the interpret() method.
 
 ## Helper Functions - (finally something useful 😎)
 
@@ -216,12 +231,12 @@ This package provides useful helper functions that you can use - for example - i
 ### Get all translated URL except the current URL
 
 ```php
-  @foreach (dialect()->translateAll() as $locale => $url)
+  @foreach (dialect()->translateAll(true) as $locale => $url)
       <a href="{{ $url }}">{{ $locale }}</a>
   @endforeach
 ```
 
-You can pass `false` as parameter so it won't explude the current URL. 
+You can pass `false` as parameter so it won't exclude the current URL. 
 
 ### Translate URL to the language you want
 
@@ -231,7 +246,7 @@ You can pass `false` as parameter so it won't explude the current URL.
 ```
  > Remember: Set the translation in the lang folder
 
-Use `dialect()->translate($routeName, $routeAttributes = null, $locale = null)` to generate an alternate version of the given route. This will return an url with the proper subdomain and also translate the uri if necessary.
+Use `dialect()->translate($routeName, $routeAttributes = null, $locale = null)` to generate an alternate version of the given route. This will return an URL with the proper subdomain and also translate the URI if necessary.
 
 You can pass route parameters if necessary. If you don't give a specific locale, it will use the current locale ☺️.
 
@@ -241,6 +256,8 @@ You can pass route parameters if necessary. If you don't give a specific locale,
   <a href="{{ dialect()->redirectUrl(route('home'), 'fr') }}">See Homepage in French</a>
   // Result: https://fr.example.com 
 ```
+
+Use `dialect()->redirectUrl($url = null, $locale = null);` to redirect for example to the same URL but in different locale. ***Warning***: Works only when the paths are not translated. Use `dialect()->translate()` for that.
 
 ### Get your config supported locale list
 ```php
