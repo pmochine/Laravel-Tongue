@@ -7,7 +7,6 @@
 [![Build Status](https://travis-ci.org/pmochine/Laravel-Tongue.svg?branch=master)](https://travis-ci.org/pmochine/Laravel-Tongue)
 [![styleci](https://styleci.io/repos/140954300/shield)](https://styleci.io/repos/140954300)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pmochine/laravel-tongue/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pmochine/laravel-tongue/?branch=master)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/51fd6376-0342-47b6-9dbc-2c20f7403845/mini.png)](https://insight.sensiolabs.com/projects/51fd6376-0342-47b6-9dbc-2c20f7403845)
 [![Coverage Status](https://coveralls.io/repos/github/pmochine/Laravel-Tongue/badge.svg?branch=master)](https://coveralls.io/github/pmochine/Laravel-Tongue?branch=master)
 
 [![Packagist](https://img.shields.io/packagist/v/pmochine/laravel-tongue.svg)](https://packagist.org/packages/pmochine/laravel-tongue)
