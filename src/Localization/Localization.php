@@ -34,7 +34,7 @@ class Localization
         }
 
         // could be a custom subdomain
-        if (!tongue()->isSpeaking($locale)) {
+        if (! tongue()->isSpeaking($locale)) {
             // check if it is a white listed domain
 
             if (tongue()->speaking('subdomains', $locale)) {
@@ -85,7 +85,7 @@ class Localization
      */
     protected static function languageIsSet(): bool
     {
-        return !app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
+        return ! app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
     }
 
     /**

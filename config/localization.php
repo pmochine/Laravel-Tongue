@@ -73,9 +73,9 @@ return [
     | Cookie Serialization
     |--------------------------------------------------------------------------
     |
-    | If you have not changed anything in your middleware "EncryptCookies", you 
+    | If you have not changed anything in your middleware "EncryptCookies", you
     | don't need to change anything here as well.
-    | For information visit: 
+    | For information visit:
     | https://laravel.com/docs/5.6/upgrade#upgrade-5.6.30
     */
     'cookie_serialize' => false,
