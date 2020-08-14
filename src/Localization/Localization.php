@@ -34,7 +34,7 @@ class Localization
         }
 
         // could be a custom subdomain
-        if (! tongue()->isSpeaking($locale)) {
+        if (!tongue()->isSpeaking($locale)) {
             // check if it is a white listed domain
 
             if (tongue()->speaking('subdomains', $locale)) {
@@ -85,7 +85,7 @@ class Localization
      */
     protected static function languageIsSet(): bool
     {
-        return ! app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
+        return !app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
     }
 
     /**
@@ -98,7 +98,7 @@ class Localization
      */
     public static function cookie(string $locale = null): ?string
     {
-        $cookie = new Cookie('tongue-locale'); //Name of the cookie
+        $cookie = new Cookie('tongue-locale', Config::cookieSerialize()); //Name of the cookie
 
         if ($locale !== null) {
             $cookie->save($locale);

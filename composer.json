@@ -15,18 +15,18 @@
   "authors": [
     {
       "name": "Philipp Mochine",
-      "email": "p@mochine.de"
+      "email": "mail@philippmochine.com"
     }
   ],
    "require": {
     "php": ">=7.2",
-    "jeremykendall/php-domain-parser": "^5.6",
-    "laravel/framework": "~6.0||~7.0"
+    "jeremykendall/php-domain-parser": "^5.7",
+    "laravel/framework": "^7.22.0"
   },
   "require-dev": {
     "orchestra/testbench": "~5.0",
     "orchestra/testbench-browser-kit": "~5.0",
-    "phpunit/phpunit": "^8.5"
+    "phpunit/phpunit": "^8.5 || ^9.0"
   },
   "autoload": {
     "psr-4": {

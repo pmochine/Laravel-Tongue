@@ -1,7 +1,5 @@
 language: php
 
-sudo: false
-
 notifications:
     email:
         on_success: never
@@ -10,17 +8,11 @@ notifications:
 matrix:
   include:
     - php: 7.2
-      env: LARAVEL_VERSION='6.0.*' TESTBENCH='4.0'
+      env: LARAVEL_VERSION='^7.22.0' TESTBENCH='5.*'
     - php: 7.3
-      env: LARAVEL_VERSION='6.0.*' TESTBENCH='4.0'
+      env: LARAVEL_VERSION='^7.22.0' TESTBENCH='5.3'
     - php: 7.4
-      env: LARAVEL_VERSION='6.0.*' TESTBENCH='4.0'
-    - php: 7.2
-      env: LARAVEL_VERSION='7.*' TESTBENCH='5.0'
-    - php: 7.3
-      env: LARAVEL_VERSION='7.*' TESTBENCH='5.0'
-    - php: 7.4
-      env: LARAVEL_VERSION='7.*' TESTBENCH='5.0'
+      env: LARAVEL_VERSION='^7.22.0' TESTBENCH='5.3'
 
 before_install:
   - travis_retry composer self-update --stable -n
