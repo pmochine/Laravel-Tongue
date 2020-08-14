@@ -28,7 +28,7 @@ class Cookie
 
     public function get(): ?string
     {
-        if (!$this->has()) {
+        if (! $this->has()) {
             return null;
         }
 
@@ -41,7 +41,7 @@ class Cookie
             // I needed to change decrypt(value, unserialize = false);
             $value = app('encrypter')->decrypt($this->getCookie(), $this->serialize);
             // This part is new since Laravel 7.22.0 (Improve cookie encryption)
-            return strpos($value, sha1($this->key) . '|') !== 0 ? null : substr($value, 41);
+            return strpos($value, sha1($this->key).'|') !== 0 ? null : substr($value, 41);
         } catch (DecryptException $e) {
             // Somehow the middleware for decrypting does not kick in here...
             // but it even fails if we use php artisan <something> (weird)
