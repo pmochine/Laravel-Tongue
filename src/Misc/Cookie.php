@@ -28,7 +28,7 @@ class Cookie
 
     public function get(): ?string
     {
-        if (!$this->has()) {
+        if (! $this->has()) {
             return null;
         }
 
@@ -46,6 +46,7 @@ class Cookie
             // This part is new since Laravel 7.22.0 (Improve cookie encryption)
             // Not really sure, but I don't use the security improvement at all. At the end why should I? It's just the locale
             $pos = strpos($value, '|');
+
             return $pos !== false ? substr($value, $pos + 1) : null;
         } catch (DecryptException $e) {
             // Somehow the middleware for decrypting does not kick in here...
