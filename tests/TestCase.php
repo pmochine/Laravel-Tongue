@@ -97,9 +97,7 @@ class TestCase extends OrchestraTestCase
      */
     public function getUri($path, $locale = null)
     {
-        $uri = $this->scheme.'://'.($locale ? $locale.'.' : '').$this->domain.'/'.$path;
-
-        return $uri;
+        return $this->scheme . '://' . ($locale ? $locale . '.' : '') . $this->domain . '/' . $path;
     }
 
     /**
@@ -114,12 +112,12 @@ class TestCase extends OrchestraTestCase
         }
 
         //Load translated routes for testing
-        app('translator')->getLoader()->addNamespace('Tongue', realpath(dirname(__FILE__)).'/lang');
+        app('translator')->getLoader()->addNamespace('Tongue', realpath(dirname(__FILE__)) . '/lang');
         app('translator')->load('Tongue', 'routes', 'de');
         app('translator')->load('Tongue', 'routes', 'en');
 
         //Load routes for testing
-        app('files')->getRequire(__DIR__.'/routing/routes.php');
+        app('files')->getRequire(__DIR__ . '/routing/routes.php');
     }
 
     /**
@@ -149,7 +147,7 @@ class TestCase extends OrchestraTestCase
                 }
             }
 
-            if (! $cookieFound) {
+            if (!$cookieFound) {
                 return false;
             }
         }

@@ -71,6 +71,10 @@ class DialectTest extends TestCase
 
         $this->setRequestContext('GET', $this->enPathWithoutParameter, null, [], ['tongue-locale' => 'en']);
 
+        $this->assertEquals($this->getUri($this->enPathWithoutParameter, ''), app('dialect')->redirectUrl());
+
+        app('config')->set('localization.beautify_url', false);
+
         $this->assertEquals($this->getUri($this->enPathWithoutParameter, 'en'), app('dialect')->redirectUrl());
     }
 
@@ -88,6 +92,31 @@ class DialectTest extends TestCase
         $deUri = $this->getUri('home', 'de');
 
         $this->assertEquals($deUri, app('dialect')->redirectUrl($deUri, 'de'));
+    }
+
+    /** @test */
+    public function it_redirects_url_to_correct_language()
+    {
+        // This is an example when we are changing the language. The "standard" locale is set to "en"
+        $this->setRequestContext('GET', $this->enPathWithoutParameter, null, [], ['tongue-locale' => 'en']);
+
+        $enUri = $this->getUri('home');
+        $deUri = $this->getUri('home', 'de');
+
+        $this->assertEquals($enUri, app('dialect')->redirectUrl($deUri));
+
+        // Now German is set as target language
+        $this->setRequestContext('GET', $this->enPathWithoutParameter, null, [], ['tongue-locale' => 'de']);
+
+        $enUri = $this->getUri('home');
+        $deUri = $this->getUri('home', 'de');
+
+        $this->assertEquals($deUri, app('dialect')->redirectUrl($enUri));
+
+        $enUri = $this->getUri('home', 'en');
+        $deUri = $this->getUri('home', 'de');
+
+        $this->assertEquals($deUri, app('dialect')->redirectUrl($enUri));
     }
 
     /** @test */

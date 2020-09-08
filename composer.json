@@ -19,14 +19,14 @@
     }
   ],
    "require": {
-    "php": ">=7.2",
+    "php": ">=7.3",
     "jeremykendall/php-domain-parser": "^5.7",
-    "laravel/framework": "^7.22.0"
+    "laravel/framework": "^7.22.0||^8.0"
   },
   "require-dev": {
-    "orchestra/testbench": "~5.0",
-    "orchestra/testbench-browser-kit": "~5.0",
-    "phpunit/phpunit": "^8.5 || ^9.0"
+    "orchestra/testbench": "^5.0||^6.0",
+    "orchestra/testbench-browser-kit": "^5.0 ||^6.0",
+    "phpunit/phpunit": "^9.0"
   },
   "autoload": {
     "psr-4": {

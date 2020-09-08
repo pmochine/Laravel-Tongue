@@ -223,6 +223,12 @@ class TongueTest extends TestCase
     {
         $this->sendRequest('GET', $this->pathLocalized, 'ff');
 
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized));
+
+        app('config')->set('localization.beautify_url', false);
+
+        $this->sendRequest('GET', $this->pathLocalized, 'ff');
+
         $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
     }
 
@@ -243,7 +249,7 @@ class TongueTest extends TestCase
     {
         $this->sendRequest('GET', $this->pathLocalized, 'admin');
 
-        $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized));
     }
 
     /** @test */
@@ -273,7 +279,7 @@ class TongueTest extends TestCase
     {
         $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
 
-        $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized));
     }
 
     /** @test */
@@ -283,7 +289,7 @@ class TongueTest extends TestCase
 
         $this->sendRequest('GET', $this->pathLocalized, 'gewinnen');
 
-        $this->assertRedirectedTo($this->getUri($this->pathLocalized, $this->defaultLocale));
+        $this->assertRedirectedTo($this->getUri($this->pathLocalized));
     }
 
     /** @test */
