@@ -7,14 +7,12 @@ notifications:
 
 matrix:
   include:
-    - php: 7.3
-      env: LARAVEL_VERSION='^7.22.0' TESTBENCH='5.*'
     - php: 7.4
-      env: LARAVEL_VERSION='^7.22.0' TESTBENCH='5.*'
-    - php: 7.3
-      env: LARAVEL_VERSION='8.*' TESTBENCH='6.*'
+      env: LARAVEL_VERSION='^7.30.0' TESTBENCH='5.*'
     - php: 7.4
-      env: LARAVEL_VERSION='8.*' TESTBENCH='6.*'
+      env: LARAVEL_VERSION='^8.40' TESTBENCH='6.*'
+    - php: 8.0
+      env: LARAVEL_VERSION='^8.40' TESTBENCH='6.*'
 
 before_install:
   - travis_retry composer self-update --stable -n
