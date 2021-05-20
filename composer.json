@@ -19,8 +19,8 @@
     }
   ],
    "require": {
-    "php": ">=7.3",
-    "jeremykendall/php-domain-parser": "^5.7",
+    "php": "^7.4 || ^8.0",
+    "bakame/laravel-domain-parser": "^1.0",
     "laravel/framework": "^7.22.0||^8.0"
   },
   "require-dev": {

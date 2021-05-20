@@ -27,7 +27,7 @@ class Url
      */
     protected static function configDomainIsSet(): bool
     {
-        if (! $domain = Config::domain()) {
+        if (!$domain = Config::domain()) {
             return false;
         } // config was not set
 
@@ -46,7 +46,7 @@ class Url
     {
         $result = (new DomainParser)->resolve(self::host());
 
-        return $result->getRegistrableDomain() ?: '';
+        return $result->registrableDomain()->toString() ?: '';
     }
 
     public static function domainName(): string

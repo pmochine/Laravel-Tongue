@@ -20,7 +20,7 @@
  **Old Way**: `https://example.com/de`, `https://example.com/fr` etc. <br>
  **New Way**: `https://de.example.com`, `https://fr.example.com` etc.
 
- >***Prerequisites**: PHP >=7.3 and Laravel >=7.22.0 and ^8.0
+ >***Prerequisites**: PHP ^7.4 || ^8.0  and Laravel >=7.22.0 and ^8.0
  >***Older Laravel Versions**: [Click here](https://github.com/pmochine/Laravel-Tongue#support-for-laravel-5xx)
 
 ## Installation in 4 Steps*
