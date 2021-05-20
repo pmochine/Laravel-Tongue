@@ -11,7 +11,7 @@ class DomainParser
 {
     /**
      * https://github.com/jeremykendall/php-domain-parser.
-     * https://github.com/kevindierkx/laravel-domain-parser
+     * https://github.com/kevindierkx/laravel-domain-parser.
      *
      * @param   string  $url
      *
