@@ -40,15 +40,14 @@ class TestCase extends OrchestraTestCase
     /**
      * Visit the given URI and return the Response.
      *
-     * @param string $method
-     * @param string $path
-     * @param string $locale
-     * @param array  $parameters
-     * @param array  $cookies
-     * @param array  $files
-     * @param array  $server
-     * @param string $content
-     *
+     * @param  string  $method
+     * @param  string  $path
+     * @param  string  $locale
+     * @param  array  $parameters
+     * @param  array  $cookies
+     * @param  array  $files
+     * @param  array  $server
+     * @param  string  $content
      * @return Response
      */
     protected function sendRequest($method, $path, $locale = null, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
@@ -63,15 +62,14 @@ class TestCase extends OrchestraTestCase
     /**
      * Set Request context for the package components.
      *
-     * @param string $method
-     * @param string $path
-     * @param string $locale
-     * @param array  $parameters
-     * @param array  $cookies
-     * @param array  $files
-     * @param array  $server
-     * @param string $content
-     *
+     * @param  string  $method
+     * @param  string  $path
+     * @param  string  $locale
+     * @param  array  $parameters
+     * @param  array  $cookies
+     * @param  array  $files
+     * @param  array  $server
+     * @param  string  $content
      * @return Response
      */
     protected function setRequestContext($method, $path, $locale = null, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
@@ -90,9 +88,8 @@ class TestCase extends OrchestraTestCase
     /**
      * Return test Uri for the given locale and path.
      *
-     * @param string $path
-     * @param string $locale
-     *
+     * @param  string  $path
+     * @param  string  $locale
      * @return string
      */
     public function getUri($path, $locale = null)
@@ -103,7 +100,7 @@ class TestCase extends OrchestraTestCase
     /**
      * Set routes for testing.
      *
-     * @param bool|string $locale
+     * @param  bool|string  $locale
      */
     protected function setRoutes($locale = false)
     {
@@ -123,9 +120,8 @@ class TestCase extends OrchestraTestCase
     /**
      * Checks if the given response contains the given cookie(s).
      *
-     * @param Response $response
-     * @param array    $cookies
-     *
+     * @param  Response  $response
+     * @param  array  $cookies
      * @return bool
      */
     protected function responseHasCookies($response, $cookies)
