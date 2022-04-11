@@ -28,7 +28,7 @@ class Cookie
 
     public function get(): ?string
     {
-        if (! $this->has()) {
+        if (!$this->has()) {
             return null;
         }
 
@@ -37,14 +37,16 @@ class Cookie
             // Normally, the middleware "EncryptCookies" would kick in. But since we are calling this
             // before the middleware even kicks in, we need to decrypt it manually like in:
             // https://github.com/laravel/framework/blob/7bb90039c5cb42a8f5f2dd489d9936d1ee2668d2/src/Illuminate/Cookie/Middleware/EncryptCookies.php
-            // The thing is that Laravel is updating the algorithm to decrypt the cookie all the time. And this breaks my code all the time
+            // The thing is that Laravel is updating the algorithm to decrypt the cookie all the time.
+            // And this breaks my code all the time
             // Now I'm using a "simple" version that needs to be changed in the future again.
             // Another bug that I used to get was: unserialize(): Error at offset 0 of 2 bytes, since the update 5.6.30
             // https://laravel.com/docs/5.6/upgrade#upgrade-5.6.30
             // I needed to change decrypt(value, unserialize = false);
             $value = app('encrypter')->decrypt($this->getCookie(), $this->serialize);
             // This part is new since Laravel 7.22.0 (Improve cookie encryption)
-            // Not really sure, but I don't use the security improvement at all. At the end why should I? It's just the locale
+            // Not really sure, but I don't use the security improvement at all.
+            // At the end why should I? It's just the locale
             $pos = strpos($value, '|');
 
             return $pos !== false ? substr($value, $pos + 1) : null;

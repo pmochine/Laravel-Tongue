@@ -64,7 +64,7 @@ class TongueDetector
         $matches = $this->getMatchesFromAcceptedLanguages();
 
         foreach ($matches as $key => $q) {
-            if (! empty($this->supportedLanguages[$key])) {
+            if (!empty($this->supportedLanguages[$key])) {
                 return $key;
             }
 
@@ -74,7 +74,9 @@ class TongueDetector
 
             // Search for acceptable locale by 'regional' => 'af_ZA' or 'lang' => 'af-ZA' match.
             foreach ($this->supportedLanguages as $key_supported => $locale) {
-                if ((isset($locale['regional']) && $locale['regional'] == $key) || (isset($locale['lang']) && $locale['lang'] == $key)) {
+                if ((isset($locale['regional']) && $locale['regional'] == $key)
+                    || (isset($locale['lang']) && $locale['lang'] == $key)
+                ) {
                     return $key_supported;
                 }
             }
@@ -87,10 +89,10 @@ class TongueDetector
             return key($this->supportedLanguages);
         }
 
-        if ($this->use_intl && ! empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        if ($this->use_intl && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $http_accept_language = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
-            if (! empty($this->supportedLanguages[$http_accept_language])) {
+            if (!empty($this->supportedLanguages[$http_accept_language])) {
                 return $http_accept_language;
             }
         }
@@ -99,7 +101,7 @@ class TongueDetector
             $remote_host = explode('.', $this->request->server('REMOTE_HOST'));
             $lang = strtolower(end($remote_host));
 
-            if (! empty($this->supportedLanguages[$lang])) {
+            if (!empty($this->supportedLanguages[$lang])) {
                 return $lang;
             }
         }
@@ -143,7 +145,7 @@ class TongueDetector
                 //less than it's parent.
                 $l_ops = explode('-', $l);
                 array_pop($l_ops);
-                while (! empty($l_ops)) {
+                while (!empty($l_ops)) {
                     //The new generic option needs to be slightly less important than it's base
                     $q -= 0.001;
                     $op = implode('-', $l_ops);
