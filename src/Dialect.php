@@ -84,7 +84,6 @@ class Dialect
      * Translate the current route for the given locale.
      *
      * @param $locale
-     *
      * @return bool|string
      */
     public function current($locale)
@@ -95,8 +94,7 @@ class Dialect
     /**
      * Get all Translations for the current URL.
      *
-     * @param bool $excludeCurrentLocale
-     *
+     * @param  bool  $excludeCurrentLocale
      * @return array
      */
     public function translateAll($excludeCurrentLocale = true)
@@ -119,10 +117,9 @@ class Dialect
     /**
      * Return translated URL from route.
      *
-     * @param string       $routeName
+     * @param  string  $routeName
      * @param array]null]bool $routeAttributes
-     * @param string|false $locale
-     *
+     * @param  string|false  $locale
      * @return string|bool
      */
     public function translate($routeName, $routeAttributes = null, $locale = null)
@@ -161,7 +158,7 @@ class Dialect
      * to the current locale and to the fallbackLocal.
      * We don't need to add a subdomain to the host.
      *
-     * @param string $locale
+     * @param  string  $locale
      * @return string
      */
     protected function addLocaleToHost($locale)
@@ -178,7 +175,6 @@ class Dialect
      * Interprets a translated route path for the given route name.
      *
      * @param $routeName
-     *
      * @return string|false (but should be string if it exists!)
      */
     public function interpret($routeName)
@@ -213,8 +209,7 @@ class Dialect
     /**
      * Find the route name matching the given route path.
      *
-     * @param string $routePath
-     *
+     * @param  string  $routePath
      * @return bool|string
      */
     public function findRouteNameByPath($routePath)

@@ -11,8 +11,7 @@ class TongueTest extends TestCase
     /**
      * Get package providers. To read the config file.
      *
-     * @param \Illuminate\Foundation\Application $app
-     *
+     * @param  \Illuminate\Foundation\Application  $app
      * @return array
      */
     protected function getPackageProviders($app)
@@ -66,6 +65,7 @@ class TongueTest extends TestCase
 
     /**
      * Important to note. I just don't want to test the full array...
+     *
      * @test
      */
     public function it_returns_the_available_locales()
