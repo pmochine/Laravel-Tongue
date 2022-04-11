@@ -50,6 +50,7 @@ class Localization
 
     /**
      * Gets the locale from the url.
+     *
      * @return string|bool false [when hostname===locale]
      */
     public static function fromUrl()
@@ -93,7 +94,7 @@ class Localization
      * Important to set config/session domain to .exmaple.com
      * https://gistlog.co/JacobBennett/15558410de2a394373ac.
      *
-     * @param  string $locale
+     * @param  string  $locale
      * @return string|null
      */
     public static function cookie(string $locale = null): ?string

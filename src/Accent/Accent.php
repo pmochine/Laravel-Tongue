@@ -9,8 +9,7 @@ class Accent
     /**
      * Get url using array data from parse_url.
      *
-     * @param array|false $parsed_url Array of data from parse_url function
-     *
+     * @param  array|false  $parsed_url  Array of data from parse_url function
      * @return string Returns URL as string.
      */
     public static function unparseUrl($parsed_url)
@@ -54,9 +53,8 @@ class Accent
      * Find the route path matching the given route name.
      * Important: Translator can give you an array as well.
      *
-     * @param string      $routeName
-     * @param string|null $locale
-     *
+     * @param  string  $routeName
+     * @param  string|null  $locale
      * @return string|false
      */
     public static function findRoutePathByName($routeName, $locale = null)
@@ -73,9 +71,8 @@ class Accent
     /**
      * Change route attributes for the ones in the $attributes array.
      *
-     * @param array $attributes  Array of attributes
-     * @param string $route route to substitute
-     *
+     * @param  array  $attributes  Array of attributes
+     * @param  string  $route  route to substitute
      * @return string route with attributes changed
      */
     public static function substituteAttributesInRoute($attributes, $route)

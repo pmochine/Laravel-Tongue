@@ -23,7 +23,7 @@ class Url
      *
      * It is true when e.g.: '155ad73e.eu.ngrok.io' contains in 'yoursubdomain.155ad73e.eu.ngrok.io'
      *
-     * @return  bool
+     * @return bool
      */
     protected static function configDomainIsSet(): bool
     {
@@ -40,7 +40,7 @@ class Url
      *
      * https://github.com/jeremykendall/php-domain-parser
      *
-     * @return  string
+     * @return string
      */
     protected static function extractDomain(): string
     {
@@ -57,7 +57,7 @@ class Url
     }
 
     /**
-     * @return  string  [like "de.domain.com"]
+     * @return string [like "de.domain.com"]
      */
     public static function host(): string
     {
@@ -65,7 +65,7 @@ class Url
     }
 
     /**
-     * @return  string  [like "de" or when no subdomain "domain" of "domain.com"]
+     * @return string [like "de" or when no subdomain "domain" of "domain.com"]
      */
     public static function subdomain(): string
     {

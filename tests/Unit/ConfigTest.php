@@ -11,8 +11,7 @@ class ConfigTest extends TestCase
     /**
      * Get package providers. To read the config file.
      *
-     * @param \Illuminate\Foundation\Application $app
-     *
+     * @param  \Illuminate\Foundation\Application  $app
      * @return array
      */
     protected function getPackageProviders($app)

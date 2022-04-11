@@ -39,7 +39,7 @@ class Tongue
      * Gets the current speaking tongue...
      * (language code).
      *
-     * @return  string|array|null
+     * @return string|array|null
      */
     public function current($key = null)
     {
@@ -105,7 +105,7 @@ class Tongue
      * The user speaks locale language.
      * Set the locale.
      *
-     * @param  string $locale
+     * @param  string  $locale
      * @return Tongue|\Illuminate\Http\RedirectResponse;
      */
     public function speaks(string $locale)

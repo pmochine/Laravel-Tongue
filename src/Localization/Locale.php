@@ -22,7 +22,7 @@ class Locale
     /**
      * Gets the current app locale that is set.
      *
-     * @return  string
+     * @return string
      */
     public function get(): string
     {
@@ -32,9 +32,8 @@ class Locale
     /**
      * Sets the locale in the app.
      *
-     * @param   string  $locale
-     *
-     * @return  void
+     * @param  string  $locale
+     * @return void
      */
     public function set(string $locale): void
     {
@@ -44,9 +43,8 @@ class Locale
     /**
      * Set and saves locale in app & cookies and sets regions.
      *
-     * @param   string  $locale
-     *
-     * @return  void
+     * @param  string  $locale
+     * @return void
      */
     public function save(string $locale): void
     {
@@ -58,9 +56,8 @@ class Locale
     /**
      * Save locale in cookie.
      *
-     * @param   string  $locale
-     *
-     * @return  void
+     * @param  string  $locale
+     * @return void
      */
     public function saveInCookie(string $locale): void
     {
@@ -85,9 +82,8 @@ class Locale
      * Return the direction left or right.
      * e.g. for arabic language.
      *
-     * @param   string  $script
-     *
-     * @return  string
+     * @param  string  $script
+     * @return string
      */
     public function scriptDirection(string $script): string
     {

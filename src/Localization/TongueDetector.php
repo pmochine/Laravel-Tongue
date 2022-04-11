@@ -30,9 +30,9 @@ class TongueDetector
     private $use_intl = false;
 
     /**
-     * @param string  $fallbackLocale
-     * @param array   $supportedLanguages
-     * @param Request $request
+     * @param  string  $fallbackLocale
+     * @param  array  $supportedLanguages
+     * @param  Request  $request
      */
     public function __construct($fallbackLocale, $supportedLanguages, Request $request)
     {
