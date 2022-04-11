@@ -11,6 +11,8 @@ matrix:
       env: LARAVEL_VERSION='^8.40' TESTBENCH='6.*'
     - php: 8.0
       env: LARAVEL_VERSION='^8.40' TESTBENCH='6.*'
+    - php: 8.0.2
+      env: LARAVEL_VERSION='^9.00' TESTBENCH='7.*'
 
 before_install:
   - travis_retry composer self-update --stable -n
