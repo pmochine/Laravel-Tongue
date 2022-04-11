@@ -28,7 +28,7 @@ class Cookie
 
     public function get(): ?string
     {
-        if (!$this->has()) {
+        if (! $this->has()) {
             return null;
         }
 
