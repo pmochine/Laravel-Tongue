@@ -303,7 +303,7 @@ Or if you like you can get the full name, the alphabet script, the native name o
   <ul>
       @foreach(tongue()->speaking()->all() as $localeCode => $properties)
           <li>
-              <a rel="alternate" hreflang="{{ $localeCode }}" href="dialect()->current($localeCode)">
+              <a rel="alternate" hreflang="{{ $localeCode }}" href="{{ dialect()->current($localeCode) }}">
                   {{ $properties['native'] }}
               </a>
           </li>
