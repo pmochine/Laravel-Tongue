@@ -21,7 +21,7 @@
    "require": {
     "php": "^7.4 || ^8.0",
     "bakame/laravel-domain-parser": "^1.0||^1.1",
-    "laravel/framework": "^8.41||^9.0"
+    "laravel/framework": "^8.41||^9.0||^10.0"
   },
   "require-dev": {
     "orchestra/testbench": "^5.0||^6.0||^7.0",
