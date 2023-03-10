@@ -20,7 +20,7 @@
  **Old Way**: `https://example.com/de`, `https://example.com/fr` etc. <br>
  **New Way**: `https://de.example.com`, `https://fr.example.com` etc.
 
- >***Prerequisites**: PHP ^7.4 || ^8.0  and Laravel ^8.41 || PHP ^8.0.2  and Laravel ^9.0
+ >***Prerequisites**: PHP ^7.4 || ^8.1  and Laravel ^8.41 || PHP ^8.0.2  and Laravel ^9.0 and Laravel ^10.0
  >***Older Laravel Versions**: [Click here](https://github.com/pmochine/Laravel-Tongue#support-for-laravel-5xx)
 
 ## Installation in 4 Steps*
@@ -333,6 +333,17 @@ There are little changes that might be important for you.
 - Add `APP_DOMAIN` in your .env if you have a complicated domain, like: `155ad73e.eu.ngrok.io`
 - Now you are able to use aliases in your subdomain. For example: `gewinnen.domain.com --> "de"`
 - If a subdomain is invalid, it returns to the latest valid locale subdomain.
+
+### Support for Laravel 9.x.x
+
+If you want to use:
+>PHP <=8.0 and Laravel 9.x.x
+
+you need to download the version 4.0.0.
+
+```bash
+  composer require pmochine/laravel-tongue:4.0.0
+```
 
 ### Support for Laravel 7.22.0 up to Laravel 8.41.0
 

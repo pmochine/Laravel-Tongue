@@ -19,14 +19,14 @@
     }
   ],
    "require": {
-    "php": "^7.4 || ^8.0",
+    "php": "^7.4 || ^8.1",
     "bakame/laravel-domain-parser": "^1.0||^1.1",
-    "laravel/framework": "^8.41||^9.0"
+    "laravel/framework": "^8.41||^9.0||^10.0"
   },
   "require-dev": {
-    "orchestra/testbench": "^5.0||^6.0||^7.0",
-    "orchestra/testbench-browser-kit": "^5.0 ||^6.0||^7.0",
-    "phpunit/phpunit": "^9.0||^10.0"
+    "orchestra/testbench": "^5.0||^6.0||^7.0||^8.0",
+    "orchestra/testbench-browser-kit": "^5.0 ||^6.0||^7.0||^8.0",
+    "phpunit/phpunit": "^10.0"
   },
   "autoload": {
     "psr-4": {
