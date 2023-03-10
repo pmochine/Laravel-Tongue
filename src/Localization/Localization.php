@@ -42,7 +42,9 @@ class Localization
             }
 
             // check if we have a custom locale subdomain, if not it returns a null
-            $locale = tongue()->speaking('aliases', $locale) ?: $locale;
+            // but with is_string we also check if there is an array.
+            $spokenLocale = tongue()->speaking('aliases', $locale);
+            $locale = is_string($spokenLocale) ? $spokenLocale : $locale;
         }
 
         return $locale;
@@ -86,7 +88,15 @@ class Localization
      */
     protected static function languageIsSet(): bool
     {
-        return ! app()->runningInConsole() || Arr::has(request()->server(), 'HTTP_ACCEPT_LANGUAGE');
+        // Get the server variable from the request.
+        $server = request()->server();
+
+        // If the server variable is a string, convert it to an array with a single element.
+        if (is_string($server)) {
+            $server = [$server];
+        }
+        // Check if the HTTP_ACCEPT_LANGUAGE header is set in the server variable.
+        return ! app()->runningInConsole() || Arr::has($server, 'HTTP_ACCEPT_LANGUAGE');
     }
 
     /**

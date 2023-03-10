@@ -2,6 +2,7 @@
 
 namespace Pmochine\LaravelTongue\Misc;
 
+use Bakame\Laravel\Pdp\Facades\TopLevelDomains;
 use Pdp\ResolvedDomain;
 
 /**
@@ -18,6 +19,6 @@ class DomainParser
      */
     public function resolve(string $url): ResolvedDomain
     {
-        return \TopLevelDomains::resolve($url);
+        return TopLevelDomains::resolve($url);
     }
 }

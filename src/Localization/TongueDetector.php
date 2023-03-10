@@ -3,7 +3,7 @@
 namespace Pmochine\LaravelTongue\Localization;
 
 use Illuminate\Http\Request;
-use Locale;
+use Locale as PhpLocale;
 
 /**
  * Class was originally written by Mcamara.
@@ -69,7 +69,7 @@ class TongueDetector
             }
 
             if ($this->use_intl) {
-                $key = Locale::canonicalize($key);
+                $key = PhpLocale::canonicalize($key);
             }
 
             // Search for acceptable locale by 'regional' => 'af_ZA' or 'lang' => 'af-ZA' match.
@@ -90,7 +90,7 @@ class TongueDetector
         }
 
         if ($this->use_intl && ! empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $http_accept_language = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            $http_accept_language = PhpLocale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
             if (! empty($this->supportedLanguages[$http_accept_language])) {
                 return $http_accept_language;
@@ -173,13 +173,13 @@ class TongueDetector
 
             foreach ($supportedLanguages as $key => $language) {
                 if (isset($language['lang'])) {
-                    $language['lang'] = Locale::canonicalize($language['lang']);
+                    $language['lang'] = PhpLocale::canonicalize($language['lang']);
                 } else {
-                    $language['lang'] = Locale::canonicalize($key);
+                    $language['lang'] = PhpLocale::canonicalize($key);
                 }
 
                 if (isset($language['regional'])) {
-                    $language['regional'] = Locale::canonicalize($language['regional']);
+                    $language['regional'] = PhpLocale::canonicalize($language['regional']);
                 }
 
                 $this->supportedLanguages[$key] = $language;
