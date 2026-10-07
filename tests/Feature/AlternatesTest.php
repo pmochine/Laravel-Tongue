@@ -79,6 +79,11 @@ class AlternatesTest extends TestCase
 
         $this->assertEquals($this->getUri('blog?page=2', 'de'), app('dialect')->alternates()['de']);
         $this->assertEquals($this->getUri('blog?page=2'), app('dialect')->alternates()['en']);
+
+        // PHP treats the string "0" as false
+        $this->sendRequest('GET', 'blog?0', 'de')->assertOk();
+
+        $this->assertEquals($this->getUri('blog?0', 'de'), app('dialect')->alternates()['de']);
     }
 
     #[Test]

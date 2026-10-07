@@ -230,7 +230,8 @@ class Dialect
         $path = $route ? $this->localizedRoutePath($route, $locale) : false;
 
         // The query string decides the content too, like ?page=2 of a pagination
-        $query = request()->server('QUERY_STRING') ?: null;
+        $query = request()->server('QUERY_STRING');
+        $query = is_string($query) && $query !== '' ? $query : null;
 
         // Unlike a link of the language switcher, the fallback locale has no subdomain for the cookie
         if (Config::beautify() && $locale === Config::fallbackLocale()) {
