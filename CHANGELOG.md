@@ -2,7 +2,7 @@
 
 All notable changes to this package are in this file. The package follows [Semantic Versioning](https://semver.org).
 
-## [6.0.0] - Unreleased
+## [6.0.0] - 2026-10-07
 
 Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upgrade-to-6xx-from-5xx) before you update.
 
