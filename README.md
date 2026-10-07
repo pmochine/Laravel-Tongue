@@ -202,7 +202,9 @@ Sometimes you would like to specify aliases to use custom subdomains instead of 
 
 - `alias_urls` (default: `false`)
 
-By default, the aliases only work for incoming requests. The URLs that Tongue builds still use the locale, like `de.domain.com`. If you set `alias_urls` to `true`, these URLs use the first alias of the locale, like `gewinnen.domain.com`. The middleware then redirects `de.domain.com` to `gewinnen.domain.com`. The beautiful URL of the fallback locale (`beautify_url`) wins over its alias.
+By default, the aliases only work for incoming requests. The URLs that Tongue builds still use the locale, like `de.domain.com`. If you set `alias_urls` to `true`, these URLs use the first alias of the locale, like `gewinnen.domain.com`. The middleware then redirects `de.domain.com` and the other aliases of the locale to `gewinnen.domain.com`.
+
+The beautiful URL of the fallback locale (`beautify_url`) wins over its alias. Tongue ignores an alias that is also a locale code or a whitelisted subdomain.
 
 - `acceptLanguage` (default: `true`)
 
@@ -402,6 +404,9 @@ These changes can affect your app:
 
 - `dialect()->translate()` and `dialect()->current()` now also find a route by its name. Before, a route name that was no translation key kept the path of the current page.
 - `tongue()`, `dialect()`, the facades and `app('tongue')` now return the same instance. Before, each call of a helper built a new instance.
+- `dialect()->translate()` and `dialect()->current()` encode route attributes for the path, like `route()` of Laravel. A space becomes `%20`.
+- The home page URL has no trailing slash: `https://fr.example.com` instead of `https://fr.example.com/`.
+- If you extend `Tongue` or `Dialect`: the constructors take no arguments, and `Dialect` has no `$app` property.
 
 ### Upgrade to 2.x.x from 1.x.x
 There are little changes that might be important for you.

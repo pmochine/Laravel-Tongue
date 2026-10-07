@@ -11,6 +11,9 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - The package needs PHP 8.2 or higher and Laravel 11, 12 or 13. Laravel 13 needs PHP 8.3 or higher.
 - Support for Laravel 8, 9 and 10 and for PHP 7.4 and 8.1 is removed. Use version 5.0.0 for these versions. Version 5 gets no more updates.
 - `bakame/laravel-domain-parser` must be version 1.3 or higher.
+- `dialect()->translate()` and `dialect()->current()` encode route attributes for the path. A space becomes `%20`, and `#`, `?` and `%` are encoded too.
+- The home page URL has no trailing slash: `https://fr.example.com` instead of `https://fr.example.com/`.
+- The constructors of `Tongue`, `Dialect` and `Localization\Locale` take no arguments. They read the application with `app()` for each call.
 
 ### Added
 
@@ -18,6 +21,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - The service provider registers the middleware alias `speaks-tongue`. If the app defines this alias, the service provider keeps it.
 - New option `alias_urls` (default `false`). If it is `true`, the URLs that Tongue builds use the alias of a locale as subdomain. The middleware then redirects to the alias (#52, #47).
 - `dialect()->translate()` also accepts the name of a route, not only a translation key (#53).
+- `dialect()->translate()` uses the binding field of a route, like `{post:slug}`, for a model.
 
 ### Fixed
 
@@ -26,10 +30,14 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - `dialect()->current()` kept the path of the current locale for a named route with a translated path.
 - The helpers `tongue()` and `dialect()` built a new instance for each call. Routes from `dialect()->interpret()` were lost for the facade and the container. Now helpers, facades and container share one instance.
 - `Dialect` cached the URL of the first request. With Octane or several requests in one test, links got the path of an old request.
-- `Tongue` is a scoped binding, so Octane builds it again for each request (#54).
+- If an app resolved `Tongue` during boot, `Tongue` changed the locale of the Octane worker application. `Tongue` now uses the application of the current request (#54).
 - The Accept-Language fallback read `$_SERVER`, which does not belong to the current request in Octane (#54).
 - `dialect()->translate()` with route attributes threw "Undefined array key" on a URL without a path.
 - A pattern for missing optional route parameters removed the path between two of them.
+- Without attributes, `translate()` left missing optional route parameters in the URL as `{page?}`.
+- Translated routes in a route group with a prefix, like `Route::prefix('admin')`, lost the prefix in the translated URL.
+- A translation with a leading slash, like `'/welcome'`, did not match its route.
+- An alias that is also a locale code caused a redirect loop.
 - Implicitly nullable parameters for PHP 8.4.
 
 ### Changed
