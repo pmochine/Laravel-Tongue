@@ -2,9 +2,10 @@
 
 namespace Pmochine\LaravelTongue\Tests;
 
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Request;
-use Orchestra\Testbench\BrowserKit\TestCase as OrchestraTestCase;
+use Illuminate\Http\Request;
+use Illuminate\Testing\TestResponse;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use Pmochine\LaravelTongue\ServiceProvider;
 
 class TestCase extends OrchestraTestCase
 {
@@ -18,6 +19,17 @@ class TestCase extends OrchestraTestCase
         parent::setUp();
 
         $this->refreshConfig();
+    }
+
+    /**
+     * Get package providers.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
+     * @return array
+     */
+    protected function getPackageProviders($app)
+    {
+        return [ServiceProvider::class];
     }
 
     /**
@@ -48,7 +60,7 @@ class TestCase extends OrchestraTestCase
      * @param  array  $files
      * @param  array  $server
      * @param  string  $content
-     * @return Response
+     * @return TestResponse
      */
     protected function sendRequest($method, $path, $locale = null, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
     {
@@ -61,6 +73,7 @@ class TestCase extends OrchestraTestCase
 
     /**
      * Set Request context for the package components.
+     * Like in a real app: the locale is detected before the routes are registered.
      *
      * @param  string  $method
      * @param  string  $path
@@ -70,7 +83,7 @@ class TestCase extends OrchestraTestCase
      * @param  array  $files
      * @param  array  $server
      * @param  string  $content
-     * @return Response
+     * @return void
      */
     protected function setRequestContext($method, $path, $locale = null, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
     {
@@ -120,7 +133,7 @@ class TestCase extends OrchestraTestCase
     /**
      * Checks if the given response contains the given cookie(s).
      *
-     * @param  Response  $response
+     * @param  TestResponse  $response
      * @param  array  $cookies
      * @return bool
      */

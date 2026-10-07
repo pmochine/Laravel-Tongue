@@ -3,8 +3,7 @@
 namespace Pmochine\LaravelTongue\Tests\Feature;
 
 use Illuminate\Support\Arr;
-use Pmochine\LaravelTongue\Facades\Dialect;
-use Pmochine\LaravelTongue\ServiceProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Pmochine\LaravelTongue\Tests\TestCase;
 
 class DialectTest extends TestCase
@@ -20,47 +19,25 @@ class DialectTest extends TestCase
     protected $enPathWithParameter1 = 'hello/samplename';
     protected $routeParameters = ['username' => 'samplename'];
 
-    /**
-     * Get package providers.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return array
-     */
-    protected function getPackageProviders($app)
-    {
-        return [ServiceProvider::class];
-    }
 
-    /**
-     * Get package aliases.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return array
-     */
-    protected function getPackageAliases($app)
-    {
-        return [
-            'dialect' => Dialect::class,
-        ];
-    }
 
-    /** @test */
+    #[Test]
     public function it_reaches_translated_routes()
     {
-        $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
+        $response = $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
 
-        $this->assertResponseOk();
+        $response->assertOk();
 
         app('config')->set('localization.beautify_url', false);
 
-        $this->sendRequest('GET', $this->enPathWithoutParameter, 'en');
+        $response = $this->sendRequest('GET', $this->enPathWithoutParameter, 'en');
 
-        $this->assertResponseOk();
+        $response->assertOk();
 
         //IMPORTANT NOT DONE
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_a_redirect_url()
     {
         $this->setRequestContext('GET', $this->dePathWithoutParameter, null, [], ['tongue-locale' => 'de']);
@@ -76,7 +53,7 @@ class DialectTest extends TestCase
         $this->assertEquals($this->getUri($this->enPathWithoutParameter, 'en'), app('dialect')->redirectUrl());
     }
 
-    /** @test */
+    #[Test]
     public function it_redirects_url_into_a_specific_language()
     {
         $this->setRequestContext('GET', $this->dePathWithoutParameter, null, [], ['tongue-locale' => 'de']);
@@ -92,7 +69,7 @@ class DialectTest extends TestCase
         $this->assertEquals($deUri, app('dialect')->redirectUrl($deUri, 'de'));
     }
 
-    /** @test */
+    #[Test]
     public function it_redirects_url_to_correct_language()
     {
         // This is an example when we are changing the language. The "standard" locale is set to "en"
@@ -117,30 +94,30 @@ class DialectTest extends TestCase
         $this->assertEquals($deUri, app('dialect')->redirectUrl($enUri));
     }
 
-    /** @test */
+    #[Test]
     public function it_translates_the_current_route()
     {
-        $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
+        $response = $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
 
         $this->assertEquals($this->getUri($this->enPathWithoutParameter, 'en'), app('dialect')->current('en'));
 
         $this->refresh();
 
-        $this->sendRequest('GET', $this->enPathWithParameter1, 'en');
+        $response = $this->sendRequest('GET', $this->enPathWithParameter1, 'en');
 
         $this->assertEquals($this->getUri($this->dePathWithParameter1, 'de'), app('dialect')->current('de'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_translated_versions_of_the_current_route_for_available_locales()
     {
-        $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
+        $response = $this->sendRequest('GET', $this->dePathWithoutParameter, 'de');
 
         $this->assertEquals($this->getUri($this->enPathWithoutParameter, 'en'), app('dialect')->translateAll()['en']);
 
         $this->refresh();
 
-        $this->sendRequest('GET', $this->enPathWithParameter1, 'en');
+        $response = $this->sendRequest('GET', $this->enPathWithParameter1, 'en');
 
         $this->assertEquals([
             'en' => $this->getUri($this->enPathWithParameter1), //no subdomain because of beautify
@@ -156,7 +133,7 @@ class DialectTest extends TestCase
         ], Arr::only(app('dialect')->translateAll(false), ['en', 'de']));
     }
 
-    /** @test */
+    #[Test]
     public function it_interprets_a_translated_route_path()
     {
         $this->setRequestContext('GET', '', 'de');
@@ -168,7 +145,7 @@ class DialectTest extends TestCase
         $this->assertEquals($this->enPathWithParameter, app('dialect')->interpret($this->routeNameWithParameter));
     }
 
-    /** @test */
+    #[Test]
     public function it_translates_a_route_into_an_url()
     {
         //when beautify is off
