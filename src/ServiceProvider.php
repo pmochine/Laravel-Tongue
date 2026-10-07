@@ -19,7 +19,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $router = $this->app['router'];
 
         foreach (['speaks-tongue' => TongueSpeaksLocale::class, 'detects-tongue' => TongueDetectsLocale::class] as $alias => $middleware) {
-            if (! array_key_exists($alias, $router->getMiddleware())) {
+            if (!array_key_exists($alias, $router->getMiddleware())) {
                 $router->aliasMiddleware($alias, $middleware);
             }
         }

@@ -10,8 +10,6 @@ class TongueTest extends TestCase
     protected $pathLocalized = 'localized';
     protected $pathNotLocalized = 'not-localized';
 
-
-
     #[Test]
     public function it_does_not_redirect_when_middleware_is_not_used()
     {

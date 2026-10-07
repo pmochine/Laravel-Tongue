@@ -21,7 +21,8 @@ class Accent
     /**
      * Get url using array data from parse_url.
      *
-     * @param  array|false  $parsed_url  Array of data from parse_url function
+     * @param array|false $parsed_url Array of data from parse_url function
+     *
      * @return string Returns URL as string.
      */
     public static function unparseUrl($parsed_url)
@@ -36,7 +37,7 @@ class Accent
         $user = isset($parsed_url['user']) ? $parsed_url['user'] : '';
         $pass = isset($parsed_url['pass']) ? ':'.$parsed_url['pass'] : '';
         $url .= $user.(($user || $pass) ? "$pass@" : '');
-        if (! empty($url)) {
+        if (!empty($url)) {
             $url .= isset($parsed_url['path']) ? '/'.ltrim($parsed_url['path'], '/') : '';
         } elseif (empty($url)) {
             $url .= isset($parsed_url['path']) ? $parsed_url['path'] : '';
@@ -57,7 +58,7 @@ class Accent
     {
         if (app('router')->current()) {
             return array_filter(app('router')->current()->originalParameters(), function ($value) {
-                return ! is_null($value);
+                return !is_null($value);
             });
         }
 
@@ -68,13 +69,14 @@ class Accent
      * Find the route path matching the given route name.
      * Important: Translator can give you an array as well.
      *
-     * @param  string  $routeName
-     * @param  string|null  $locale
+     * @param string      $routeName
+     * @param string|null $locale
+     *
      * @return string|false
      */
     public static function findRoutePathByName($routeName, $locale = null)
     {
-        if (! is_string($routeName) || $routeName === '') {
+        if (!is_string($routeName) || $routeName === '') {
             return false;
         }
 
@@ -92,9 +94,10 @@ class Accent
      * A missing optional attribute disappears with its slash or dot, like in "files/{name}.{extension?}".
      * A missing required attribute stays.
      *
-     * @param  array  $attributes  Array of attributes
-     * @param  string  $route  route to substitute
-     * @param  array  $bindingFields  like ['post' => 'slug'] for the placeholder {post}
+     * @param array  $attributes    Array of attributes
+     * @param string $route         route to substitute
+     * @param array  $bindingFields like ['post' => 'slug'] for the placeholder {post}
+     *
      * @return string route with attributes changed
      */
     public static function substituteAttributesInRoute($attributes, $route, array $bindingFields = [])
@@ -115,8 +118,9 @@ class Accent
     /**
      * The value of a route attribute, encoded for the path.
      *
-     * @param  mixed  $value
-     * @param  string|null  $field  [the binding field, like "slug" in {post:slug}]
+     * @param mixed       $value
+     * @param string|null $field [the binding field, like "slug" in {post:slug}]
+     *
      * @return string|null [null if the value cannot be part of the path]
      */
     protected static function routeValue($value, ?string $field): ?string
@@ -132,7 +136,7 @@ class Accent
         }
 
         // Route::view() and route defaults can hold arrays. They are no part of the path.
-        if (! is_scalar($value) || (string) $value === '') {
+        if (!is_scalar($value) || (string) $value === '') {
             return null;
         }
 

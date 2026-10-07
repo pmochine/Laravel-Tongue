@@ -24,17 +24,18 @@ class Localization
             // this could be a future bug
             // when no middleware is active the language is not set right
             // domain.com could be in german etc...
-            if (! Config::beautify()) {
+            if (!Config::beautify()) {
                 // if the middleware is active we should be redirected to en.domain.com
                 // if not the fallback language is going to be used
                 return Config::fallbackLocale();
             }
+
             // we are checking if we have languages set in cookies or in the browser
             return self::currentTongue();
         }
 
         // could be a custom subdomain
-        if (! tongue()->isSpeaking($locale)) {
+        if (!tongue()->isSpeaking($locale)) {
             // check if it is a white listed domain
 
             if (tongue()->speaking('subdomains', $locale)) {
@@ -95,8 +96,9 @@ class Localization
         if (is_string($server)) {
             $server = [$server];
         }
+
         // Check if the HTTP_ACCEPT_LANGUAGE header is set in the server variable.
-        return ! app()->runningInConsole() || Arr::has($server, 'HTTP_ACCEPT_LANGUAGE');
+        return !app()->runningInConsole() || Arr::has($server, 'HTTP_ACCEPT_LANGUAGE');
     }
 
     /**
@@ -104,7 +106,8 @@ class Localization
      * Important to set config/session domain to .exmaple.com
      * https://gistlog.co/JacobBennett/15558410de2a394373ac.
      *
-     * @param  string  $locale
+     * @param string $locale
+     *
      * @return string|null
      */
     public static function cookie(?string $locale = null): ?string
