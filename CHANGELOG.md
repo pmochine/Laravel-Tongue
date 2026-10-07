@@ -35,6 +35,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - `dialect()->translate()` with route attributes threw "Undefined array key" on a URL without a path.
 - A pattern for missing optional route parameters removed the path between two of them.
 - Without attributes, `translate()` left missing optional route parameters in the URL as `{page?}`.
+- A missing optional parameter after a dot, like in `files/{name}.{extension?}`, left the dot in a translated URL.
 - Translated routes in a route group with a prefix, like `Route::prefix('admin')`, lost the prefix in the translated URL. Each route keeps its own prefix. For a translation key, `translate()` uses the prefix of the first route with this key.
 - A translation with a leading slash, like `'/welcome'`, did not match its route.
 - An alias that is also a locale code caused a redirect loop.

@@ -89,7 +89,8 @@ class Accent
 
     /**
      * Change route attributes for the ones in the $attributes array.
-     * A missing optional attribute disappears with its slash. A missing required attribute stays.
+     * A missing optional attribute disappears with its slash or dot, like in "files/{name}.{extension?}".
+     * A missing required attribute stays.
      *
      * @param  array  $attributes  Array of attributes
      * @param  string  $route  route to substitute
@@ -98,7 +99,7 @@ class Accent
      */
     public static function substituteAttributesInRoute($attributes, $route, array $bindingFields = [])
     {
-        return preg_replace_callback('/(\/?)\{(\w+)(?::(\w+))?(\??)\}/', function ($match) use ($attributes, $bindingFields) {
+        return preg_replace_callback('/([\/.]?)\{(\w+)(?::(\w+))?(\??)\}/', function ($match) use ($attributes, $bindingFields) {
             $name = $match[2];
             $field = $match[3] !== '' ? $match[3] : ($bindingFields[$name] ?? null);
             $value = self::routeValue($attributes[$name] ?? null, $field);

@@ -86,6 +86,8 @@ class AccentTest extends TestCase
         $this->assertEquals('blog', Accent::substituteAttributesInRoute([], 'blog/{page?}'));
         $this->assertEquals('', Accent::substituteAttributesInRoute([], '{page?}'));
         $this->assertEquals('hallo/{username}', Accent::substituteAttributesInRoute([], 'hallo/{username}'));
+        $this->assertEquals('dateien/readme', Accent::substituteAttributesInRoute(['base' => 'readme'], 'dateien/{base}.{extension?}'));
+        $this->assertEquals('dateien/readme.md', Accent::substituteAttributesInRoute(['base' => 'readme', 'extension' => 'md'], 'dateien/{base}.{extension?}'));
     }
 
     #[Test]
