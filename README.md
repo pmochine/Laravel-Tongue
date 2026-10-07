@@ -5,6 +5,7 @@
 
 
 [![tests](https://github.com/pmochine/Laravel-Tongue/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/pmochine/Laravel-Tongue/actions/workflows/tests.yml)
+[![styleci](https://styleci.io/repos/140954300/shield)](https://styleci.io/repos/140954300)
 
 [![Packagist](https://img.shields.io/packagist/v/pmochine/laravel-tongue.svg)](https://packagist.org/packages/pmochine/laravel-tongue)
 [![Packagist](https://poser.pugx.org/pmochine/laravel-tongue/d/total.svg)](https://packagist.org/packages/pmochine/laravel-tongue)

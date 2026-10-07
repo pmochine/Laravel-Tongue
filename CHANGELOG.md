@@ -52,7 +52,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 
 - The tests use Orchestra Testbench and PHPUnit attributes instead of the Browser Kit testing package.
 - The tests run with PHPUnit 11.5, 12.5 or 13. The CI uses PHPUnit 13 on PHP 8.4 and 8.5 with Laravel 12 and 13.
-- GitHub Actions replaces Travis CI. StyleCI, SensioLabs Insight and Coveralls configuration files are removed.
+- GitHub Actions replaces Travis CI. The configuration files for SensioLabs Insight and Coveralls are removed.
 
 ## Older versions
 
