@@ -22,6 +22,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - New option `alias_urls` (default `false`). If it is `true`, the URLs that Tongue builds use the alias of a locale as subdomain. The middleware then redirects to the alias (#52, #47).
 - `dialect()->translate()` also accepts the name of a route, not only a translation key (#53). For a route without translation, Laravel builds the path like `route()`. Attributes that are not in the path become the query string.
 - `dialect()->translate()` uses the binding field of a route, like `{post:slug}`, for a model.
+- Middleware `TongueDetectsLocale` with the alias `detects-tongue`. It detects the locale for each request, for example with Laravel Octane (#54).
 
 ### Fixed
 

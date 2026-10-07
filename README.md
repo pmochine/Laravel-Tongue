@@ -80,11 +80,10 @@ Open `app/Providers/AppServiceProvider.php` and add this to the `boot()` method:
       // This will guess a locale from the current HTTP request
       // and set the application locale.
       tongue()->detect();
-      
-      //If you use Carbon you can set the Locale right here.
-      \Carbon\Carbon::setLocale(tongue()->current()); 
   }
 ```
+
+Carbon uses the new locale automatically. Its Laravel service provider listens to the `LocaleUpdated` event.
 
 Laravel loads your routes after the `boot()` method of the `AppServiceProvider`. So `tongue()->detect()` sets the locale before `dialect()->interpret()` translates your routes.
 
@@ -112,31 +111,16 @@ For more information about Middleware, please refer to <a href="https://laravel.
 
 ### Laravel Octane
 
-Octane boots your app one time for many requests. A service provider does not see each request. So do not call `tongue()->detect()` in a service provider. Call it in a middleware that runs before all other middleware:
+Octane boots your app one time for many requests. A service provider does not see each request. So do not call `tongue()->detect()` in a service provider. Use the middleware `TongueDetectsLocale` of the package instead. It detects the locale for each request. Add it before all other middleware:
 
 ```php
-  // app/Http/Middleware/DetectTongue.php
-  namespace App\Http\Middleware;
-
-  use Closure;
-  use Illuminate\Http\Request;
-  use Symfony\Component\HttpFoundation\Response;
-
-  class DetectTongue
-  {
-      public function handle(Request $request, Closure $next): Response
-      {
-          tongue()->detect();
-
-          return $next($request);
-      }
-  }
-
   // bootstrap/app.php
   ->withMiddleware(function (Middleware $middleware) {
-      $middleware->prepend(\App\Http\Middleware\DetectTongue::class);
+      $middleware->prepend(\Pmochine\LaravelTongue\Middleware\TongueDetectsLocale::class);
   })
 ```
+
+You can also use its alias `detects-tongue` on a group of routes, for example for API routes without a service provider.
 
 Octane registers your routes one time, before the first request. So translated routes with `dialect()->interpret()` do not work with Octane. All other features work.
 

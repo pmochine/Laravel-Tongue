@@ -2,6 +2,7 @@
 
 namespace Pmochine\LaravelTongue;
 
+use Pmochine\LaravelTongue\Middleware\TongueDetectsLocale;
 use Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
@@ -17,8 +18,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         // Since Laravel 11 there is no app/Http/Kernel.php. Keep an alias that the app defines itself.
         $router = $this->app['router'];
 
-        if (! array_key_exists('speaks-tongue', $router->getMiddleware())) {
-            $router->aliasMiddleware('speaks-tongue', TongueSpeaksLocale::class);
+        foreach (['speaks-tongue' => TongueSpeaksLocale::class, 'detects-tongue' => TongueDetectsLocale::class] as $alias => $middleware) {
+            if (! array_key_exists($alias, $router->getMiddleware())) {
+                $router->aliasMiddleware($alias, $middleware);
+            }
         }
     }
 
