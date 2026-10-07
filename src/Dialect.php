@@ -10,6 +10,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Pmochine\LaravelTongue\Accent\Accent;
+use Pmochine\LaravelTongue\Concerns\LocalizesRoutes;
 use Pmochine\LaravelTongue\Contracts\LocalizedUrlRoutable;
 use Pmochine\LaravelTongue\Localization\Localization;
 use Pmochine\LaravelTongue\Misc\Config;
@@ -22,6 +23,8 @@ use Pmochine\LaravelTongue\Misc\Url;
  */
 class Dialect
 {
+    use LocalizesRoutes;
+
     /**
      * The routes from interpret(), in the order of interpret().
      *
@@ -94,6 +97,11 @@ class Dialect
     protected function localizedRoutePath(Route $route, $locale, ?Route $registered = null)
     {
         $registered = $registered ?: $route;
+
+        // A route from localizedRoutes(): the path of its route in the locale
+        if ($sibling = $this->localizedSibling($registered, $locale)) {
+            return Accent::substituteAttributesInRoute($this->routeAttributes($route, $locale), $sibling->uri());
+        }
 
         // A route name that is a translation key, like "routes.welcome"
         $path = $this->translatedKeyPath($registered->getName(), $locale, $registered);
@@ -297,6 +305,13 @@ class Dialect
         $attributes = $this->localizeAttributes(is_iterable($routeAttributes) ? collect($routeAttributes)->all() : [], $locale);
         $route = $this->findRouteByName($routeName);
         $bindingFields = $route ? $route->bindingFields() : [];
+
+        // A route from localizedRoutes(), by its name or its translation key: Laravel builds the path of its route in the locale
+        $localized = $route ? $this->localizedSibling($route, $locale) : $this->localizedRouteByKey($routeName, $locale);
+
+        if ($localized) {
+            return $this->buildUrlFromRoute($locale, $localized, $attributes);
+        }
 
         // A translation key, like "routes.welcome"
         $path = $this->translatedKeyPath($routeName, $locale, $route);
@@ -652,6 +667,18 @@ class Dialect
      */
     public function interpret($routeName)
     {
+        // Inside localizedRoutes(): the path in the locale of the current round
+        if ($this->routesLocale !== null) {
+            $routePath = Accent::findRoutePathByName($routeName, $this->routesLocale);
+
+            if ($routePath !== false) {
+                $prefix = trim(app('router')->getLastGroupPrefix(), '/');
+                $this->routesLocalePaths[$this->normalizePath($prefix.'/'.$routePath)][] = $routeName;
+            }
+
+            return $routePath;
+        }
+
         $routePath = Accent::findRoutePathByName($routeName);
 
         if ($routePath !== false) {

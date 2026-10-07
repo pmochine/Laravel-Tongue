@@ -22,6 +22,11 @@ class TongueSpeaksLocale
             return dialect()->redirect(dialect()->redirectURL());
         }
 
+        // A route from localizedRoutes() with the path of another locale, like de.example.com/hello
+        if (! Config::preventRedirect() && $url = dialect()->localizedRouteRedirectUrl()) {
+            return dialect()->redirect($url);
+        }
+
         return $next($request);
     }
 }

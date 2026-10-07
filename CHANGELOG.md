@@ -2,6 +2,13 @@
 
 All notable changes to this package are in this file. The package follows [Semantic Versioning](https://semver.org).
 
+## [6.1.0] - Unreleased
+
+### Added
+
+- `dialect()->localizedRoutes()` registers translated routes one time for each locale, each with the path of its locale. So `php artisan route:cache` and Laravel Octane work with translated routes (#28).
+- The middleware `speaks-tongue` redirects a route from `localizedRoutes()` to the path of the current locale, for example `fr.example.com/welcome` to `fr.example.com/bienvenue`.
+
 ## [6.0.0] - 2026-10-07
 
 Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upgrade-to-6xx-from-5xx) before you update.
