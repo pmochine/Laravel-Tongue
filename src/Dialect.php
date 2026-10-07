@@ -70,7 +70,7 @@ class Dialect
     /**
      * Translate the current route for the given locale.
      *
-     * @param $locale
+     * @param  $locale
      * @return bool|string
      */
     public function current($locale)
@@ -647,7 +647,7 @@ class Dialect
     /**
      * Interprets a translated route path for the given route name.
      *
-     * @param $routeName
+     * @param  $routeName
      * @return string|false (but should be string if it exists!)
      */
     public function interpret($routeName)

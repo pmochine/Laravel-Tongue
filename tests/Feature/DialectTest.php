@@ -20,8 +20,6 @@ class DialectTest extends TestCase
     protected $enPathWithParameter1 = 'hello/samplename';
     protected $routeParameters = ['username' => 'samplename'];
 
-
-
     #[Test]
     public function it_reaches_translated_routes()
     {
