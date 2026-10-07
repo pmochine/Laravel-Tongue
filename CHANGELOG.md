@@ -7,7 +7,12 @@ All notable changes to this package are in this file. The package follows [Seman
 ### Added
 
 - `dialect()->localizedRoutes()` registers translated routes one time for each locale, each with the path of its locale. So `php artisan route:cache` and Laravel Octane work with translated routes (#28).
-- The middleware `speaks-tongue` redirects a route from `localizedRoutes()` to the path of the current locale, for example `fr.example.com/welcome` to `fr.example.com/bienvenue`.
+- The middleware `speaks-tongue` redirects a route from `localizedRoutes()` to the path of the current locale, for example `fr.example.com/welcome` to `fr.example.com/bienvenue`. A form request gets the status 307, so it keeps its method and data.
+- `dialect()->redirect()` accepts a status code as second argument.
+
+### Changed
+
+- The middleware `detects-tongue` and `speaks-tongue` run before `SubstituteBindings`, the route model binding of Laravel. So the binding finds a translated slug in the locale of the request, and `speaks-tongue` redirects before a binding fails.
 
 ## [6.0.0] - 2026-10-07
 

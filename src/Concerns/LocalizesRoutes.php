@@ -3,11 +3,12 @@
 namespace Pmochine\LaravelTongue\Concerns;
 
 use Closure;
+use Exception;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\RouteCollection;
+use LogicException;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Misc\Url;
-use SplObjectStorage;
 
 /**
  * Registers translated routes once per locale, each with the path of its locale.
@@ -47,17 +48,24 @@ trait LocalizesRoutes
      * Registers the routes of the callback once for each supported locale.
      * In the callback, interpret() gives the path of that locale.
      *
+     * Each round registers into an empty route collection, so the n-th route of every
+     * round belongs to the same route definition, whatever its path or prefix is.
+     *
      * @param  \Closure  $routes
      * @return void
+     *
+     * @throws \LogicException [if two route definitions get the same path, or a route name is taken]
      */
     public function localizedRoutes(Closure $routes): void
     {
         $router = app('router');
-        $groups = [];
+        $collection = $router->getRoutes();
         $locales = $this->routeLocales();
+        $rounds = [];
 
         foreach ($locales as $locale) {
-            $before = $this->registeredRoutes();
+            $round = new RouteCollection();
+            $router->setRoutes($round);
 
             $this->routesLocale = $locale;
             $this->routesLocalePaths = [];
@@ -66,34 +74,85 @@ trait LocalizesRoutes
                 $routes();
             } finally {
                 $this->routesLocale = null;
+                $router->setRoutes($collection);
             }
 
-            $after = $this->registeredRoutes();
+            $rounds[$locale] = $this->withTranslationKeys($round->getRoutes());
+        }
 
-            foreach ($router->getRoutes()->getRoutes() as $route) {
-                if ($before->contains($route)) {
-                    continue;
-                }
+        $this->addLocalizedRoutes($collection, $rounds, $locales);
+    }
 
-                $id = $this->localizedRouteId($route);
-                $routeLocales = [$locale];
+    /**
+     * Pairs the routes of the rounds and adds them to the route collection of the app.
+     * Locales with the same path share one route.
+     *
+     * @param  \Illuminate\Routing\RouteCollection  $collection
+     * @param  array  $rounds  [locale => [[route, translation key]]]
+     * @param  array  $locales
+     * @return void
+     */
+    protected function addLocalizedRoutes(RouteCollection $collection, array $rounds, array $locales)
+    {
+        $count = count(reset($rounds) ?: []);
 
-                // The same path as in an earlier locale replaced the route of that locale.
-                // So this route serves both locales.
-                foreach ($groups[$id] ?? [] as $index => $earlier) {
-                    if (! $after->contains($earlier)) {
-                        $routeLocales = array_merge($earlier->getAction('tongue')['locales'], $routeLocales);
-                        unset($groups[$id][$index]);
-                    }
-                }
-
-                $this->markLocalizedRoute($route, $id, $routeLocales, $locales[0]);
-                $groups[$id][] = $route;
+        foreach ($rounds as $routes) {
+            if (count($routes) !== $count) {
+                throw new LogicException('localizedRoutes() must register the same routes in every locale.');
             }
         }
 
-        $router->getRoutes()->refreshNameLookups();
-        $router->getRoutes()->refreshActionLookups();
+        $call = bin2hex(random_bytes(4));
+        $paths = [];
+
+        // Names that the route file set after it added a route are not in the lookups yet
+        $collection->refreshNameLookups();
+
+        for ($index = 0; $index < $count; $index++) {
+            $variants = [];
+
+            foreach ($locales as $locale) {
+                [$route, $key] = $rounds[$locale][$index];
+                $path = implode(',', $route->methods()).' '.$route->getDomain().'/'.$route->uri();
+
+                $variants[$path] = $variants[$path] ?? ['route' => $route, 'key' => $key, 'locales' => []];
+                $variants[$path]['locales'][] = $locale;
+            }
+
+            foreach ($variants as $path => $variant) {
+                // Laravel finds a route by its path, not by the locale. So two route definitions can not share a path.
+                if (isset($paths[$path]) && $paths[$path] !== $index) {
+                    throw new LogicException("Two routes in localizedRoutes() have the same path [{$path}] in different locales.");
+                }
+
+                $paths[$path] = $index;
+
+                $this->markLocalizedRoute($collection, $variant['route'], "{$call}.{$index}", $variant['locales'], $locales[0], $variant['key']);
+                $collection->add($variant['route']);
+            }
+        }
+
+        $collection->refreshNameLookups();
+        $collection->refreshActionLookups();
+    }
+
+    /**
+     * Gives each route of a round the translation key that interpret() gave its path.
+     * Routes with the same path, like GET and POST "contact", get the keys in the order of interpret().
+     *
+     * @param  array  $routes
+     * @return array [[route, translation key or null]]
+     */
+    protected function withTranslationKeys(array $routes)
+    {
+        $used = [];
+
+        return array_map(function (Route $route) use (&$used) {
+            $path = $this->normalizePath($route->uri());
+            $position = $used[$path] = ($used[$path] ?? -1) + 1;
+
+            return [$route, $this->routesLocalePaths[$path][$position] ?? null];
+        }, $routes);
     }
 
     /**
@@ -157,7 +216,22 @@ trait LocalizesRoutes
             return null;
         }
 
-        $path = $this->localizedRoutePath($route, $locale);
+        // The middleware runs before route model binding. Bind a copy in a locale of the route,
+        // so a translated slug in the URL gives its key in the current locale.
+        $bound = $this->inLocale($tongue['locales'][0], function () use ($route) {
+            $copy = clone $route;
+
+            try {
+                app('router')->substituteBindings($copy);
+                app('router')->substituteImplicitBindings($copy);
+            } catch (Exception $e) {
+                // For example a slug that does not exist. The URL keeps the values that it has.
+            }
+
+            return $copy;
+        });
+
+        $path = $this->localizedRoutePath($bound, $locale);
 
         if ($path === false) {
             return null;
@@ -188,79 +262,31 @@ trait LocalizesRoutes
     }
 
     /**
-     * @return \SplObjectStorage
-     */
-    protected function registeredRoutes()
-    {
-        $routes = new SplObjectStorage();
-
-        foreach (app('router')->getRoutes()->getRoutes() as $route) {
-            $routes->attach($route);
-        }
-
-        return $routes;
-    }
-
-    /**
-     * The id is the same for the routes of all locales: the methods, the domain,
-     * and the prefix with the translation key, or the path if the route has no translation.
-     *
-     * @param  \Illuminate\Routing\Route  $route
-     * @return string
-     */
-    protected function localizedRouteId(Route $route)
-    {
-        $key = $this->localizedRouteKey($route);
-        $where = $key !== null
-            ? 'key:'.trim((string) $route->getPrefix(), '/').'|'.$key
-            : 'path:'.$this->normalizePath($route->uri());
-
-        return implode(',', $route->methods()).'|'.$route->getDomain().'|'.$where;
-    }
-
-    /**
-     * The translation key that interpret() gave the path of the route in the current round.
-     *
-     * @param  \Illuminate\Routing\Route  $route
-     * @return string|null
-     */
-    protected function localizedRouteKey(Route $route)
-    {
-        $keys = $this->routesLocalePaths[$this->normalizePath($route->uri())] ?? [];
-
-        if (in_array($route->getName(), $keys, true)) {
-            return $route->getName();
-        }
-
-        return $keys[0] ?? null;
-    }
-
-    /**
      * Saves the group and the locales in the route action.
      * Route names must be unique for route:cache, so only the route of the first locale keeps its name.
      * The routes of the other locales get the locale as suffix, like "welcome.de".
      *
+     * @param  \Illuminate\Routing\RouteCollection  $collection
      * @param  \Illuminate\Routing\Route  $route
      * @param  string  $id
      * @param  array  $locales
      * @param  string  $firstLocale  [the fallback locale, if it is supported]
+     * @param  string|null  $key
      * @return void
      */
-    protected function markLocalizedRoute(Route $route, $id, array $locales, $firstLocale)
+    protected function markLocalizedRoute(RouteCollection $collection, Route $route, $id, array $locales, $firstLocale, $key)
     {
         $action = $route->getAction();
-        $name = $action['tongue']['name'] ?? ($action['as'] ?? null);
-        $locales = array_values(array_unique($locales));
+        $name = $action['as'] ?? null;
 
-        $action['tongue'] = [
-            'id' => $id,
-            'locales' => $locales,
-            'key' => $this->localizedRouteKey($route),
-            'name' => $name,
-        ];
+        $action['tongue'] = ['id' => $id, 'locales' => $locales, 'key' => $key, 'name' => $name];
 
         if ($name !== null) {
             $action['as'] = in_array($firstLocale, $locales, true) ? $name : $name.'.'.$locales[0];
+
+            if ($collection->hasNamedRoute($action['as'])) {
+                throw new LogicException("The route name [{$action['as']}] of a route in localizedRoutes() is taken. Rename one of the routes.");
+            }
         }
 
         $route->setAction($action);

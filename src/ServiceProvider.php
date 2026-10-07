@@ -2,6 +2,8 @@
 
 namespace Pmochine\LaravelTongue;
 
+use Illuminate\Contracts\Http\Kernel as HttpKernel;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Pmochine\LaravelTongue\Middleware\TongueDetectsLocale;
 use Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale;
 
@@ -22,6 +24,30 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             if (! array_key_exists($alias, $router->getMiddleware())) {
                 $router->aliasMiddleware($alias, $middleware);
             }
+        }
+
+        // The kernel can be resolved before or after this provider boots
+        if ($this->app->resolved(HttpKernel::class)) {
+            $this->prioritizeMiddleware($this->app->make(HttpKernel::class));
+        } else {
+            $this->app->afterResolving(HttpKernel::class, function ($kernel) {
+                $this->prioritizeMiddleware($kernel);
+            });
+        }
+    }
+
+    /**
+     * Tongue detects the locale and redirects before route model binding.
+     * So the binding finds a translated slug in the right locale.
+     *
+     * @param  \Illuminate\Contracts\Http\Kernel  $kernel
+     * @return void
+     */
+    protected function prioritizeMiddleware($kernel)
+    {
+        if (method_exists($kernel, 'addToMiddlewarePriorityBefore')) {
+            $kernel->addToMiddlewarePriorityBefore(SubstituteBindings::class, TongueDetectsLocale::class);
+            $kernel->addToMiddlewarePriorityBefore(SubstituteBindings::class, TongueSpeaksLocale::class);
         }
     }
 

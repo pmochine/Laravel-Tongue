@@ -44,6 +44,27 @@ class LocalizedRoutesTest extends TestCase
                 Route::get('news/{article}', function (Article $article) {
                     return app()->getLocale();
                 })->name('news');
+
+                // A translated path with a translated slug
+                Route::get(dialect()->interpret('Tongue::routes.article_slug'), function (Article $article) {
+                    return app()->getLocale().':'.$article->getRouteKey();
+                })->name('article');
+
+                // GET and POST have the same path in English, but other paths in German
+                Route::get(dialect()->interpret('Tongue::routes.form'), function () {
+                    return 'form';
+                })->name('form');
+
+                Route::post(dialect()->interpret('Tongue::routes.submit'), function () {
+                    return 'submitted:'.request('message');
+                })->name('submit');
+
+                // A translated prefix
+                Route::prefix(dialect()->interpret('Tongue::routes.shop'))->group(function () {
+                    Route::get(dialect()->interpret('Tongue::routes.good_night'), function () {
+                        return 'shop';
+                    })->name('shop.night');
+                });
             });
         });
     }
@@ -110,6 +131,85 @@ class LocalizedRoutesTest extends TestCase
         // German comes first in the supported locales of the test config
         $this->assertSame('gute-nacht', Route::getRoutes()->getByName('night')->uri());
         $this->assertSame('good-night', Route::getRoutes()->getByName('night.en')->uri());
+    }
+
+    #[Test]
+    public function get_and_post_with_the_same_path_keep_their_own_translation()
+    {
+        $this->call('GET', $this->getUri('kontakt', 'de'))->assertOk()->assertSee('form');
+        $this->call('POST', $this->getUri('absenden', 'de'), ['message' => 'hallo'])->assertOk()->assertSee('submitted:hallo');
+        $this->call('POST', $this->getUri('contact'), ['message' => 'hello'])->assertOk()->assertSee('submitted:hello');
+
+        $this->assertEquals($this->getUri('absenden', 'de'), app('dialect')->translate('submit', [], 'de'));
+        $this->assertEquals($this->getUri('kontakt', 'de'), app('dialect')->translate('form', [], 'de'));
+    }
+
+    #[Test]
+    public function a_redirect_keeps_the_method_of_a_post_request()
+    {
+        $this->call('POST', $this->getUri('contact', 'de'), ['message' => 'hallo'])
+            ->assertStatus(307)
+            ->assertRedirect($this->getUri('absenden', 'de'));
+    }
+
+    #[Test]
+    public function a_translated_prefix_belongs_to_its_route()
+    {
+        $this->call('GET', $this->getUri('laden/gute-nacht', 'de'))->assertOk()->assertSee('shop');
+
+        $this->assertEquals($this->getUri('laden/gute-nacht', 'de'), app('dialect')->translate('shop.night', [], 'de'));
+
+        $this->call('GET', $this->getUri('shop/good-night', 'de'))->assertRedirect($this->getUri('laden/gute-nacht', 'de'));
+        $this->call('GET', $this->getUri('laden/gute-nacht', 'de'))->assertOk()->assertSee('shop');
+    }
+
+    #[Test]
+    public function a_translated_slug_works_on_the_first_request()
+    {
+        // The locale is detected before route model binding
+        $this->call('GET', $this->getUri('news/wichtige-aenderung', 'de'))->assertOk()->assertSee('de');
+        $this->call('GET', $this->getUri('news/important-change', 'fr'))->assertOk()->assertSee('fr');
+        $this->call('GET', $this->getUri('artikel/wichtige-aenderung', 'de'))->assertOk()->assertSee('de:wichtige-aenderung');
+    }
+
+    #[Test]
+    public function the_path_and_the_slug_of_another_locale_redirect_to_the_locale()
+    {
+        $this->call('GET', $this->getUri('article/important-change', 'de'))->assertRedirect($this->getUri('artikel/wichtige-aenderung', 'de'));
+    }
+
+    #[Test]
+    public function two_routes_with_swapped_paths_are_rejected()
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('have the same path');
+
+        dialect()->localizedRoutes(function () {
+            Route::get(dialect()->interpret('Tongue::routes.swap_a'), function () {
+                return 'a';
+            })->name('swap.a');
+
+            Route::get(dialect()->interpret('Tongue::routes.swap_b'), function () {
+                return 'b';
+            })->name('swap.b');
+        });
+    }
+
+    #[Test]
+    public function a_taken_route_name_with_the_locale_suffix_is_rejected()
+    {
+        Route::get('taken', function () {
+            return 'taken';
+        })->name('night.de');
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('[night.de]');
+
+        dialect()->localizedRoutes(function () {
+            Route::get(dialect()->interpret('Tongue::routes.good_night'), function () {
+                return 'night';
+            })->name('night');
+        });
     }
 
     #[Test]

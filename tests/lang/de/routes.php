@@ -11,5 +11,8 @@ return [
     'form' => 'kontakt',
     'submit' => 'absenden',
     'article_slug' => 'artikel/{article}',
+    'shop' => 'laden',
+    'swap_a' => 'two',
+    'swap_b' => 'one',
 
 ];

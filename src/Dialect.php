@@ -60,14 +60,15 @@ class Dialect
      * Creates the redirect response.
      *
      * @param  string
+     * @param  int  $status  [307 keeps the method and the data of a POST request]
      * @return \Illuminate\Http\RedirectResponse;
      */
-    public function redirect(string $redirection)
+    public function redirect(string $redirection, int $status = 302)
     {
         // Save any flashed data for redirect
         app('session')->reflash();
 
-        return new RedirectResponse($redirection, 302, ['Vary' => 'Accept-Language']);
+        return new RedirectResponse($redirection, $status, ['Vary' => 'Accept-Language']);
     }
 
     /**

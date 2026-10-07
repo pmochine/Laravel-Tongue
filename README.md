@@ -286,12 +286,14 @@ The routes above get the paths of the locale of the current request. Laravel reg
   });
 ```
 
-Tongue runs the callback one time for each supported locale. In each round, `dialect()->interpret()` gives the path of that locale. So `en.example.com/welcome` and `fr.example.com/bienvenue` are two routes, and the middleware `detects-tongue` sets the locale for each request.
+Tongue runs the callback one time for each supported locale. In each round, `dialect()->interpret()` gives the path of that locale, also in `Route::prefix()`. So `en.example.com/welcome` and `fr.example.com/bienvenue` are two routes, and the middleware `detects-tongue` sets the locale for each request.
 
-- The route of the fallback locale keeps its name, like `welcome`. Route names must be unique for the route cache, so the routes of the other locales get the locale as suffix, like `welcome.fr`. To check the current route, use `request()->routeIs('welcome', 'welcome.*')`.
-- If several locales have the same path, they share one route.
+- The callback must register the same routes in the same order for each locale.
+- The route of the fallback locale keeps its name, like `welcome`. Route names must be unique for the route cache, so the routes of the other locales get the locale as suffix, like `welcome.fr`. To check the current route, use `request()->routeIs('welcome', 'welcome.*')`. If another route already has a name like `welcome.fr`, Tongue throws a `LogicException`.
+- If several locales have the same path, they share one route. Two different routes can not have the same path in different locales, because Laravel finds a route by its path. Then Tongue throws a `LogicException`.
 - `dialect()->translate('welcome', [], 'fr')`, `dialect()->current()`, `dialect()->translateUrl()` and `dialect()->alternates()` use the route of the locale. `route('welcome')` gives the path of the fallback locale.
-- If a request uses the path of another locale, like `fr.example.com/welcome`, the middleware `speaks-tongue` redirects to `fr.example.com/bienvenue`.
+- If a request uses the path of another locale, like `fr.example.com/welcome`, the middleware `speaks-tongue` redirects to `fr.example.com/bienvenue`. A translated slug in the URL gets the slug of the locale. A form request keeps its method and data, because the redirect has the status 307.
+- Tongue runs `detects-tongue` and `speaks-tongue` before the route model binding of Laravel. So the binding finds a translated slug in the right locale.
 
 ## Translated slugs
 
