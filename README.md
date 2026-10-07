@@ -120,7 +120,7 @@ Octane boots your app one time for many requests. A service provider does not se
   })
 ```
 
-You can also use its alias `detects-tongue` on a group of routes, for example for API routes without a service provider.
+You can also use its alias `detects-tongue` on a group of routes, for example for API routes without a service provider. In a group with both middleware, put `detects-tongue` before `speaks-tongue`.
 
 Octane registers your routes one time, before the first request. So translated routes with `dialect()->interpret()` do not work with Octane. All other features work.
 
@@ -287,7 +287,7 @@ A model can have a different slug in each language, like `en.example.com/article
   }
 ```
 
-`dialect()->current()`, `dialect()->translateAll()` and `dialect()->translate()` then use the slug of the target locale. This also works for routes without translated paths. The parameter must use route model binding, like `Route::get('article/{article}', ...)` with an `Article $article` argument in the controller.
+`dialect()->current()`, `dialect()->translateAll()` and `dialect()->translate()` then use the slug of the target locale. If `getLocalizedRouteKey()` returns `null` for a locale, the URL keeps the current slug. This also works for routes without translated paths. The parameter must use route model binding, like `Route::get('article/{article}', ...)` with an `Article $article` argument in the controller.
 
 ## Helper Functions - (finally something useful 😎)
 

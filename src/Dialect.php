@@ -122,8 +122,11 @@ class Dialect
         });
 
         foreach ($route->parameters() as $name => $value) {
-            if ($value instanceof LocalizedUrlRoutable) {
-                $attributes[$name] = $value->getLocalizedRouteKey($locale);
+            $key = $value instanceof LocalizedUrlRoutable ? $value->getLocalizedRouteKey($locale) : null;
+
+            // Without a key in the locale, the parameter keeps its value from the URL
+            if ($key !== null && $key !== '') {
+                $attributes[$name] = $key;
             }
         }
 
@@ -146,7 +149,7 @@ class Dialect
     }
 
     /**
-     * Replaces each model that implements LocalizedUrlRoutable with its route key in the locale.
+     * Replaces each model that implements LocalizedUrlRoutable with its route key in the locale, if it has one.
      *
      * @param  array  $attributes
      * @param  string  $locale
@@ -155,7 +158,10 @@ class Dialect
     protected function localizeAttributes(array $attributes, $locale)
     {
         return array_map(function ($value) use ($locale) {
-            return $value instanceof LocalizedUrlRoutable ? $value->getLocalizedRouteKey($locale) : $value;
+            $key = $value instanceof LocalizedUrlRoutable ? $value->getLocalizedRouteKey($locale) : null;
+
+            // Without a key in the locale, Laravel uses the route key of the model
+            return $key !== null && $key !== '' ? $key : $value;
         }, $attributes);
     }
 

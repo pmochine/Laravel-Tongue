@@ -48,4 +48,16 @@ class LocalizedRouteKeyTest extends TestCase
 
         $this->sendRequest('GET', 'article/important-change', 'fr')->assertOk();
     }
+
+    #[Test]
+    public function a_missing_slug_keeps_the_slug_of_the_url()
+    {
+        $this->sendRequest('GET', 'artikel/wichtige-aenderung', 'de')->assertOk();
+
+        $this->assertEquals($this->getUri('article/wichtige-aenderung', 'hu'), app('dialect')->current('hu'));
+
+        app()->setLocale('en');
+
+        $this->assertEquals($this->getUri('article/important-change', 'hu'), app('dialect')->translate('Tongue::routes.article_slug', ['article' => new Article], 'hu'));
+    }
 }

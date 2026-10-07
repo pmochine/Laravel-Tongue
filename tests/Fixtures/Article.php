@@ -10,16 +10,17 @@ use Pmochine\LaravelTongue\Contracts\LocalizedUrlRoutable;
  */
 class Article implements LocalizedUrlRoutable, UrlRoutable
 {
-    public const SLUGS = ['en' => 'important-change', 'de' => 'wichtige-aenderung'];
+    public const SLUGS = ['en' => 'important-change', 'de' => 'wichtige-aenderung', 'hu' => null];
 
     public function getLocalizedRouteKey(string $locale)
     {
-        return self::SLUGS[$locale] ?? self::SLUGS['en'];
+        // Hungarian has no slug yet
+        return array_key_exists($locale, self::SLUGS) ? self::SLUGS[$locale] : self::SLUGS['en'];
     }
 
     public function getRouteKey()
     {
-        return $this->getLocalizedRouteKey(app()->getLocale());
+        return $this->getLocalizedRouteKey(app()->getLocale()) ?? self::SLUGS['en'];
     }
 
     public function getRouteKeyName()
@@ -29,7 +30,7 @@ class Article implements LocalizedUrlRoutable, UrlRoutable
 
     public function resolveRouteBinding($value, $field = null)
     {
-        return in_array($value, self::SLUGS, true) ? new self : null;
+        return in_array($value, array_filter(self::SLUGS), true) ? new self : null;
     }
 
     public function resolveChildRouteBinding($childType, $value, $field)
