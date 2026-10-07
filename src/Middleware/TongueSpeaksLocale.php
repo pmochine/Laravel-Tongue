@@ -12,14 +12,13 @@ class TongueSpeaksLocale
      * Redirect if tongue does not speak the locale
      * language :P.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
-     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        if (tongue()->twister() && !Config::preventRedirect()) {
+        if (tongue()->twister() && ! Config::preventRedirect()) {
             return dialect()->redirect(dialect()->redirectURL());
         }
 

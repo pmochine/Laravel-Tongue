@@ -2,8 +2,8 @@
 
 namespace Pmochine\LaravelTongue\Tests\Unit;
 
-use PHPUnit\Framework\Attributes\Test;
 use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
+use PHPUnit\Framework\Attributes\Test;
 use Pmochine\LaravelTongue\Tests\TestCase;
 
 class TongueTest extends TestCase
@@ -54,6 +54,7 @@ class TongueTest extends TestCase
 
     /**
      * Important to note. I just don't want to test the full array...
+     *
      */
     #[Test]
     public function it_returns_the_available_locales()

@@ -11,8 +11,7 @@ interface LocalizedUrlRoutable
     /**
      * The route key of the model in the given locale.
      *
-     * @param string $locale [like "de"]
-     *
+     * @param  string  $locale  [like "de"]
      * @return string|int
      */
     public function getLocalizedRouteKey(string $locale);

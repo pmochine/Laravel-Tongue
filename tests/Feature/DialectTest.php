@@ -20,6 +20,8 @@ class DialectTest extends TestCase
     protected $enPathWithParameter1 = 'hello/samplename';
     protected $routeParameters = ['username' => 'samplename'];
 
+
+
     #[Test]
     public function it_reaches_translated_routes()
     {
@@ -228,7 +230,7 @@ class DialectTest extends TestCase
     {
         $this->setRequestContext('GET', '', 'de');
 
-        $this->assertEquals($this->getUri('posts/hello-world', 'fr'), app('dialect')->translate('post', ['post' => new Post()], 'fr'));
+        $this->assertEquals($this->getUri('posts/hello-world', 'fr'), app('dialect')->translate('post', ['post' => new Post], 'fr'));
     }
 
     #[Test]
@@ -267,7 +269,7 @@ class DialectTest extends TestCase
     {
         $this->setRequestContext('GET', '', 'en');
 
-        $this->assertEquals($this->getUri('artikel/hello-world', 'de'), app('dialect')->translate('Tongue::routes.article', ['post' => new Post()], 'de'));
+        $this->assertEquals($this->getUri('artikel/hello-world', 'de'), app('dialect')->translate('Tongue::routes.article', ['post' => new Post], 'de'));
     }
 
     #[Test]

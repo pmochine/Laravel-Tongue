@@ -18,10 +18,10 @@ class AlternatesTest extends TestCase
         $this->assertEquals([
             'de' => $this->getUri('guten-morgen', 'de'),
             // The fallback locale has the beautiful URL. The middleware does not redirect it.
-            'en'        => $this->getUri('good-morning'),
-            'es'        => $this->getUri('good-morning', 'es'),
-            'fr'        => $this->getUri('good-morning', 'fr'),
-            'hu'        => $this->getUri('good-morning', 'hu'),
+            'en' => $this->getUri('good-morning'),
+            'es' => $this->getUri('good-morning', 'es'),
+            'fr' => $this->getUri('good-morning', 'fr'),
+            'hu' => $this->getUri('good-morning', 'hu'),
             'x-default' => $this->getUri('good-morning'),
         ], app('dialect')->alternates());
 
@@ -55,7 +55,7 @@ class AlternatesTest extends TestCase
     public function it_writes_the_hreflang_with_a_hyphen()
     {
         app('config')->set('localization.supportedLocales', [
-            'en'    => ['name' => 'English', 'script' => 'Latn', 'native' => 'English', 'regional' => 'en_GB'],
+            'en' => ['name' => 'English', 'script' => 'Latn', 'native' => 'English', 'regional' => 'en_GB'],
             'pt_BR' => ['name' => 'Brazilian Portuguese', 'script' => 'Latn', 'native' => 'português do Brasil', 'regional' => 'pt_BR'],
         ]);
 
@@ -91,7 +91,7 @@ class AlternatesTest extends TestCase
     {
         // "fil" is no ISO 639-1 code, so the app gives Filipino the code "tl"
         app('config')->set('localization.supportedLocales', [
-            'en'  => ['name' => 'English', 'script' => 'Latn', 'native' => 'English', 'regional' => 'en_GB'],
+            'en' => ['name' => 'English', 'script' => 'Latn', 'native' => 'English', 'regional' => 'en_GB'],
             'fil' => ['name' => 'Filipino', 'script' => 'Latn', 'native' => 'Filipino', 'regional' => 'fil_PH', 'hreflang' => 'tl'],
         ]);
 

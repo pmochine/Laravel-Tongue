@@ -36,9 +36,9 @@ class LocalizedRouteKeyTest extends TestCase
     {
         $this->setRequestContext('GET', '', 'de');
 
-        $this->assertEquals($this->getUri('article/important-change', 'en'), app('dialect')->translate('Tongue::routes.article_slug', ['article' => new Article()], 'en'));
-        $this->assertEquals($this->getUri('artikel/wichtige-aenderung', 'de'), app('dialect')->translate('Tongue::routes.article_slug', ['article' => new Article()]));
-        $this->assertEquals($this->getUri('news/important-change', 'en'), app('dialect')->translate('news', ['article' => new Article()], 'en'));
+        $this->assertEquals($this->getUri('article/important-change', 'en'), app('dialect')->translate('Tongue::routes.article_slug', ['article' => new Article], 'en'));
+        $this->assertEquals($this->getUri('artikel/wichtige-aenderung', 'de'), app('dialect')->translate('Tongue::routes.article_slug', ['article' => new Article]));
+        $this->assertEquals($this->getUri('news/important-change', 'en'), app('dialect')->translate('news', ['article' => new Article], 'en'));
     }
 
     #[Test]
@@ -58,6 +58,6 @@ class LocalizedRouteKeyTest extends TestCase
 
         app()->setLocale('en');
 
-        $this->assertEquals($this->getUri('article/important-change', 'hu'), app('dialect')->translate('Tongue::routes.article_slug', ['article' => new Article()], 'hu'));
+        $this->assertEquals($this->getUri('article/important-change', 'hu'), app('dialect')->translate('Tongue::routes.article_slug', ['article' => new Article], 'hu'));
     }
 }

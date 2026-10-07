@@ -19,7 +19,7 @@ class Tongue
 
     public function __construct()
     {
-        $this->locale = new Locale();
+        $this->locale = new Locale;
     }
 
     /**
@@ -43,7 +43,7 @@ class Tongue
      */
     public function current($key = null)
     {
-        if (!$key) {
+        if (! $key) {
             return $this->locale->get();
         }
 
@@ -81,7 +81,7 @@ class Tongue
 
         //custom subdomains with locale. gewinnen.domain.com -> de as locale
         //a subdomain that is a locale is never an alias, like in Localization::decipherTongue()
-        if ($locale !== false && !$this->isSpeaking($locale) && $customLocale = tongue()->speaking('aliases', $locale)) {
+        if ($locale !== false && ! $this->isSpeaking($locale) && $customLocale = tongue()->speaking('aliases', $locale)) {
             //but we need to check again if it is spoken or not
             if ($this->current() !== $customLocale) {
                 return true;
@@ -116,13 +116,12 @@ class Tongue
      * The user speaks locale language.
      * Set the locale.
      *
-     * @param string $locale
-     *
+     * @param  string  $locale
      * @return Tongue|\Illuminate\Http\RedirectResponse;
      */
     public function speaks(string $locale)
     {
-        if (!$this->isSpeaking($locale)) {
+        if (! $this->isSpeaking($locale)) {
             //locale does not exist.
             return dialect()->redirectBackToLatest();
         }
@@ -152,14 +151,13 @@ class Tongue
      */
     public function speaking(?string $key = null, ?string $locale = null)
     {
-        return (new ConfigList())->lookup($key, $locale);
+        return (new ConfigList)->lookup($key, $locale);
     }
 
     /**
      * Checks if your page is speaking the language.
      *
-     * @param string $locale
-     *
+     * @param  string  $locale
      * @return bool
      */
     public function isSpeaking(string $locale): bool

@@ -30,9 +30,9 @@ class TongueDetector
     private $use_intl = false;
 
     /**
-     * @param string  $fallbackLocale
-     * @param array   $supportedLanguages
-     * @param Request $request
+     * @param  string  $fallbackLocale
+     * @param  array  $supportedLanguages
+     * @param  Request  $request
      */
     public function __construct($fallbackLocale, $supportedLanguages, Request $request)
     {
@@ -64,7 +64,7 @@ class TongueDetector
         $matches = $this->getMatchesFromAcceptedLanguages();
 
         foreach ($matches as $key => $q) {
-            if (!empty($this->supportedLanguages[$key])) {
+            if (! empty($this->supportedLanguages[$key])) {
                 return $key;
             }
 
@@ -89,10 +89,10 @@ class TongueDetector
             return key($this->supportedLanguages);
         }
 
-        if ($this->use_intl && !empty($this->request->header('Accept-Language'))) {
+        if ($this->use_intl && ! empty($this->request->header('Accept-Language'))) {
             $http_accept_language = PhpLocale::acceptFromHttp($this->request->header('Accept-Language'));
 
-            if (!empty($this->supportedLanguages[$http_accept_language])) {
+            if (! empty($this->supportedLanguages[$http_accept_language])) {
                 return $http_accept_language;
             }
         }
@@ -101,7 +101,7 @@ class TongueDetector
             $remote_host = explode('.', $this->request->server('REMOTE_HOST'));
             $lang = strtolower(end($remote_host));
 
-            if (!empty($this->supportedLanguages[$lang])) {
+            if (! empty($this->supportedLanguages[$lang])) {
                 return $lang;
             }
         }
@@ -145,7 +145,7 @@ class TongueDetector
                 //less than it's parent.
                 $l_ops = explode('-', $l);
                 array_pop($l_ops);
-                while (!empty($l_ops)) {
+                while (! empty($l_ops)) {
                     //The new generic option needs to be slightly less important than it's base
                     $q -= 0.001;
                     $op = implode('-', $l_ops);

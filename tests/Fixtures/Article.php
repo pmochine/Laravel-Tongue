@@ -31,7 +31,7 @@ class Article implements LocalizedUrlRoutable, UrlRoutable
     // Like the README: the slug of the current locale finds the article
     public function resolveRouteBinding($value, $field = null)
     {
-        return $value === $this->getRouteKey() ? new self() : null;
+        return $value === $this->getRouteKey() ? new self : null;
     }
 
     public function resolveChildRouteBinding($childType, $value, $field)
