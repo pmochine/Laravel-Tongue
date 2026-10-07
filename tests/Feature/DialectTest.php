@@ -4,6 +4,7 @@ namespace Pmochine\LaravelTongue\Tests\Feature;
 
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
+use Pmochine\LaravelTongue\Tests\Fixtures\Post;
 use Pmochine\LaravelTongue\Tests\TestCase;
 
 class DialectTest extends TestCase
@@ -199,6 +200,55 @@ class DialectTest extends TestCase
         $this->setRequestContext('GET', $this->dePathWithoutParameter, 'de');
 
         $this->assertEquals('https://fr.laraveltongue.dev', app('dialect')->translate('home', [], 'fr'));
+    }
+
+    #[Test]
+    public function it_removes_missing_optional_parameters()
+    {
+        $this->sendRequest('GET', 'blog', 'de');
+
+        $this->assertEquals($this->getUri('blog', 'fr'), app('dialect')->current('fr'));
+        $this->assertEquals($this->getUri('blog', 'fr'), app('dialect')->translate('blog', [], 'fr'));
+
+        $this->sendRequest('GET', 'blog/2', 'de');
+
+        $this->assertEquals($this->getUri('blog/2', 'fr'), app('dialect')->current('fr'));
+    }
+
+    #[Test]
+    public function it_keeps_encoded_characters_of_route_parameters()
+    {
+        foreach (['a%23b', 'a%3Fb', '100%25', 'John%20Doe'] as $username) {
+            $this->sendRequest('GET', 'hello/'.$username, 'en');
+
+            $this->assertEquals($this->getUri('hallo/'.$username, 'de'), app('dialect')->current('de'), $username);
+        }
+    }
+
+    #[Test]
+    public function it_uses_the_binding_field_of_the_route()
+    {
+        $this->setRequestContext('GET', '', 'de');
+
+        $this->assertEquals($this->getUri('posts/hello-world', 'fr'), app('dialect')->translate('post', ['post' => new Post], 'fr'));
+    }
+
+    #[Test]
+    public function it_translates_routes_inside_a_prefix_group()
+    {
+        $this->sendRequest('GET', 'admin/guten-abend', 'de');
+
+        $this->assertEquals($this->getUri('admin/good-evening', 'en'), app('dialect')->current('en'));
+        $this->assertEquals($this->getUri('admin/good-evening', 'en'), app('dialect')->translate('Tongue::routes.good_evening', null, 'en'));
+    }
+
+    #[Test]
+    public function it_translates_named_routes_with_a_leading_slash_in_the_translation()
+    {
+        $this->sendRequest('GET', 'mit-schraegstrich', 'de');
+
+        $this->assertEquals($this->getUri('with-slash', 'en'), app('dialect')->current('en'));
+        $this->assertEquals($this->getUri('with-slash', 'en'), app('dialect')->translate('with_slash', [], 'en'));
     }
 
     #[Test]

@@ -2,7 +2,6 @@
 
 namespace Pmochine\LaravelTongue;
 
-use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Pmochine\LaravelTongue\Accent\Accent;
 use Pmochine\LaravelTongue\Localization\Localization;
@@ -17,23 +16,18 @@ use Pmochine\LaravelTongue\Misc\Url;
 class Dialect
 {
     /**
-     * Our instance of the Laravel app.
-     *
-     * @var \Illuminate\Foundation\Application
-     */
-    protected $app = '';
-
-    /**
      * An array that contains all routes that should be translated.
      *
-     * @var array
+     * @var array [translation key => path in the locale of interpret()]
      */
     protected $translatedRoutes = [];
 
-    public function __construct(Application $app)
-    {
-        $this->app = $app;
-    }
+    /**
+     * The prefix of the route group, in which interpret() was called.
+     *
+     * @var array [translation key => prefix, like "admin"]
+     */
+    protected $routePrefixes = [];
 
     /**
      * Adds the detected locale to the current unlocalized URL.
@@ -127,54 +121,65 @@ class Dialect
 
         $parsed_url['host'] = $this->addLocaleToHost($locale);
 
-        // Resolve the translated route path for the given route name
-        $translatedPath = $this->findRoutePath($routeName, $locale);
+        // Resolve the translated route path for the given translation key, like "routes.welcome"
+        $path = $this->translatedPath($routeName, $locale);
+        $bindingFields = [];
 
-        if ($translatedPath === '/' || $translatedPath === '') {
-            // The home page, like url('/'), has no trailing slash
-            unset($parsed_url['path']);
-        } elseif ($translatedPath !== false) {
-            $parsed_url['path'] = $translatedPath;
+        // Or for the name of a route, like "welcome"
+        if ($path === false && $route = $this->findRouteByName($routeName)) {
+            // The path of the route could come from interpret(). Then we translate it.
+            $translationKey = $this->findRouteNameByPath($route->uri());
+            $path = $translationKey !== false ? $this->translatedPath($translationKey, $locale) : false;
+            $path = $path !== false ? $path : $route->uri();
+            $bindingFields = $route->bindingFields();
         }
 
-        // If attributes are given, substitute them in the path
-        if ($routeAttributes && isset($parsed_url['path'])) {
-            $parsed_url['path'] = Accent::substituteAttributesInRoute($routeAttributes, $parsed_url['path']);
+        if ($path !== false) {
+            $parsed_url['path'] = $path;
+        }
+
+        if (isset($parsed_url['path'])) {
+            // Substitute the attributes and remove the missing optional ones
+            $parsed_url['path'] = Accent::substituteAttributesInRoute($routeAttributes ?: [], $parsed_url['path'], $bindingFields);
+
+            // The home page, like url('/'), has no trailing slash
+            if (trim($parsed_url['path'], '/') === '') {
+                unset($parsed_url['path']);
+            }
         }
 
         return Accent::unparseUrl($parsed_url);
     }
 
     /**
-     * Finds the path for a translation key, like "routes.welcome",
-     * or for the name of a route, like "welcome".
+     * The path of a translation key in the given locale, with the prefix of its route group.
      *
-     * @param  string|false  $routeName
+     * @param  string|false  $translationKey
      * @param  string  $locale
      * @return string|false
      */
-    protected function findRoutePath($routeName, $locale)
+    protected function translatedPath($translationKey, $locale)
     {
-        $path = Accent::findRoutePathByName($routeName, $locale);
+        $path = Accent::findRoutePathByName($translationKey, $locale);
 
-        if ($path !== false || ! is_string($routeName) || $routeName === '') {
+        if ($path === false || empty($this->routePrefixes[$translationKey])) {
             return $path;
         }
 
-        $route = app('router')->getRoutes()->getByName($routeName);
+        return $this->routePrefixes[$translationKey].'/'.ltrim($path, '/');
+    }
 
-        if (! $route) {
-            return false;
+    /**
+     * @param  string|false  $routeName
+     * @return \Illuminate\Routing\Route|null
+     */
+    protected function findRouteByName($routeName)
+    {
+        if (! is_string($routeName) || $routeName === '') {
+            return null;
         }
 
-        // The path of the route could come from interpret(). Then we translate it.
-        $translationKey = $this->findRouteNameByPath($route->uri());
-
-        if ($translationKey !== false && ($path = Accent::findRoutePathByName($translationKey, $locale)) !== false) {
-            return $path;
-        }
-
-        return $route->uri();
+        return app('router')->getRoutes()->getByName($routeName);
     }
 
     /**
@@ -207,6 +212,8 @@ class Dialect
 
         if (! isset($this->translatedRoutes[$routeName])) {
             $this->translatedRoutes[$routeName] = $routePath;
+            // Inside Route::prefix('admin')->group() the route path starts with "admin"
+            $this->routePrefixes[$routeName] = trim(app('router')->getLastGroupPrefix(), '/');
         }
 
         return $routePath;
@@ -232,19 +239,37 @@ class Dialect
 
     /**
      * Find the route name matching the given route path.
+     * The route path is like Route::uri(): with the group prefix, without slashes at the ends.
      *
      * @param  string  $routePath
      * @return bool|string
      */
     public function findRouteNameByPath($routePath)
     {
+        $routePath = $this->normalizePath($routePath);
+
         foreach ($this->translatedRoutes as $name => $path) {
-            if ($routePath == $path) {
+            if ($path === false) {
+                continue;
+            }
+
+            if ($routePath === $this->normalizePath(($this->routePrefixes[$name] ?? '').'/'.$path)) {
                 return $name;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Like Laravel stores a route path: "/admin/{post:slug}/" becomes "admin/{post}".
+     *
+     * @param  string  $path
+     * @return string
+     */
+    protected function normalizePath($path)
+    {
+        return trim(preg_replace('/\{(\w+):\w+(\??)\}/', '{$1$2}', (string) $path), '/');
     }
 
     /**

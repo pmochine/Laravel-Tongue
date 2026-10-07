@@ -28,5 +28,23 @@ app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCo
         app('router')->get(dialect()->interpret('Tongue::routes.good_night'), function () {
             return response('named translated route');
         })->name('good_night');
+
+        app('router')->get(dialect()->interpret('Tongue::routes.with_slash'), function () {
+            return response('translated route with a leading slash');
+        })->name('with_slash');
+
+        app('router')->prefix('admin')->group(function () {
+            app('router')->get(dialect()->interpret('Tongue::routes.good_evening'), function () {
+                return response('translated route in a prefix group');
+            });
+        });
+
+        app('router')->get('blog/{page?}', function () {
+            return response('blog');
+        })->name('blog');
+
+        app('router')->get('posts/{post:slug}', function () {
+            return response('post');
+        })->name('post');
     });
 });

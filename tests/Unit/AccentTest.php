@@ -5,6 +5,7 @@ namespace Pmochine\LaravelTongue\Tests\Unit;
 use Illuminate\Contracts\Routing\UrlRoutable;
 use PHPUnit\Framework\Attributes\Test;
 use Pmochine\LaravelTongue\Accent\Accent;
+use Pmochine\LaravelTongue\Tests\Fixtures\Post;
 use Pmochine\LaravelTongue\Tests\TestCase;
 
 class AccentTest extends TestCase
@@ -62,6 +63,29 @@ class AccentTest extends TestCase
     public function it_uses_the_value_of_backed_enums()
     {
         $this->assertEquals('sort/asc', Accent::substituteAttributesInRoute(['order' => AccentTestOrder::Asc], 'sort/{order}'));
+    }
+
+    #[Test]
+    public function it_uses_the_binding_field_of_a_placeholder_or_of_the_route()
+    {
+        $this->assertEquals('posts/hello-world', Accent::substituteAttributesInRoute(['post' => new Post], 'posts/{post:slug}'));
+        $this->assertEquals('posts/hello-world', Accent::substituteAttributesInRoute(['post' => new Post], 'posts/{post}', ['post' => 'slug']));
+        $this->assertEquals('posts/123', Accent::substituteAttributesInRoute(['post' => new Post], 'posts/{post}'));
+    }
+
+    #[Test]
+    public function it_encodes_the_attributes_for_the_path()
+    {
+        $this->assertEquals('hallo/a%23b%3Fc%25d%20e', Accent::substituteAttributesInRoute(['username' => 'a#b?c%d e'], 'hallo/{username}'));
+        $this->assertEquals('files/a/b@c', Accent::substituteAttributesInRoute(['file' => 'a/b@c'], 'files/{file}'));
+    }
+
+    #[Test]
+    public function it_removes_missing_optional_parameters_without_attributes()
+    {
+        $this->assertEquals('blog', Accent::substituteAttributesInRoute([], 'blog/{page?}'));
+        $this->assertEquals('', Accent::substituteAttributesInRoute([], '{page?}'));
+        $this->assertEquals('hallo/{username}', Accent::substituteAttributesInRoute([], 'hallo/{username}'));
     }
 
     #[Test]
