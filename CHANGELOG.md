@@ -2,7 +2,7 @@
 
 All notable changes to this package are in this file. The package follows [Semantic Versioning](https://semver.org).
 
-## [6.1.0] - Unreleased
+## [6.1.0] - 2026-10-07
 
 ### Added
 
