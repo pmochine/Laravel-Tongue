@@ -171,4 +171,31 @@ class AliasUrlsTest extends TestCase
         $this->sendRequest('GET', 'localized', 'laraveltongue')->assertOk();
         $this->assertEquals('de', app()->getLocale());
     }
+
+    #[Test]
+    public function an_alias_can_be_a_number()
+    {
+        app('config')->set('localization.beautify_url', false);
+        app('config')->set('localization.aliases', ['123' => 'de']);
+
+        $this->sendRequest('GET', 'localized', '123')->assertOk();
+        $this->assertEquals('de', app()->getLocale());
+
+        app('config')->set('localization.alias_urls', true);
+
+        $this->assertEquals($this->getUri('localized', '123'), app('dialect')->current('de'));
+    }
+
+    #[Test]
+    public function the_urls_use_only_an_alias_that_the_detection_maps_back_to_the_locale()
+    {
+        app('config')->set('localization.alias_urls', true);
+        app('config')->set('localization.beautify_url', false);
+        app('config')->set('localization.aliases', ['Deutsch' => 'de', 'deutsch' => 'fr']);
+
+        $this->setRequestContext('GET', 'localized', 'en');
+
+        $this->assertEquals($this->getUri('localized', 'deutsch'), app('dialect')->current('de'));
+        $this->assertEquals($this->getUri('localized', 'fr'), app('dialect')->current('fr'));
+    }
 }

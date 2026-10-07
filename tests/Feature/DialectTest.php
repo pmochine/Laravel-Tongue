@@ -306,6 +306,19 @@ class DialectTest extends TestCase
     }
 
     #[Test]
+    public function the_route_name_wins_over_another_route_with_the_same_path()
+    {
+        $this->setRequestContext('GET', 'contact');
+
+        $this->assertEquals($this->getUri('kontakt', 'de'), app('dialect')->translate('Tongue::routes.form', [], 'de'));
+        $this->assertEquals($this->getUri('absenden', 'de'), app('dialect')->translate('Tongue::routes.submit', [], 'de'));
+
+        $this->sendRequest('POST', 'contact')->assertOk();
+
+        $this->assertEquals($this->getUri('absenden', 'de'), app('dialect')->current('de'));
+    }
+
+    #[Test]
     public function it_keeps_the_current_path_when_the_route_is_unknown()
     {
         $this->setRequestContext('GET', '', 'de');

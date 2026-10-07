@@ -18,9 +18,9 @@ use Pmochine\LaravelTongue\Misc\Url;
 class Dialect
 {
     /**
-     * The routes from interpret(), by their path like Route::uri() stores it.
+     * The routes from interpret(), in the order of interpret().
      *
-     * @var array [path, like "admin/hello/{user}" => ['key' => translation key, 'prefix' => prefix of the route group]]
+     * @var array [['path' => path like Route::uri() stores it, 'key' => translation key, 'prefix' => prefix of the route group]]
      */
     protected $interpretedRoutes = [];
 
@@ -74,11 +74,12 @@ class Dialect
         $path = false;
 
         if ($route) {
-            $path = $this->translatedRoutePath($route, $locale);
-
             // A route name that is a translation key, like "routes.welcome"
-            if ($path === false && is_string($route->getName())) {
-                $path = $this->translatedKeyPath($route->getName(), $locale);
+            $path = $this->translatedKeyPath($route->getName(), $locale, $route);
+
+            // A route with a path from interpret()
+            if ($path === false) {
+                $path = $this->translatedRoutePath($route, $locale);
             }
         }
 
@@ -129,12 +130,12 @@ class Dialect
         $route = $this->findRouteByName($routeName);
         $bindingFields = $route ? $route->bindingFields() : [];
 
-        // A route with a path from interpret()
-        $path = $route ? $this->translatedRoutePath($route, $locale) : false;
-
         // A translation key, like "routes.welcome"
-        if ($path === false) {
-            $path = $this->translatedKeyPath($routeName, $locale);
+        $path = $this->translatedKeyPath($routeName, $locale, $route);
+
+        // A route with a path from interpret()
+        if ($path === false && $route) {
+            $path = $this->translatedRoutePath($route, $locale);
         }
 
         // A route without translation: Laravel builds the path, like route()
@@ -226,26 +227,35 @@ class Dialect
      */
     protected function translatedRoutePath(Route $route, $locale)
     {
-        $interpreted = $this->interpretedRoutes[$this->normalizePath($route->uri())] ?? null;
+        $translationKey = $this->findRouteNameByPath($route->uri());
 
-        if (! $interpreted) {
+        if ($translationKey === false) {
             return false;
         }
 
-        return $this->withPrefix($interpreted['prefix'], Accent::findRoutePathByName($interpreted['key'], $locale));
+        return $this->withPrefix($this->routePrefix($route), Accent::findRoutePathByName($translationKey, $locale));
     }
 
     /**
-     * The translated path of a translation key. If interpret() used the key in a
-     * route group with a prefix, the path gets the prefix of the first route.
+     * The translated path of a translation key. The path gets the prefix of the given route.
+     * Without a route, it gets the prefix of the first route from interpret() with this key.
      *
-     * @param  string|false  $translationKey
+     * @param  string|false|null  $translationKey
      * @param  string  $locale
+     * @param  \Illuminate\Routing\Route|null  $route
      * @return string|false
      */
-    protected function translatedKeyPath($translationKey, $locale)
+    protected function translatedKeyPath($translationKey, $locale, ?Route $route = null)
     {
         $path = Accent::findRoutePathByName($translationKey, $locale);
+
+        if ($path === false) {
+            return false;
+        }
+
+        if ($route) {
+            return $this->withPrefix($this->routePrefix($route), $path);
+        }
 
         foreach ($this->interpretedRoutes as $interpreted) {
             if ($interpreted['key'] === $translationKey) {
@@ -254,6 +264,15 @@ class Dialect
         }
 
         return $path;
+    }
+
+    /**
+     * @param  \Illuminate\Routing\Route  $route
+     * @return string [like "admin" for a route in Route::prefix('admin')->group()]
+     */
+    protected function routePrefix(Route $route)
+    {
+        return trim((string) $route->getPrefix(), '/');
     }
 
     /**
@@ -314,10 +333,10 @@ class Dialect
         if ($routePath !== false) {
             // Inside Route::prefix('admin')->group() the route path starts with "admin"
             $prefix = trim(app('router')->getLastGroupPrefix(), '/');
-            $path = $this->normalizePath($prefix.'/'.$routePath);
+            $interpreted = ['path' => $this->normalizePath($prefix.'/'.$routePath), 'key' => $routeName, 'prefix' => $prefix];
 
-            if (! isset($this->interpretedRoutes[$path])) {
-                $this->interpretedRoutes[$path] = ['key' => $routeName, 'prefix' => $prefix];
+            if (! in_array($interpreted, $this->interpretedRoutes, true)) {
+                $this->interpretedRoutes[] = $interpreted;
             }
         }
 
@@ -333,7 +352,16 @@ class Dialect
      */
     public function findRouteNameByPath($routePath)
     {
-        return $this->interpretedRoutes[$this->normalizePath($routePath)]['key'] ?? false;
+        $routePath = $this->normalizePath($routePath);
+
+        // Two routes can have the same path, like GET and POST "contact". The first one wins.
+        foreach ($this->interpretedRoutes as $interpreted) {
+            if ($interpreted['path'] === $routePath) {
+                return $interpreted['key'];
+            }
+        }
+
+        return false;
     }
 
     /**

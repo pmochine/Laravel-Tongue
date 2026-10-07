@@ -86,9 +86,14 @@ class Url
         }
 
         foreach (Config::aliases() as $alias => $aliasLocale) {
-            // Hosts are lowercase. The detection ignores an alias that is a locale or a whitelisted subdomain. So do the URLs.
-            if ($aliasLocale === $locale && is_string($alias) && ! self::isReservedSubdomain($alias)) {
-                return strtolower($alias);
+            // Hosts are lowercase, and PHP stores an alias like "123" as integer key
+            $alias = strtolower((string) $alias);
+
+            // The detection ignores an alias that is a locale or a whitelisted subdomain, and it takes
+            // the first alias that matches. So a URL uses only an alias that leads back to the locale.
+            if ($aliasLocale === $locale && ! self::isReservedSubdomain($alias)
+                && tongue()->speaking('aliases', $alias) === $locale) {
+                return $alias;
             }
         }
 

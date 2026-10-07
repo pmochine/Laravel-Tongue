@@ -60,5 +60,14 @@ app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCo
         app('router')->get('files/{base}.{extension?}', function () {
             return response('file');
         })->name('file');
+
+        // In English both routes have the path "contact"
+        app('router')->get(dialect()->interpret('Tongue::routes.form'), function () {
+            return response('form');
+        })->name('Tongue::routes.form');
+
+        app('router')->post(dialect()->interpret('Tongue::routes.submit'), function () {
+            return response('submitted');
+        })->name('Tongue::routes.submit');
     });
 });

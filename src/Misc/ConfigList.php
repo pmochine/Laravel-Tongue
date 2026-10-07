@@ -86,9 +86,10 @@ class ConfigList
             return $domains;
         }
 
-        // Hosts are lowercase, so "Gewinnen" in the config matches gewinnen.domain.com
+        // Hosts are lowercase, so "Gewinnen" in the config matches gewinnen.domain.com.
+        // PHP stores an alias like "123" as integer key.
         foreach ($domains as $alias => $locale) {
-            if (is_string($alias) && strtolower($alias) === strtolower($subdomain)) {
+            if (strtolower((string) $alias) === strtolower($subdomain)) {
                 return $locale;
             }
         }

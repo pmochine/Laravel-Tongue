@@ -8,5 +8,7 @@ return [
     'good_evening' => 'guten-abend',
     'with_slash'   => '/mit-schraegstrich',
     'article'      => 'artikel/{post}',
+    'form'         => 'kontakt',
+    'submit'       => 'absenden',
 
 ];

@@ -8,5 +8,7 @@ return [
     'good_evening' => 'good-evening',
     'with_slash'   => '/with-slash',
     'article'      => 'articles/{post}',
+    'form'         => 'contact',
+    'submit'       => 'contact',
 
 ];
