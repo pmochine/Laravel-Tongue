@@ -24,13 +24,6 @@ class Dialect
     protected $app = '';
 
     /**
-     * An array that contains information about the current request.
-     *
-     * @var array
-     */
-    protected $parsed_url;
-
-    /**
      * An array that contains all routes that should be translated.
      *
      * @var array
@@ -129,12 +122,8 @@ class Dialect
             $locale = tongue()->current();
         }
 
-        if (empty($this->parsed_url)) {
-            $this->parsed_url = Accent::parseCurrentUrl();
-        }
-
         // Retrieve the current URL components
-        $parsed_url = $this->parsed_url;
+        $parsed_url = Accent::parseCurrentUrl();
 
         $parsed_url['host'] = $this->addLocaleToHost($locale);
 

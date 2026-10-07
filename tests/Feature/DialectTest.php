@@ -134,6 +134,18 @@ class DialectTest extends TestCase
     }
 
     #[Test]
+    public function it_uses_the_url_of_the_current_request_for_each_translation()
+    {
+        $this->setRequestContext('GET', 'localized', 'de');
+
+        $this->assertEquals($this->getUri('localized', 'fr'), app('dialect')->translate('Tongue::routes.unknown', null, 'fr'));
+
+        $this->setRequestContext('GET', 'not-localized', 'de');
+
+        $this->assertEquals($this->getUri('not-localized', 'fr'), app('dialect')->translate('Tongue::routes.unknown', null, 'fr'));
+    }
+
+    #[Test]
     public function it_interprets_a_translated_route_path()
     {
         $this->setRequestContext('GET', '', 'de');

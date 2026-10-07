@@ -28,12 +28,16 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             'localization'
         );
 
-        $this->app->singleton('tongue', function ($app) {
+        // Scoped, so Octane builds Tongue again with the application of each request.
+        $this->app->scoped(Tongue::class, function ($app) {
             return new Tongue($app);
         });
+        $this->app->alias(Tongue::class, 'tongue');
 
-        $this->app->singleton('dialect', function ($app) {
+        // A singleton, because it remembers the routes from interpret() for the lifetime of the app.
+        $this->app->singleton(Dialect::class, function ($app) {
             return new Dialect($app);
         });
+        $this->app->alias(Dialect::class, 'dialect');
     }
 }
