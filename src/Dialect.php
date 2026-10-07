@@ -3,6 +3,8 @@
 namespace Pmochine\LaravelTongue;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Exceptions\UrlGenerationException;
+use Illuminate\Routing\Route;
 use Pmochine\LaravelTongue\Accent\Accent;
 use Pmochine\LaravelTongue\Localization\Localization;
 use Pmochine\LaravelTongue\Misc\Config;
@@ -16,18 +18,11 @@ use Pmochine\LaravelTongue\Misc\Url;
 class Dialect
 {
     /**
-     * An array that contains all routes that should be translated.
+     * The routes from interpret(), by their path like Route::uri() stores it.
      *
-     * @var array [translation key => path in the locale of interpret()]
+     * @var array [path, like "admin/hello/{user}" => ['key' => translation key, 'prefix' => prefix of the route group]]
      */
-    protected $translatedRoutes = [];
-
-    /**
-     * The prefix of the route group, in which interpret() was called.
-     *
-     * @var array [translation key => prefix, like "admin"]
-     */
-    protected $routePrefixes = [];
+    protected $interpretedRoutes = [];
 
     /**
      * Adds the detected locale to the current unlocalized URL.
@@ -75,7 +70,20 @@ class Dialect
      */
     public function current($locale)
     {
-        return $this->translate($this->currentRouteName(), Accent::currentRouteAttributes(), $locale);
+        $route = app('router')->current();
+        $path = false;
+
+        if ($route) {
+            $path = $this->translatedRoutePath($route, $locale);
+
+            // A route name that is a translation key, like "routes.welcome"
+            if ($path === false && is_string($route->getName())) {
+                $path = $this->translatedKeyPath($route->getName(), $locale);
+            }
+        }
+
+        // Without a translation, the URL keeps the path of the current request.
+        return $this->buildUrl($locale, $path, Accent::currentRouteAttributes() ?: []);
     }
 
     /**
@@ -103,6 +111,7 @@ class Dialect
 
     /**
      * Return translated URL from route.
+     * The route name can be a translation key, like "routes.welcome", or the name of a route, like "welcome".
      *
      * @param  string  $routeName
      * @param array]null]bool $routeAttributes
@@ -116,57 +125,149 @@ class Dialect
             $locale = tongue()->current();
         }
 
+        $attributes = is_iterable($routeAttributes) ? collect($routeAttributes)->all() : [];
+        $route = $this->findRouteByName($routeName);
+        $bindingFields = $route ? $route->bindingFields() : [];
+
+        // A route with a path from interpret()
+        $path = $route ? $this->translatedRoutePath($route, $locale) : false;
+
+        // A translation key, like "routes.welcome"
+        if ($path === false) {
+            $path = $this->translatedKeyPath($routeName, $locale);
+        }
+
+        // A route without translation: Laravel builds the path, like route()
+        if ($path === false && $route) {
+            return $this->buildUrlFromRoute($locale, $route, $attributes);
+        }
+
+        return $this->buildUrl($locale, $path, $attributes, $bindingFields);
+    }
+
+    /**
+     * Builds the URL for the locale. Without a path, the URL keeps the path of the current request.
+     *
+     * @param  string  $locale
+     * @param  string|false  $path  [a route path with placeholders, like "hello/{user}"]
+     * @param  array  $attributes
+     * @param  array  $bindingFields
+     * @return string
+     */
+    protected function buildUrl($locale, $path, array $attributes, array $bindingFields = [])
+    {
+        if ($path !== false) {
+            // Substitute the attributes and remove the missing optional ones
+            $path = Accent::substituteAttributesInRoute($attributes, $path, $bindingFields);
+        }
+
+        return $this->assembleUrl($locale, $path);
+    }
+
+    /**
+     * Builds the URL of a route without translation with route() of Laravel.
+     *
+     * @param  string  $locale
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  array  $attributes
+     * @return string
+     */
+    protected function buildUrlFromRoute($locale, Route $route, array $attributes)
+    {
+        try {
+            $relativeUrl = app('url')->toRoute($route, $attributes, false);
+        } catch (UrlGenerationException $e) {
+            // A required attribute is missing. The placeholder stays in the path, like before version 6.
+            return $this->buildUrl($locale, $route->uri(), $attributes, $route->bindingFields());
+        }
+
+        $parts = parse_url($relativeUrl) ?: [];
+
+        return $this->assembleUrl($locale, $parts['path'] ?? '', $parts['query'] ?? null);
+    }
+
+    /**
+     * The current URL with the host of the locale and the given path.
+     *
+     * @param  string  $locale
+     * @param  string|false  $path  [false keeps the path of the current request]
+     * @param  string|null  $query
+     * @return string
+     */
+    protected function assembleUrl($locale, $path, $query = null)
+    {
         // Retrieve the current URL components
         $parsed_url = Accent::parseCurrentUrl();
 
         $parsed_url['host'] = $this->addLocaleToHost($locale);
 
-        // Resolve the translated route path for the given translation key, like "routes.welcome"
-        $path = $this->translatedPath($routeName, $locale);
-        $bindingFields = [];
-
-        // Or for the name of a route, like "welcome"
-        if ($path === false && $route = $this->findRouteByName($routeName)) {
-            // The path of the route could come from interpret(). Then we translate it.
-            $translationKey = $this->findRouteNameByPath($route->uri());
-            $path = $translationKey !== false ? $this->translatedPath($translationKey, $locale) : false;
-            $path = $path !== false ? $path : $route->uri();
-            $bindingFields = $route->bindingFields();
-        }
-
         if ($path !== false) {
             $parsed_url['path'] = $path;
         }
 
-        if (isset($parsed_url['path'])) {
-            // Substitute the attributes and remove the missing optional ones
-            $parsed_url['path'] = Accent::substituteAttributesInRoute($routeAttributes ?: [], $parsed_url['path'], $bindingFields);
+        if ($query !== null) {
+            $parsed_url['query'] = $query;
+        }
 
-            // The home page, like url('/'), has no trailing slash
-            if (trim($parsed_url['path'], '/') === '') {
-                unset($parsed_url['path']);
-            }
+        // The home page, like url('/'), has no trailing slash
+        if (isset($parsed_url['path']) && trim($parsed_url['path'], '/') === '') {
+            unset($parsed_url['path']);
         }
 
         return Accent::unparseUrl($parsed_url);
     }
 
     /**
-     * The path of a translation key in the given locale, with the prefix of its route group.
+     * The translated path of a route from interpret(), with the prefix of its route group.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  string  $locale
+     * @return string|false
+     */
+    protected function translatedRoutePath(Route $route, $locale)
+    {
+        $interpreted = $this->interpretedRoutes[$this->normalizePath($route->uri())] ?? null;
+
+        if (! $interpreted) {
+            return false;
+        }
+
+        return $this->withPrefix($interpreted['prefix'], Accent::findRoutePathByName($interpreted['key'], $locale));
+    }
+
+    /**
+     * The translated path of a translation key. If interpret() used the key in a
+     * route group with a prefix, the path gets the prefix of the first route.
      *
      * @param  string|false  $translationKey
      * @param  string  $locale
      * @return string|false
      */
-    protected function translatedPath($translationKey, $locale)
+    protected function translatedKeyPath($translationKey, $locale)
     {
         $path = Accent::findRoutePathByName($translationKey, $locale);
 
-        if ($path === false || empty($this->routePrefixes[$translationKey])) {
+        foreach ($this->interpretedRoutes as $interpreted) {
+            if ($interpreted['key'] === $translationKey) {
+                return $this->withPrefix($interpreted['prefix'], $path);
+            }
+        }
+
+        return $path;
+    }
+
+    /**
+     * @param  string  $prefix
+     * @param  string|false  $path
+     * @return string|false
+     */
+    protected function withPrefix($prefix, $path)
+    {
+        if ($path === false || $prefix === '') {
             return $path;
         }
 
-        return $this->routePrefixes[$translationKey].'/'.ltrim($path, '/');
+        return $prefix.'/'.ltrim($path, '/');
     }
 
     /**
@@ -210,31 +311,17 @@ class Dialect
     {
         $routePath = Accent::findRoutePathByName($routeName);
 
-        if (! isset($this->translatedRoutes[$routeName])) {
-            $this->translatedRoutes[$routeName] = $routePath;
+        if ($routePath !== false) {
             // Inside Route::prefix('admin')->group() the route path starts with "admin"
-            $this->routePrefixes[$routeName] = trim(app('router')->getLastGroupPrefix(), '/');
+            $prefix = trim(app('router')->getLastGroupPrefix(), '/');
+            $path = $this->normalizePath($prefix.'/'.$routePath);
+
+            if (! isset($this->interpretedRoutes[$path])) {
+                $this->interpretedRoutes[$path] = ['key' => $routeName, 'prefix' => $prefix];
+            }
         }
 
         return $routePath;
-    }
-
-    /**
-     * Get the current route name.
-     *
-     * @return bool|string
-     */
-    protected function currentRouteName()
-    {
-        if (app('router')->currentRouteName()) {
-            return app('router')->currentRouteName();
-        }
-
-        if (app('router')->current()) {
-            return $this->findRouteNameByPath(app('router')->current()->uri());
-        }
-
-        return false;
     }
 
     /**
@@ -242,34 +329,24 @@ class Dialect
      * The route path is like Route::uri(): with the group prefix, without slashes at the ends.
      *
      * @param  string  $routePath
-     * @return bool|string
+     * @return bool|string [the translation key that interpret() got]
      */
     public function findRouteNameByPath($routePath)
     {
-        $routePath = $this->normalizePath($routePath);
-
-        foreach ($this->translatedRoutes as $name => $path) {
-            if ($path === false) {
-                continue;
-            }
-
-            if ($routePath === $this->normalizePath(($this->routePrefixes[$name] ?? '').'/'.$path)) {
-                return $name;
-            }
-        }
-
-        return false;
+        return $this->interpretedRoutes[$this->normalizePath($routePath)]['key'] ?? false;
     }
 
     /**
-     * Like Laravel stores a route path: "/admin/{post:slug}/" becomes "admin/{post}".
+     * Like Laravel stores a route path: "/admin//{post:slug}/" becomes "admin/{post}".
      *
      * @param  string  $path
      * @return string
      */
     protected function normalizePath($path)
     {
-        return trim(preg_replace('/\{(\w+):\w+(\??)\}/', '{$1$2}', (string) $path), '/');
+        $path = preg_replace('/\{(\w+):\w+(\??)\}/', '{$1$2}', (string) $path);
+
+        return trim(preg_replace('#/+#', '/', $path), '/');
     }
 
     /**

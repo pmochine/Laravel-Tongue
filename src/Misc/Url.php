@@ -86,18 +86,28 @@ class Url
         }
 
         foreach (Config::aliases() as $alias => $aliasLocale) {
-            // The detection ignores an alias that is a locale or a whitelisted subdomain. So do the URLs.
-            if ($aliasLocale === $locale && is_string($alias)
-                && ! tongue()->isSpeaking($alias) && ! in_array($alias, Config::subdomains(), true)) {
-                return $alias;
+            // Hosts are lowercase. The detection ignores an alias that is a locale or a whitelisted subdomain. So do the URLs.
+            if ($aliasLocale === $locale && is_string($alias) && ! self::isReservedSubdomain($alias)) {
+                return strtolower($alias);
             }
         }
 
         return $locale;
     }
 
+    /**
+     * A locale or a whitelisted subdomain cannot be an alias.
+     */
+    protected static function isReservedSubdomain(string $subdomain): bool
+    {
+        $reserved = array_merge(array_keys(Config::supportedLocales() ?: []), Config::subdomains());
+
+        return in_array(strtolower($subdomain), array_map('strtolower', $reserved), true);
+    }
+
     public static function hasSubdomain(): bool
     {
-        return explode('.', self::domain())[0] !== self::subdomain();
+        // Compare the whole domain: "example.example.com" has the subdomain "example".
+        return Str::endsWith(self::host(), '.'.self::domain());
     }
 }

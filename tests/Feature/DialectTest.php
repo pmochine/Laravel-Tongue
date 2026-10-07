@@ -252,6 +252,60 @@ class DialectTest extends TestCase
     }
 
     #[Test]
+    public function it_translates_the_same_key_in_different_prefix_groups()
+    {
+        $this->setRequestContext('GET', '', 'de');
+
+        $this->assertEquals($this->getUri('with-slash', 'en'), app('dialect')->translate('with_slash', [], 'en'));
+        $this->assertEquals($this->getUri('admin/with-slash', 'en'), app('dialect')->translate('admin.with_slash', [], 'en'));
+
+        $this->sendRequest('GET', 'admin/mit-schraegstrich', 'de')->assertOk();
+
+        $this->assertEquals($this->getUri('admin/with-slash', 'en'), app('dialect')->current('en'));
+    }
+
+    #[Test]
+    public function it_uses_the_binding_field_when_the_route_name_is_the_translation_key()
+    {
+        $this->setRequestContext('GET', '', 'en');
+
+        $this->assertEquals($this->getUri('artikel/hello-world', 'de'), app('dialect')->translate('Tongue::routes.article', ['post' => new Post], 'de'));
+    }
+
+    #[Test]
+    public function it_keeps_the_path_of_the_current_request_for_a_route_without_translation()
+    {
+        $response = $this->sendRequest('GET', 'files/readme', 'de');
+
+        $response->assertOk();
+        $this->assertEquals($this->getUri('files/readme', 'fr'), app('dialect')->current('fr'));
+
+        $this->sendRequest('GET', 'files/readme.md', 'de');
+
+        $this->assertEquals($this->getUri('files/readme.md', 'fr'), app('dialect')->current('fr'));
+    }
+
+    #[Test]
+    public function it_builds_a_route_without_translation_like_laravel()
+    {
+        $this->setRequestContext('GET', '', 'de');
+
+        $this->assertEquals($this->getUri('files/readme.md', 'fr'), app('dialect')->translate('file', ['base' => 'readme', 'extension' => 'md'], 'fr'));
+        $this->assertEquals($this->getUri('blog/2', 'fr'), app('dialect')->translate('blog', ['page' => 2], 'fr'));
+    }
+
+    #[Test]
+    public function it_accepts_route_attributes_as_collection()
+    {
+        $this->setRequestContext('GET', '', 'de');
+
+        $this->assertEquals(
+            $this->getUri($this->enPathWithParameter1, 'en'),
+            app('dialect')->translate($this->routeNameWithParameter, collect($this->routeParameters), 'en')
+        );
+    }
+
+    #[Test]
     public function it_keeps_the_current_path_when_the_route_is_unknown()
     {
         $this->setRequestContext('GET', '', 'de');

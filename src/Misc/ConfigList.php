@@ -86,8 +86,11 @@ class ConfigList
             return $domains;
         }
 
-        if (array_key_exists($subdomain, $domains)) {
-            return $domains[$subdomain];
+        // Hosts are lowercase, so "Gewinnen" in the config matches gewinnen.domain.com
+        foreach ($domains as $alias => $locale) {
+            if (is_string($alias) && strtolower($alias) === strtolower($subdomain)) {
+                return $locale;
+            }
         }
 
         return '';

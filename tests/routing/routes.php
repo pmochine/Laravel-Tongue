@@ -37,6 +37,11 @@ app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCo
             app('router')->get(dialect()->interpret('Tongue::routes.good_evening'), function () {
                 return response('translated route in a prefix group');
             });
+
+            // The same translation key as above, now with a prefix and a leading slash in the translation
+            app('router')->get(dialect()->interpret('Tongue::routes.with_slash'), function () {
+                return response('translated route with a leading slash in a prefix group');
+            })->name('admin.with_slash');
         });
 
         app('router')->get('blog/{page?}', function () {
@@ -46,5 +51,14 @@ app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCo
         app('router')->get('posts/{post:slug}', function () {
             return response('post');
         })->name('post');
+
+        // The route name is also the translation key
+        app('router')->get('articles/{post:slug}', function () {
+            return response('article');
+        })->name('Tongue::routes.article');
+
+        app('router')->get('files/{base}.{extension?}', function () {
+            return response('file');
+        })->name('file');
     });
 });

@@ -137,4 +137,38 @@ class AliasUrlsTest extends TestCase
 
         $this->sendRequest('GET', 'localized', 'deutsch')->assertRedirect($this->getUri('localized', 'gewinnen'));
     }
+
+    #[Test]
+    public function aliases_are_case_insensitive_like_hosts()
+    {
+        app('config')->set('localization.alias_urls', true);
+        app('config')->set('localization.beautify_url', false);
+
+        // "DE" is the locale "de", so Tongue ignores the alias
+        app('config')->set('localization.aliases', ['DE' => 'de']);
+
+        $this->sendRequest('GET', 'localized', 'de')->assertOk();
+
+        app('config')->set('localization.aliases', ['Gewinnen' => 'de']);
+
+        $this->setRequestContext('GET', 'localized');
+        $this->assertEquals($this->getUri('localized', 'gewinnen'), app('dialect')->current('de'));
+
+        $this->sendRequest('GET', 'localized', 'gewinnen')->assertOk();
+        $this->assertEquals('de', app()->getLocale());
+    }
+
+    #[Test]
+    public function an_alias_can_be_the_first_label_of_the_domain()
+    {
+        app('config')->set('localization.alias_urls', true);
+        app('config')->set('localization.beautify_url', false);
+        app('config')->set('localization.aliases', ['laraveltongue' => 'de']);
+
+        $this->setRequestContext('GET', 'localized', 'en');
+        $this->assertEquals($this->getUri('localized', 'laraveltongue'), app('dialect')->current('de'));
+
+        $this->sendRequest('GET', 'localized', 'laraveltongue')->assertOk();
+        $this->assertEquals('de', app()->getLocale());
+    }
 }
