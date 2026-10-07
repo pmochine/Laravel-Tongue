@@ -195,7 +195,8 @@ class Dialect
     /**
      * The URLs of the current page in all locales, for <link rel="alternate" hreflang="...">.
      * The keys are hreflang values, like "de" or "pt-BR", and "x-default" for the fallback locale.
-     * Each URL is the address that the middleware does not redirect.
+     * A locale can set its own value with the key "hreflang" in supportedLocales.
+     * Each URL is the address of the locale itself, with the query string of the current page.
      *
      * @return array
      */
@@ -204,8 +205,12 @@ class Dialect
         $route = app('router')->current();
         $alternates = [];
 
-        foreach (tongue()->speaking()->keys()->all() as $locale) {
-            $alternates[str_replace('_', '-', $locale)] = $this->canonicalUrl($route, $locale);
+        foreach (tongue()->speaking()->all() as $locale => $properties) {
+            $hreflang = is_array($properties) && ! empty($properties['hreflang'])
+                ? $properties['hreflang']
+                : str_replace('_', '-', $locale);
+
+            $alternates[$hreflang] = $this->canonicalUrl($route, $locale);
         }
 
         $alternates['x-default'] = $this->canonicalUrl($route, Config::fallbackLocale());
@@ -224,12 +229,15 @@ class Dialect
     {
         $path = $route ? $this->localizedRoutePath($route, $locale) : false;
 
+        // The query string decides the content too, like ?page=2 of a pagination
+        $query = request()->server('QUERY_STRING') ?: null;
+
         // Unlike a link of the language switcher, the fallback locale has no subdomain for the cookie
         if (Config::beautify() && $locale === Config::fallbackLocale()) {
-            return $this->assembleUrl(Url::domain(), $path);
+            return $this->assembleUrl(Url::domain(), $path, $query);
         }
 
-        return $this->assembleUrl(Url::localeSubdomain($locale).'.'.Url::domain(), $path);
+        return $this->assembleUrl(Url::localeSubdomain($locale).'.'.Url::domain(), $path, $query);
     }
 
     /**

@@ -153,7 +153,15 @@ Search engines find the other languages of a page with `hreflang` links. Add the
   @endforeach
 ```
 
-`dialect()->alternates()` lists each supported locale and `x-default` for the fallback locale, as [Google asks for](https://developers.google.com/search/docs/specialty/international/localized-versions). Each URL is the address that the middleware does not redirect. So the fallback locale uses the beautiful URL `example.com`. The language switcher still links to `en.example.com`, because that link switches the cookie. The hreflang is the locale key, with `_` replaced by `-`.
+`dialect()->alternates()` lists each supported locale and `x-default` for the fallback locale, as [Google asks for](https://developers.google.com/search/docs/specialty/international/localized-versions). Each URL is the address of the locale itself, with the query string of the current page, like `?page=2`. So the fallback locale uses the beautiful URL `example.com`. The language switcher still links to `en.example.com`, because that link switches the cookie.
+
+If a cookie or the browser language asks for another locale, the middleware still redirects a visitor from `example.com`. Google's crawler [sends no `Accept-Language` header](https://developers.google.com/search/docs/specialty/international/locale-adaptive-pages), so it sees the page of the fallback locale.
+
+The hreflang is the locale key, with `_` replaced by `-`. Google accepts ISO 639-1 language codes. If your locale key is no such code, set the hreflang in `config/localization.php`:
+
+```php
+  'fil' => ['name' => 'Filipino', 'script' => 'Latn', 'native' => 'Filipino', 'regional' => 'fil_PH', 'hreflang' => 'tl'],
+```
 
 
 ## Configuration

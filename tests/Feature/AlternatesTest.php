@@ -71,4 +71,28 @@ class AlternatesTest extends TestCase
 
         $this->assertEquals($this->getUri('article/important-change'), app('dialect')->alternates()['en']);
     }
+
+    #[Test]
+    public function it_keeps_the_query_string_like_the_page_of_a_pagination()
+    {
+        $this->sendRequest('GET', 'blog?page=2', 'de')->assertOk();
+
+        $this->assertEquals($this->getUri('blog?page=2', 'de'), app('dialect')->alternates()['de']);
+        $this->assertEquals($this->getUri('blog?page=2'), app('dialect')->alternates()['en']);
+    }
+
+    #[Test]
+    public function a_locale_can_have_its_own_hreflang()
+    {
+        // "fil" is no ISO 639-1 code, so the app gives Filipino the code "tl"
+        app('config')->set('localization.supportedLocales', [
+            'en' => ['name' => 'English', 'script' => 'Latn', 'native' => 'English', 'regional' => 'en_GB'],
+            'fil' => ['name' => 'Filipino', 'script' => 'Latn', 'native' => 'Filipino', 'regional' => 'fil_PH', 'hreflang' => 'tl'],
+        ]);
+
+        $this->sendRequest('GET', 'localized', 'fil')->assertOk();
+
+        $this->assertEquals($this->getUri('localized', 'fil'), app('dialect')->alternates()['tl']);
+        $this->assertEquals(['en', 'tl', 'x-default'], array_keys(app('dialect')->alternates()));
+    }
 }
