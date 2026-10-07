@@ -2,6 +2,8 @@
 
 namespace Pmochine\LaravelTongue;
 
+use Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale;
+
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     const CONFIG_PATH = __DIR__.'/../config/localization.php';
@@ -11,6 +13,13 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->publishes([
             self::CONFIG_PATH => config_path('localization.php'),
         ], 'config');
+
+        // Since Laravel 11 there is no app/Http/Kernel.php. Keep an alias that the app defines itself.
+        $router = $this->app['router'];
+
+        if (! array_key_exists('speaks-tongue', $router->getMiddleware())) {
+            $router->aliasMiddleware('speaks-tongue', TongueSpeaksLocale::class);
+        }
     }
 
     public function register()
