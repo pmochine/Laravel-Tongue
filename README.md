@@ -123,11 +123,11 @@ Octane boots your app one time for many requests. A service provider does not se
 
 You can also use its alias `detects-tongue` on a group of routes, for example for API routes without a service provider. In a group with both middleware, put `detects-tongue` before `speaks-tongue`.
 
-Octane registers your routes one time, before the first request. So translated routes with `dialect()->interpret()` do not work with Octane. All other features work.
+Octane registers your routes one time, before the first request. So register translated routes with [`dialect()->localizedRoutes()`](#translated-routes-for-route-caching-and-octane). Then the routes of all locales exist, and the middleware detects the locale for each request.
 
 ### Route caching
 
-`php artisan route:cache` works for routes without translated paths. For translated routes, the cache keeps the paths of one locale only. If you use `dialect()->interpret()`, do not cache your routes.
+`php artisan route:cache` works for all routes. Register translated routes with [`dialect()->localizedRoutes()`](#translated-routes-for-route-caching-and-octane). Without it, the cache keeps the translated paths of one locale only.
 
 ### Frontend 😴
 
@@ -272,6 +272,28 @@ Then, here is how you define translated routes in `routes/web.php`:
 ```
 
 You can, of course, name the language files as you wish, and pass the proper prefix (routes. in the example) to the interpret() method.
+
+### Translated routes for route caching and Octane
+
+The routes above get the paths of the locale of the current request. Laravel registers them for each request. With `php artisan route:cache` or Laravel Octane, Laravel registers the routes only one time. Then put the translated routes into `dialect()->localizedRoutes()`:
+
+```php
+  Route::middleware(['detects-tongue', 'speaks-tongue'])->group(function () {
+      dialect()->localizedRoutes(function () {
+          Route::get(dialect()->interpret('routes.welcome'), [WelcomeController::class, 'index'])->name('welcome');
+          Route::get(dialect()->interpret('routes.user_profile'), [UserController::class, 'show'])->name('user_profile');
+      });
+  });
+```
+
+Tongue runs the callback one time for each supported locale. In each round, `dialect()->interpret()` gives the path of that locale, also in `Route::prefix()`. So `en.example.com/welcome` and `fr.example.com/bienvenue` are two routes, and the middleware `detects-tongue` sets the locale for each request.
+
+- The callback must register the same routes in the same order for each locale.
+- The route of the fallback locale keeps its name, like `welcome`. Route names must be unique for the route cache, so the routes of the other locales get the locale as suffix, like `welcome.fr`. To check the current route, use `request()->routeIs('welcome', 'welcome.*')`. If another route already has a name like `welcome.fr`, Tongue throws a `LogicException`.
+- If several locales have the same path, they share one route. Two different routes can not have the same path in different locales, because Laravel finds a route by its path. Then Tongue throws a `LogicException`.
+- `dialect()->translate('welcome', [], 'fr')`, `dialect()->current()`, `dialect()->translateUrl()` and `dialect()->alternates()` use the route of the locale. `route('welcome')` gives the path of the fallback locale.
+- If a request uses the path of another locale, like `fr.example.com/welcome`, the middleware `speaks-tongue` redirects to `fr.example.com/bienvenue`. A translated slug in the URL gets the slug of the locale. A form request keeps its method and data, because the redirect has the status 307.
+- Tongue runs `detects-tongue` and `speaks-tongue` before the route model binding of Laravel. So the binding finds a translated slug in the right locale.
 
 ## Translated slugs
 

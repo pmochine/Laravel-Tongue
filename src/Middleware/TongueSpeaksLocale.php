@@ -22,6 +22,12 @@ class TongueSpeaksLocale
             return dialect()->redirect(dialect()->redirectURL());
         }
 
+        // A route from localizedRoutes() with the path of another locale, like de.example.com/hello.
+        // 307 keeps the method and the data of a form.
+        if (! Config::preventRedirect() && $url = dialect()->localizedRouteRedirectUrl()) {
+            return dialect()->redirect($url, $request->isMethodSafe() ? 302 : 307);
+        }
+
         return $next($request);
     }
 }
