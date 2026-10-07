@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\RouteCollection;
 use Pmochine\LaravelTongue\Misc\Config;
+use Pmochine\LaravelTongue\Misc\Url;
 use SplObjectStorage;
 
 /**
@@ -53,8 +54,9 @@ trait LocalizesRoutes
     {
         $router = app('router');
         $groups = [];
+        $locales = $this->routeLocales();
 
-        foreach ($this->routeLocales() as $locale) {
+        foreach ($locales as $locale) {
             $before = $this->registeredRoutes();
 
             $this->routesLocale = $locale;
@@ -74,18 +76,18 @@ trait LocalizesRoutes
                 }
 
                 $id = $this->localizedRouteId($route);
-                $locales = [$locale];
+                $routeLocales = [$locale];
 
                 // The same path as in an earlier locale replaced the route of that locale.
                 // So this route serves both locales.
                 foreach ($groups[$id] ?? [] as $index => $earlier) {
                     if (! $after->contains($earlier)) {
-                        $locales = array_merge($earlier->getAction('tongue')['locales'], $locales);
+                        $routeLocales = array_merge($earlier->getAction('tongue')['locales'], $routeLocales);
                         unset($groups[$id][$index]);
                     }
                 }
 
-                $this->markLocalizedRoute($route, $id, $locales);
+                $this->markLocalizedRoute($route, $id, $routeLocales, $locales[0]);
                 $groups[$id][] = $route;
             }
         }
@@ -150,6 +152,11 @@ trait LocalizesRoutes
             return null;
         }
 
+        // Like twister(): Tongue does not redirect a whitelisted subdomain, like admin.example.com
+        if (Url::hasSubdomain() && tongue()->speaking('subdomains', Url::subdomain())) {
+            return null;
+        }
+
         $path = $this->localizedRoutePath($route, $locale);
 
         if ($path === false) {
@@ -158,11 +165,13 @@ trait LocalizesRoutes
 
         $query = request()->server('QUERY_STRING');
 
-        return $this->assembleUrl($this->addLocaleToHost($locale), $path, is_string($query) && $query !== '' ? $query : null);
+        // Only the path changes. twister() already checked the host, which can also be an alias.
+        return $this->assembleUrl(request()->getHost(), $path, is_string($query) && $query !== '' ? $query : null);
     }
 
     /**
      * The fallback locale first, so its routes keep their names.
+     * Without a supported fallback locale, the first supported locale keeps the names.
      *
      * @return array
      */
@@ -228,15 +237,16 @@ trait LocalizesRoutes
 
     /**
      * Saves the group and the locales in the route action.
-     * Route names must be unique for route:cache, so only the route of the fallback locale keeps its name.
+     * Route names must be unique for route:cache, so only the route of the first locale keeps its name.
      * The routes of the other locales get the locale as suffix, like "welcome.de".
      *
      * @param  \Illuminate\Routing\Route  $route
      * @param  string  $id
      * @param  array  $locales
+     * @param  string  $firstLocale  [the fallback locale, if it is supported]
      * @return void
      */
-    protected function markLocalizedRoute(Route $route, $id, array $locales)
+    protected function markLocalizedRoute(Route $route, $id, array $locales, $firstLocale)
     {
         $action = $route->getAction();
         $name = $action['tongue']['name'] ?? ($action['as'] ?? null);
@@ -250,7 +260,7 @@ trait LocalizesRoutes
         ];
 
         if ($name !== null) {
-            $action['as'] = in_array(Config::fallbackLocale(), $locales, true) ? $name : $name.'.'.$locales[0];
+            $action['as'] = in_array($firstLocale, $locales, true) ? $name : $name.'.'.$locales[0];
         }
 
         $route->setAction($action);

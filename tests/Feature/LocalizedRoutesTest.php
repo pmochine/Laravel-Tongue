@@ -85,6 +85,34 @@ class LocalizedRoutesTest extends TestCase
     }
 
     #[Test]
+    public function the_redirect_keeps_an_alias_and_ignores_a_whitelisted_subdomain()
+    {
+        app('config')->set('localization.aliases', ['gewinnen' => 'de']);
+        app('config')->set('localization.subdomains', ['admin']);
+
+        $this->call('GET', $this->getUri('hello/john', 'gewinnen'))->assertRedirect($this->getUri('hallo/john', 'gewinnen'));
+
+        // Like twister(): Tongue does not redirect a whitelisted subdomain
+        $this->call('GET', $this->getUri('hello/john', 'admin'), [], ['tongue-locale' => 'de'])->assertOk();
+    }
+
+    #[Test]
+    public function the_first_supported_locale_keeps_the_name_if_the_fallback_locale_is_not_supported()
+    {
+        app('config')->set('app.fallback_locale', 'it');
+
+        dialect()->localizedRoutes(function () {
+            Route::get(dialect()->interpret('Tongue::routes.good_night'), function () {
+                return 'night';
+            })->name('night');
+        });
+
+        // German comes first in the supported locales of the test config
+        $this->assertSame('gute-nacht', Route::getRoutes()->getByName('night')->uri());
+        $this->assertSame('good-night', Route::getRoutes()->getByName('night.en')->uri());
+    }
+
+    #[Test]
     public function the_urls_use_the_route_of_the_locale()
     {
         $this->assertUrlsWork();
