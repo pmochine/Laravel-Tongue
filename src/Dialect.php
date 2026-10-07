@@ -130,7 +130,10 @@ class Dialect
         // Resolve the translated route path for the given route name
         $translatedPath = $this->findRoutePath($routeName, $locale);
 
-        if ($translatedPath !== false) {
+        if ($translatedPath === '/' || $translatedPath === '') {
+            // The home page, like url('/'), has no trailing slash
+            unset($parsed_url['path']);
+        } elseif ($translatedPath !== false) {
             $parsed_url['path'] = $translatedPath;
         }
 

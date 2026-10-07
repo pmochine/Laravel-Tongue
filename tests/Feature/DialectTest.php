@@ -190,6 +190,18 @@ class DialectTest extends TestCase
     }
 
     #[Test]
+    public function it_builds_the_url_of_the_home_route_without_a_trailing_slash()
+    {
+        $this->sendRequest('GET', '', 'de');
+
+        $this->assertEquals('https://fr.laraveltongue.dev', app('dialect')->current('fr'));
+
+        $this->setRequestContext('GET', $this->dePathWithoutParameter, 'de');
+
+        $this->assertEquals('https://fr.laraveltongue.dev', app('dialect')->translate('home', [], 'fr'));
+    }
+
+    #[Test]
     public function it_keeps_the_current_path_when_the_route_is_unknown()
     {
         $this->setRequestContext('GET', '', 'de');

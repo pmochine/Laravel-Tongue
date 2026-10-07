@@ -5,6 +5,10 @@ app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCo
         return response('not-localized');
     });
 
+    app('router')->get('/', function () {
+        return response('home');
+    })->name('home');
+
     // Route::view() adds the parameters "view", "data", "status" and "headers" (#55)
     app('router')->view('privacy', 'privacy')->name('privacy');
 
