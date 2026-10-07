@@ -89,8 +89,8 @@ class TongueDetector
             return key($this->supportedLanguages);
         }
 
-        if ($this->use_intl && ! empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $http_accept_language = PhpLocale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        if ($this->use_intl && ! empty($this->request->header('Accept-Language'))) {
+            $http_accept_language = PhpLocale::acceptFromHttp($this->request->header('Accept-Language'));
 
             if (! empty($this->supportedLanguages[$http_accept_language])) {
                 return $http_accept_language;
