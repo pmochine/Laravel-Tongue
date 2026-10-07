@@ -198,4 +198,16 @@ class AliasUrlsTest extends TestCase
         $this->assertEquals($this->getUri('localized', 'deutsch'), app('dialect')->current('de'));
         $this->assertEquals($this->getUri('localized', 'fr'), app('dialect')->current('fr'));
     }
+
+    #[Test]
+    public function an_alias_can_be_zero()
+    {
+        app('config')->set('localization.alias_urls', true);
+        app('config')->set('localization.beautify_url', false);
+        app('config')->set('localization.aliases', ['0' => 'de']);
+
+        $this->sendRequest('GET', 'localized', '0')->assertOk();
+        $this->assertEquals('de', app()->getLocale());
+        $this->assertEquals($this->getUri('localized', '0'), app('dialect')->current('de'));
+    }
 }

@@ -319,6 +319,24 @@ class DialectTest extends TestCase
     }
 
     #[Test]
+    public function it_keeps_the_base_path_of_an_app_in_a_subfolder()
+    {
+        // The app runs under https://laraveltongue.dev/shop
+        $server = ['SCRIPT_FILENAME' => '/var/www/shop/public/index.php', 'SCRIPT_NAME' => '/shop/index.php'];
+
+        $this->setRequestContext('GET', 'shop/localized', 'en', [], [], [], $server);
+
+        $this->assertEquals('/shop', request()->getBaseUrl());
+        $this->assertEquals($this->getUri('shop/privacy', 'de'), app('dialect')->translate('privacy', [], 'de'));
+        $this->assertEquals($this->getUri('shop/guten-morgen', 'de'), app('dialect')->translate('Tongue::routes.good_morning', null, 'de'));
+        $this->assertEquals($this->getUri('shop', 'de'), app('dialect')->translate('home', [], 'de'));
+
+        $this->sendRequest('GET', 'shop/hallo/samplename', 'de', [], [], [], $server)->assertOk();
+
+        $this->assertEquals($this->getUri('shop/hello/samplename', 'en'), app('dialect')->current('en'));
+    }
+
+    #[Test]
     public function it_keeps_the_current_path_when_the_route_is_unknown()
     {
         $this->setRequestContext('GET', '', 'de');

@@ -110,7 +110,7 @@ class TestCase extends OrchestraTestCase
      */
     public function getUri($path, $locale = null)
     {
-        return $this->scheme.'://'.($locale ? $locale.'.' : '').$this->domain.'/'.$path;
+        return $this->scheme.'://'.($locale !== null && $locale !== '' ? $locale.'.' : '').$this->domain.'/'.$path;
     }
 
     /**

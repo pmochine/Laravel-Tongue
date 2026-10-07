@@ -191,7 +191,7 @@ class Dialect
      * The current URL with the host of the locale and the given path.
      *
      * @param  string  $locale
-     * @param  string|false  $path  [false keeps the path of the current request]
+     * @param  string|false  $path  [a path of the app, false keeps the path of the current request]
      * @param  string|null  $query
      * @return string
      */
@@ -203,14 +203,16 @@ class Dialect
         $parsed_url['host'] = $this->addLocaleToHost($locale);
 
         if ($path !== false) {
-            $parsed_url['path'] = $path;
+            // An app in a subfolder, like https://example.com/shop, keeps "/shop" before the path.
+            // The home page, like url('/'), has no trailing slash.
+            $path = trim($path, '/');
+            $parsed_url['path'] = rtrim(request()->getBaseUrl(), '/').($path !== '' ? '/'.$path : '');
         }
 
         if ($query !== null) {
             $parsed_url['query'] = $query;
         }
 
-        // The home page, like url('/'), has no trailing slash
         if (isset($parsed_url['path']) && trim($parsed_url['path'], '/') === '') {
             unset($parsed_url['path']);
         }

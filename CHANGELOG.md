@@ -40,6 +40,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - An alias that is also a locale code caused a redirect loop.
 - Aliases are case-insensitive, like hosts. An alias like `Gewinnen` in the configuration did not match `gewinnen.domain.com`.
 - A subdomain that is equal to the first label of the domain, like `example.example.com`, was not found.
+- For an app in a subfolder, like `https://example.com/shop`, translated URLs lost `/shop`.
 - Implicitly nullable parameters for PHP 8.4.
 
 ### Changed

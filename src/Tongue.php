@@ -74,14 +74,14 @@ class Tongue
     {
         $locale = Localization::fromUrl();
 
-        if ($locale && tongue()->speaking('subdomains', $locale)) {
+        if ($locale !== false && tongue()->speaking('subdomains', $locale)) {
             //whitelisted subdomains! like admin.domain.com
             return false;
         }
 
         //custom subdomains with locale. gewinnen.domain.com -> de as locale
         //a subdomain that is a locale is never an alias, like in Localization::decipherTongue()
-        if ($locale && ! $this->isSpeaking($locale) && $customLocale = tongue()->speaking('aliases', $locale)) {
+        if ($locale !== false && ! $this->isSpeaking($locale) && $customLocale = tongue()->speaking('aliases', $locale)) {
             //but we need to check again if it is spoken or not
             if ($this->current() !== $customLocale) {
                 return true;
@@ -94,7 +94,7 @@ class Tongue
         //fallback language is the same as the current language
         if (Config::beautify() && $this->current() === Config::fallbackLocale()) {
             //didn't found locale means browser is set to exmaple.com
-            if (! $locale) {
+            if ($locale === false) {
                 return false;
             }
             //browser is set to en.example.com but should be forced back to example.com
