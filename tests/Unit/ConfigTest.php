@@ -33,6 +33,16 @@ class ConfigTest extends TestCase
     }
 
     #[Test]
+    public function it_can_read_alias_urls_from_config()
+    {
+        $this->assertFalse(Config::aliasUrls());
+
+        app('config')->set('localization.alias_urls', true);
+
+        $this->assertTrue(Config::aliasUrls());
+    }
+
+    #[Test]
     public function it_can_read_beautify_from_config()
     {
         $this->assertTrue(Config::beautify());

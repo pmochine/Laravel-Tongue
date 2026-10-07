@@ -7,6 +7,7 @@ use Pmochine\LaravelTongue\Localization\Locale;
 use Pmochine\LaravelTongue\Localization\Localization;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Misc\ConfigList;
+use Pmochine\LaravelTongue\Misc\Url;
 
 class Tongue
 {
@@ -95,6 +96,11 @@ class Tongue
             if ($locale === Config::fallbackLocale()) {
                 return true;
             }
+        }
+
+        //with alias_urls the alias is the address of the locale: de.domain.com -> gewinnen.domain.com
+        if ($locale === $this->current() && Url::localeSubdomain($locale) !== $locale) {
+            return true;
         }
 
         //decipher from

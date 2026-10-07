@@ -49,11 +49,11 @@ class Dialect
         if (Config::beautify() && tongue()->current() === Config::fallbackLocale()) {
             $parsed_url['host'] = $domain;
         } else {
-            $parsed_url['host'] = tongue()->current().'.'.$domain;
+            $parsed_url['host'] = Url::localeSubdomain(tongue()->current()).'.'.$domain;
         }
 
         if ($locale) {
-            $parsed_url['host'] = $locale.'.'.$domain;
+            $parsed_url['host'] = Url::localeSubdomain($locale).'.'.$domain;
         }
 
         return Accent::unparseUrl($parsed_url);
@@ -189,7 +189,7 @@ class Dialect
         }
 
         // Add locale to the host
-        return $locale.'.'.Url::domain();
+        return Url::localeSubdomain($locale).'.'.Url::domain();
     }
 
     /**

@@ -72,6 +72,24 @@ class Url
         return explode('.', self::host())[0];
     }
 
+    /**
+     * With the option "alias_urls" a locale uses its first alias as subdomain.
+     *
+     * @return string [like "de" or its alias "gewinnen"]
+     */
+    public static function localeSubdomain(string $locale): string
+    {
+        if (Config::aliasUrls()) {
+            $alias = array_search($locale, Config::aliases(), true);
+
+            if (is_string($alias)) {
+                return $alias;
+            }
+        }
+
+        return $locale;
+    }
+
     public static function hasSubdomain(): bool
     {
         return explode('.', self::domain())[0] !== self::subdomain();

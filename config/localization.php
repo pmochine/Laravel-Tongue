@@ -50,6 +50,19 @@ return [
     ],
     /*
     |--------------------------------------------------------------------------
+    | Use the aliases in URLs
+    |--------------------------------------------------------------------------
+    |
+    | If true, the URLs that Tongue builds use the alias of a locale as
+    | subdomain: gewinnen.domain.com instead of de.domain.com. The middleware
+    | redirects de.domain.com to gewinnen.domain.com. If a locale has more
+    | than one alias, Tongue uses the first one. The beautiful URL of the
+    | fallback locale (beautify_url) wins over its alias.
+    |
+    */
+    'alias_urls' => false,
+    /*
+    |--------------------------------------------------------------------------
     | https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language
     |--------------------------------------------------------------------------
     |
