@@ -183,6 +183,46 @@ class Dialect
     }
 
     /**
+     * The URLs of the current page in all locales, for <link rel="alternate" hreflang="...">.
+     * The keys are hreflang values, like "de" or "pt-BR", and "x-default" for the fallback locale.
+     * Each URL is the address that the middleware does not redirect.
+     *
+     * @return array
+     */
+    public function alternates(): array
+    {
+        $route = app('router')->current();
+        $alternates = [];
+
+        foreach (tongue()->speaking()->keys()->all() as $locale) {
+            $alternates[str_replace('_', '-', $locale)] = $this->canonicalUrl($route, $locale);
+        }
+
+        $alternates['x-default'] = $this->canonicalUrl($route, Config::fallbackLocale());
+
+        return $alternates;
+    }
+
+    /**
+     * The URL of the current page in the locale, without a redirect by the middleware.
+     *
+     * @param  \Illuminate\Routing\Route|null  $route
+     * @param  string  $locale
+     * @return string
+     */
+    protected function canonicalUrl(?Route $route, $locale)
+    {
+        $path = $route ? $this->localizedRoutePath($route, $locale) : false;
+
+        // Unlike a link of the language switcher, the fallback locale has no subdomain for the cookie
+        if (Config::beautify() && $locale === Config::fallbackLocale()) {
+            return $this->assembleUrl(Url::domain(), $path);
+        }
+
+        return $this->assembleUrl(Url::localeSubdomain($locale).'.'.Url::domain(), $path);
+    }
+
+    /**
      * Translates a URL of the app into the given locale, like the URL of the previous page.
      * The URL keeps its query string. Without a matching route, only the subdomain changes.
      *

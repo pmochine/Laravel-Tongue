@@ -143,6 +143,18 @@ Octane registers your routes one time, before the first request. So translated r
 ```
 The above `<html>` tag will always have a supported locale and directionality (‘ltr’ or ‘rtl’). The latter is important for right-to-left languages like Arabic and Hebrew since the whole page layout will change for those.
 
+### Alternate links for search engines
+
+Search engines find the other languages of a page with `hreflang` links. Add them to the `<head>` of your layout:
+
+```php
+  @foreach (dialect()->alternates() as $hreflang => $url)
+      <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $url }}">
+  @endforeach
+```
+
+`dialect()->alternates()` lists each supported locale and `x-default` for the fallback locale, as [Google asks for](https://developers.google.com/search/docs/specialty/international/localized-versions). Each URL is the address that the middleware does not redirect. So the fallback locale uses the beautiful URL `example.com`. The language switcher still links to `en.example.com`, because that link switches the cookie. The hreflang is the locale key, with `_` replaced by `-`.
+
 
 ## Configuration
 
