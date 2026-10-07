@@ -47,7 +47,7 @@ class Dialect
      *
      * @return string
      */
-    public function redirectUrl($url = null, string $locale = null)
+    public function redirectUrl($url = null, ?string $locale = null)
     {
         $parsed_url = parse_url($url ?? request()->fullUrl());
 

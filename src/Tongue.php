@@ -137,7 +137,7 @@ class Tongue
      *
      * @return \Illuminate\Support\Collection|string|array|null
      */
-    public function speaking(string $key = null, string $locale = null)
+    public function speaking(?string $key = null, ?string $locale = null)
     {
         return (new ConfigList)->lookup($key, $locale);
     }

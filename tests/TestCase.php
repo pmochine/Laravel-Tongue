@@ -18,6 +18,9 @@ class TestCase extends OrchestraTestCase
     {
         parent::setUp();
 
+        // Laravel only logs deprecations. Throw them, so a new PHP version shows them in the test run.
+        $this->withoutDeprecationHandling();
+
         $this->refreshConfig();
     }
 

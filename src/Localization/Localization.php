@@ -107,7 +107,7 @@ class Localization
      * @param  string  $locale
      * @return string|null
      */
-    public static function cookie(string $locale = null): ?string
+    public static function cookie(?string $locale = null): ?string
     {
         $cookie = new Cookie('tongue-locale', Config::cookieSerialize()); //Name of the cookie
 
