@@ -2,9 +2,9 @@
 
 namespace Pmochine\LaravelTongue\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\Test;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Misc\Url;
-use PHPUnit\Framework\Attributes\Test;
 use Pmochine\LaravelTongue\Tests\TestCase;
 
 /**
@@ -17,12 +17,10 @@ class UrlTest extends TestCase
     protected $pathNotLocalized = 'not-localized';
     protected $longDomain = '155ad73e.eu.ngrok.io';
 
-
     /**
      * First part with a simple domain
      * No need to set env APP_DOMAIN.
      */
-
     #[Test]
     public function it_returns_full_domain_of_request_host()
     {
@@ -71,7 +69,6 @@ class UrlTest extends TestCase
      * Second part:
      * Now with a complicated domain.
      */
-
     #[Test]
     public function it_returns_full_long_domain_from_env()
     {

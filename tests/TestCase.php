@@ -153,7 +153,6 @@ class TestCase extends OrchestraTestCase
             $cookieFound = false;
 
             foreach ($responseCookies as $cookie) {
-
                 // The cookie is found but with an unexpected value
                 if ($cookieName == $cookie->getName()) {
                     $cookieFound = true;
