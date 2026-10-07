@@ -133,6 +133,9 @@ class TestCase extends OrchestraTestCase
 
         //Load routes for testing
         app('files')->getRequire(__DIR__.'/routing/routes.php');
+
+        // Like the RouteServiceProvider of Laravel after the routes are loaded
+        app('router')->getRoutes()->refreshNameLookups();
     }
 
     /**

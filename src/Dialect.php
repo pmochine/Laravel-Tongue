@@ -128,18 +128,50 @@ class Dialect
         $parsed_url['host'] = $this->addLocaleToHost($locale);
 
         // Resolve the translated route path for the given route name
-        $translatedPath = Accent::findRoutePathByName($routeName, $locale);
+        $translatedPath = $this->findRoutePath($routeName, $locale);
 
         if ($translatedPath !== false) {
             $parsed_url['path'] = $translatedPath;
         }
 
         // If attributes are given, substitute them in the path
-        if ($routeAttributes) {
+        if ($routeAttributes && isset($parsed_url['path'])) {
             $parsed_url['path'] = Accent::substituteAttributesInRoute($routeAttributes, $parsed_url['path']);
         }
 
         return Accent::unparseUrl($parsed_url);
+    }
+
+    /**
+     * Finds the path for a translation key, like "routes.welcome",
+     * or for the name of a route, like "welcome".
+     *
+     * @param  string|false  $routeName
+     * @param  string  $locale
+     * @return string|false
+     */
+    protected function findRoutePath($routeName, $locale)
+    {
+        $path = Accent::findRoutePathByName($routeName, $locale);
+
+        if ($path !== false || ! is_string($routeName) || $routeName === '') {
+            return $path;
+        }
+
+        $route = app('router')->getRoutes()->getByName($routeName);
+
+        if (! $route) {
+            return false;
+        }
+
+        // The path of the route could come from interpret(). Then we translate it.
+        $translationKey = $this->findRouteNameByPath($route->uri());
+
+        if ($translationKey !== false && ($path = Accent::findRoutePathByName($translationKey, $locale)) !== false) {
+            return $path;
+        }
+
+        return $route->uri();
     }
 
     /**

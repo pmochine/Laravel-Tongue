@@ -65,6 +65,10 @@ class Accent
      */
     public static function findRoutePathByName($routeName, $locale = null)
     {
+        if (! is_string($routeName) || $routeName === '') {
+            return false;
+        }
+
         if (app('translator')->has($routeName, $locale)) {
             $name = app('translator')->get($routeName, [], $locale);
 

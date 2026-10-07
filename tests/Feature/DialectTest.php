@@ -168,6 +168,37 @@ class DialectTest extends TestCase
     }
 
     #[Test]
+    public function it_translates_the_current_route_when_the_translated_route_has_a_name()
+    {
+        $this->sendRequest('GET', 'gute-nacht', 'de');
+
+        $this->assertEquals($this->getUri('good-night', 'en'), app('dialect')->current('en'));
+    }
+
+    #[Test]
+    public function it_translates_a_route_name_into_an_url()
+    {
+        $this->setRequestContext('GET', $this->dePathWithoutParameter, 'de');
+
+        // Named route with a translated path. The link to the fallback locale keeps the subdomain,
+        // so the cookie switches to "en" before the middleware redirects to the beautiful URL.
+        $this->assertEquals($this->getUri('good-night', 'en'), app('dialect')->translate('good_night', [], 'en'));
+        $this->assertEquals($this->getUri('gute-nacht', 'de'), app('dialect')->translate('good_night'));
+
+        // Named route without a translated path (#53)
+        $this->assertEquals($this->getUri('privacy', 'fr'), app('dialect')->translate('privacy', [], 'fr'));
+    }
+
+    #[Test]
+    public function it_keeps_the_current_path_when_the_route_is_unknown()
+    {
+        $this->setRequestContext('GET', '', 'de');
+
+        $this->assertEquals('https://fr.laraveltongue.dev', app('dialect')->translate('unknown', ['id' => 1], 'fr'));
+        $this->assertEquals('https://fr.laraveltongue.dev', app('dialect')->translate(false, null, 'fr'));
+    }
+
+    #[Test]
     public function it_interprets_a_translated_route_path()
     {
         $this->setRequestContext('GET', '', 'de');

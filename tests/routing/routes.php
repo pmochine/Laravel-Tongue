@@ -20,5 +20,9 @@ app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCo
         app('router')->get(dialect()->interpret('Tongue::routes.hello_user'), function () {
             return response('translated route with parameter');
         });
+
+        app('router')->get(dialect()->interpret('Tongue::routes.good_night'), function () {
+            return response('named translated route');
+        })->name('good_night');
     });
 });
