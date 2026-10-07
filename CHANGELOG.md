@@ -11,7 +11,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - The package needs PHP 8.2 or higher and Laravel 11, 12 or 13. Laravel 13 needs PHP 8.3 or higher.
 - Support for Laravel 8, 9 and 10 and for PHP 7.4 and 8.1 is removed. Use version 5.0.0 for these versions. Version 5 gets no more updates.
 - `bakame/laravel-domain-parser` must be version 1.3 or higher.
-- `dialect()->translate()` and `dialect()->current()` encode route attributes for the path. A space becomes `%20`, and `#`, `?` and `%` are encoded too.
+- `dialect()->translate()` and `dialect()->current()` encode route attributes in translated paths. A space becomes `%20`, and `#`, `?` and `%` are encoded too.
 - The home page URL has no trailing slash: `https://fr.example.com` instead of `https://fr.example.com/`.
 - The constructors of `Tongue`, `Dialect` and `Localization\Locale` take no arguments. They read the application with `app()` for each call.
 
@@ -20,7 +20,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - Support for Laravel 11, 12 and 13 (#56).
 - The service provider registers the middleware alias `speaks-tongue`. If the app defines this alias, the service provider keeps it.
 - New option `alias_urls` (default `false`). If it is `true`, the URLs that Tongue builds use the alias of a locale as subdomain. The middleware then redirects to the alias (#52, #47).
-- `dialect()->translate()` also accepts the name of a route, not only a translation key (#53).
+- `dialect()->translate()` also accepts the name of a route, not only a translation key (#53). For a route without translation, Laravel builds the path like `route()`. Attributes that are not in the path become the query string.
 - `dialect()->translate()` uses the binding field of a route, like `{post:slug}`, for a model.
 
 ### Fixed
@@ -35,9 +35,11 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - `dialect()->translate()` with route attributes threw "Undefined array key" on a URL without a path.
 - A pattern for missing optional route parameters removed the path between two of them.
 - Without attributes, `translate()` left missing optional route parameters in the URL as `{page?}`.
-- Translated routes in a route group with a prefix, like `Route::prefix('admin')`, lost the prefix in the translated URL.
+- Translated routes in a route group with a prefix, like `Route::prefix('admin')`, lost the prefix in the translated URL. Each route keeps its own prefix. For a translation key, `translate()` uses the prefix of the first route with this key.
 - A translation with a leading slash, like `'/welcome'`, did not match its route.
 - An alias that is also a locale code caused a redirect loop.
+- Aliases are case-insensitive, like hosts. An alias like `Gewinnen` in the configuration did not match `gewinnen.domain.com`.
+- A subdomain that is equal to the first label of the domain, like `example.example.com`, was not found.
 - Implicitly nullable parameters for PHP 8.4.
 
 ### Changed

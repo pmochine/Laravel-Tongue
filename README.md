@@ -306,7 +306,9 @@ Use `dialect()->translate($routeName, $routeAttributes = null, $locale = null)` 
   dialect()->translate('home', [], 'fr'); // https://fr.example.com
 ```
 
-If the route got its path from `dialect()->interpret()`, you get the translated path of the locale.
+If the route got its path from `dialect()->interpret()`, you get the translated path of the locale. For a route without translation, Laravel builds the path like `route()`. Attributes that are not in the path become the query string.
+
+If the route has no translation, `dialect()->current()` keeps the path of the current page.
 
 You can pass route parameters if necessary. If you don't give a specific locale, it will use the current locale ☺️.
 
@@ -404,7 +406,8 @@ These changes can affect your app:
 
 - `dialect()->translate()` and `dialect()->current()` now also find a route by its name. Before, a route name that was no translation key kept the path of the current page.
 - `tongue()`, `dialect()`, the facades and `app('tongue')` now return the same instance. Before, each call of a helper built a new instance.
-- `dialect()->translate()` and `dialect()->current()` encode route attributes for the path, like `route()` of Laravel. A space becomes `%20`.
+- `dialect()->translate()` and `dialect()->current()` encode route attributes in translated paths, like `route()` of Laravel. A space becomes `%20`.
+- Aliases are case-insensitive now, like hosts.
 - The home page URL has no trailing slash: `https://fr.example.com` instead of `https://fr.example.com/`.
 - If you extend `Tongue` or `Dialect`: the constructors take no arguments, and `Dialect` has no `$app` property.
 
