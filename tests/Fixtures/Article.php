@@ -10,7 +10,7 @@ use Pmochine\LaravelTongue\Contracts\LocalizedUrlRoutable;
  */
 class Article implements LocalizedUrlRoutable, UrlRoutable
 {
-    public const SLUGS = ['en' => 'important-change', 'de' => 'wichtige-aenderung', 'hu' => null];
+    public const SLUGS = ['en' => 'important-change', 'de' => 'wichtige-aenderung', 'es' => 'cambio-importante', 'hu' => null];
 
     public function getLocalizedRouteKey(string $locale)
     {

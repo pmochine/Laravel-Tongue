@@ -88,7 +88,7 @@ trait LocalizesRoutes
      * Locales with the same path share one route.
      *
      * @param  \Illuminate\Routing\RouteCollection  $collection
-     * @param  array  $rounds  [locale => [[route, translation key]]]
+     * @param  array  $rounds  [locale => [[route, candidate keys, key by position]]]
      * @param  array  $locales
      * @return void
      */
@@ -103,31 +103,27 @@ trait LocalizesRoutes
         }
 
         $call = bin2hex(random_bytes(4));
-        $paths = [];
 
         // Names that the route file set after it added a route are not in the lookups yet
         $collection->refreshNameLookups();
 
         for ($index = 0; $index < $count; $index++) {
+            $id = "{$call}.{$index}";
             $variants = [];
 
             foreach ($locales as $locale) {
-                [$route, $key] = $rounds[$locale][$index];
+                $route = $rounds[$locale][$index][0];
                 $path = implode(',', $route->methods()).' '.$route->getDomain().'/'.$route->uri();
 
-                $variants[$path] = $variants[$path] ?? ['route' => $route, 'key' => $key, 'locales' => []];
+                $variants[$path] = $variants[$path] ?? ['route' => $route, 'locales' => []];
                 $variants[$path]['locales'][] = $locale;
             }
 
-            foreach ($variants as $path => $variant) {
-                // Laravel finds a route by its path, not by the locale. So two route definitions can not share a path.
-                if (isset($paths[$path]) && $paths[$path] !== $index) {
-                    throw new LogicException("Two routes in localizedRoutes() have the same path [{$path}] in different locales.");
-                }
+            $key = $this->translationKeyOf(array_column($rounds, $index), reset($variants)['route']->getName());
 
-                $paths[$path] = $index;
-
-                $this->markLocalizedRoute($collection, $variant['route'], "{$call}.{$index}", $variant['locales'], $locales[0], $variant['key']);
+            foreach ($variants as $variant) {
+                $this->rejectPathConflicts($collection, $variant['route'], $id);
+                $this->markLocalizedRoute($collection, $variant['route'], $id, $variant['locales'], $locales[0], $key);
                 $collection->add($variant['route']);
             }
         }
@@ -137,11 +133,12 @@ trait LocalizesRoutes
     }
 
     /**
-     * Gives each route of a round the translation key that interpret() gave its path.
-     * Routes with the same path, like GET and POST "contact", get the keys in the order of interpret().
+     * Gives each route of a round the translation keys that interpret() gave its path.
+     * Routes with the same path, like GET and POST "contact", get all keys of the path,
+     * and the key in the order of interpret() as a hint.
      *
      * @param  array  $routes
-     * @return array [[route, translation key or null]]
+     * @return array [[route, candidate keys, key by position]]
      */
     protected function withTranslationKeys(array $routes)
     {
@@ -149,10 +146,70 @@ trait LocalizesRoutes
 
         return array_map(function (Route $route) use (&$used) {
             $path = $this->normalizePath($route->uri());
+            $keys = $this->routesLocalePaths[$path] ?? [];
             $position = $used[$path] = ($used[$path] ?? -1) + 1;
 
-            return [$route, $this->routesLocalePaths[$path][$position] ?? null];
+            return [$route, array_values(array_unique($keys)), $keys[$position] ?? null];
         }, $routes);
+    }
+
+    /**
+     * The translation key of a route definition: the key that gives its path in every locale.
+     * If several keys fit, the route name or the order of interpret() decides.
+     *
+     * @param  array  $variants  [[route, candidate keys, key by position]] of one definition, one per locale
+     * @param  string|null  $name
+     * @return string|null
+     */
+    protected function translationKeyOf(array $variants, $name)
+    {
+        $keys = null;
+
+        foreach ($variants as [$route, $candidates]) {
+            $keys = $keys === null ? $candidates : array_values(array_intersect($keys, $candidates));
+        }
+
+        if (! $keys) {
+            return null;
+        }
+
+        if (count($keys) === 1) {
+            return $keys[0];
+        }
+
+        if (in_array($name, $keys, true)) {
+            return $name;
+        }
+
+        $byPosition = $variants[0][2] ?? null;
+
+        return in_array($byPosition, $keys, true) ? $byPosition : $keys[0];
+    }
+
+    /**
+     * Laravel finds a route by its method and path, not by the locale. So two localized route
+     * definitions can not share a path, also not from two calls of localizedRoutes().
+     *
+     * @param  \Illuminate\Routing\RouteCollection  $collection
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  string  $id
+     * @return void
+     *
+     * @throws \LogicException
+     */
+    protected function rejectPathConflicts(RouteCollection $collection, Route $route, $id)
+    {
+        $routes = $collection->getRoutesByMethod();
+        $path = $route->getDomain().$route->uri();
+
+        foreach ($route->methods() as $method) {
+            $existing = $routes[$method][$path] ?? null;
+            $existingId = $existing ? ($existing->getAction('tongue')['id'] ?? null) : null;
+
+            if ($existingId !== null && $existingId !== $id) {
+                throw new LogicException("Two routes in localizedRoutes() have the same path [{$method} {$path}] in different locales.");
+            }
+        }
     }
 
     /**
@@ -217,19 +274,20 @@ trait LocalizesRoutes
         }
 
         // The middleware runs before route model binding. Bind a copy in a locale of the route,
-        // so a translated slug in the URL gives its key in the current locale.
-        $bound = $this->inLocale($tongue['locales'][0], function () use ($route) {
-            $copy = clone $route;
+        // so a translated slug in the URL gives its key in the current locale. Locales that share
+        // a path can have different slugs, so try each of them.
+        $bound = $route;
 
-            try {
-                app('router')->substituteBindings($copy);
-                app('router')->substituteImplicitBindings($copy);
-            } catch (Exception $e) {
-                // For example a slug that does not exist. The URL keeps the values that it has.
+        foreach ($tongue['locales'] as $source) {
+            $copy = $this->inLocale($source, function () use ($route) {
+                return $this->boundCopy($route);
+            });
+
+            if ($copy !== null) {
+                $bound = $copy;
+                break;
             }
-
-            return $copy;
-        });
+        }
 
         $path = $this->localizedRoutePath($bound, $locale);
 
@@ -241,6 +299,27 @@ trait LocalizesRoutes
 
         // Only the path changes. twister() already checked the host, which can also be an alias.
         return $this->assembleUrl(request()->getHost(), $path, is_string($query) && $query !== '' ? $query : null);
+    }
+
+    /**
+     * A copy of the route with route model binding, or null if the binding fails.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @return \Illuminate\Routing\Route|null
+     */
+    protected function boundCopy(Route $route)
+    {
+        $copy = clone $route;
+
+        try {
+            app('router')->substituteBindings($copy);
+            app('router')->substituteImplicitBindings($copy);
+        } catch (Exception $e) {
+            // For example a slug that does not exist in this locale
+            return null;
+        }
+
+        return $copy;
     }
 
     /**

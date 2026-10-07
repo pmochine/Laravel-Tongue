@@ -179,6 +179,72 @@ class LocalizedRoutesTest extends TestCase
     }
 
     #[Test]
+    public function the_slug_of_a_shared_path_redirects_from_each_of_its_locales()
+    {
+        // English and Spanish share the path article/{article}, but each has its own slug
+        $this->call('GET', $this->getUri('article/cambio-importante', 'de'))->assertRedirect($this->getUri('artikel/wichtige-aenderung', 'de'));
+    }
+
+    #[Test]
+    public function a_translation_key_belongs_to_its_route_in_every_locale()
+    {
+        dialect()->localizedRoutes(function () {
+            Route::prefix('keys')->group(function () {
+                // The paths are interpreted in another order than the routes are registered
+                $submit = dialect()->interpret('Tongue::routes.submit');
+                $form = dialect()->interpret('Tongue::routes.form');
+
+                Route::get($form, function () {
+                    return 'form';
+                })->name('keys.form');
+
+                Route::post($submit, function () {
+                    return 'submitted';
+                })->name('keys.submit');
+            });
+        });
+
+        $this->assertSame('Tongue::routes.form', Route::getRoutes()->getByName('keys.form')->getAction('tongue')['key']);
+        $this->assertSame('Tongue::routes.submit', Route::getRoutes()->getByName('keys.submit')->getAction('tongue')['key']);
+    }
+
+    #[Test]
+    public function swapped_paths_in_two_calls_are_rejected()
+    {
+        dialect()->localizedRoutes(function () {
+            Route::get(dialect()->interpret('Tongue::routes.swap_a'), function () {
+                return 'a';
+            })->name('swap.a');
+        });
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('have the same path');
+
+        dialect()->localizedRoutes(function () {
+            Route::get(dialect()->interpret('Tongue::routes.swap_b'), function () {
+                return 'b';
+            })->name('swap.b');
+        });
+    }
+
+    #[Test]
+    public function swapped_paths_with_overlapping_methods_are_rejected()
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('have the same path');
+
+        dialect()->localizedRoutes(function () {
+            Route::match(['GET', 'POST'], dialect()->interpret('Tongue::routes.swap_a'), function () {
+                return 'a';
+            })->name('swap.a');
+
+            Route::get(dialect()->interpret('Tongue::routes.swap_b'), function () {
+                return 'b';
+            })->name('swap.b');
+        });
+    }
+
+    #[Test]
     public function two_routes_with_swapped_paths_are_rejected()
     {
         $this->expectException(\LogicException::class);
