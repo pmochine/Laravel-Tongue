@@ -134,12 +134,13 @@ class Tongue
     /**
      * Used to return back to previous url.
      * e.g. if you change the language. its usefull.
+     * A translated route of the previous page gets the path of the new locale.
      *
      * @return \Illuminate\Http\RedirectResponse;
      */
     public function back()
     {
-        return dialect()->redirect(dialect()->redirectUrl(url()->previous()));
+        return dialect()->redirect(dialect()->translateUrl(url()->previous()));
     }
 
     /**

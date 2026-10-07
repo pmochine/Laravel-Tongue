@@ -16,6 +16,11 @@ app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCo
         return response('home');
     })->name('home');
 
+    // A language switch in a controller, like in the README
+    app('router')->post('switch/{locale}', function ($locale) {
+        return tongue()->speaks($locale)->back();
+    });
+
     // Route::view() adds the parameters "view", "data", "status" and "headers" (#55)
     app('router')->view('privacy', 'privacy')->name('privacy');
 

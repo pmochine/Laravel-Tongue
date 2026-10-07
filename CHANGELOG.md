@@ -24,6 +24,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - `dialect()->translate()` uses the binding field of a route, like `{post:slug}`, for a model.
 - Middleware `TongueDetectsLocale` with the alias `detects-tongue`. It detects the locale for each request, for example with Laravel Octane (#54).
 - Contract `LocalizedUrlRoutable` for translated slugs. `current()`, `translateAll()` and `translate()` use the route key of a model in the target locale.
+- `dialect()->translateUrl($url, $locale)` translates a URL of the app, for example the previous page. `tongue()->back()` uses it, so a language switch in a controller keeps the translated path (#40).
 
 ### Fixed
 

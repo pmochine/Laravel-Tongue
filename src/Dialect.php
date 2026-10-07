@@ -2,9 +2,12 @@
 
 namespace Pmochine\LaravelTongue;
 
+use Exception;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Arr;
 use Pmochine\LaravelTongue\Accent\Accent;
 use Pmochine\LaravelTongue\Contracts\LocalizedUrlRoutable;
 use Pmochine\LaravelTongue\Localization\Localization;
@@ -180,6 +183,34 @@ class Dialect
     }
 
     /**
+     * Translates a URL of the app into the given locale, like the URL of the previous page.
+     * The URL keeps its query string. Without a matching route, only the subdomain changes.
+     *
+     * @param  string  $url
+     * @param  string|null  $locale  [the current locale, if null]
+     * @return string
+     */
+    public function translateUrl(string $url, ?string $locale = null): string
+    {
+        $locale = $locale ?: tongue()->current();
+        $url = url()->to($url);
+
+        // Like the request of the app, so an app in a subfolder finds its routes
+        $request = Request::create($url, 'GET', [], [], [], Arr::only(request()->server->all(), ['SCRIPT_FILENAME', 'SCRIPT_NAME']));
+        $route = $this->findRouteByRequest($request);
+        $path = $route ? $this->localizedRoutePath($route, $locale) : false;
+
+        $parsed_url = parse_url($url) ?: [];
+        $parsed_url['host'] = $this->addLocaleToHost($locale);
+
+        if ($path !== false) {
+            $parsed_url['path'] = $this->withBasePath($path, $request->getBaseUrl());
+        }
+
+        return $this->unparseUrlWithoutTrailingSlash($parsed_url);
+    }
+
+    /**
      * Return translated URL from route.
      * The route name can be a translation key, like "routes.welcome", or the name of a route, like "welcome".
      *
@@ -272,21 +303,77 @@ class Dialect
         $parsed_url['host'] = $host;
 
         if ($path !== false) {
-            // An app in a subfolder, like https://example.com/shop, keeps "/shop" before the path.
-            // The home page, like url('/'), has no trailing slash.
-            $path = trim($path, '/');
-            $parsed_url['path'] = rtrim(request()->getBaseUrl(), '/').($path !== '' ? '/'.$path : '');
+            $parsed_url['path'] = $this->withBasePath($path, request()->getBaseUrl());
         }
 
         if ($query !== null) {
             $parsed_url['query'] = $query;
         }
 
+        return $this->unparseUrlWithoutTrailingSlash($parsed_url);
+    }
+
+    /**
+     * An app in a subfolder, like https://example.com/shop, keeps "/shop" before the path.
+     *
+     * @param  string  $path
+     * @param  string  $baseUrl  [like "/shop", or "" for an app in the root]
+     * @return string
+     */
+    protected function withBasePath($path, $baseUrl)
+    {
+        $path = trim($path, '/');
+
+        return rtrim($baseUrl, '/').($path !== '' ? '/'.$path : '');
+    }
+
+    /**
+     * The home page, like url('/'), has no trailing slash.
+     *
+     * @param  array  $parsed_url
+     * @return string
+     */
+    protected function unparseUrlWithoutTrailingSlash(array $parsed_url)
+    {
         if (isset($parsed_url['path']) && trim($parsed_url['path'], '/') === '') {
             unset($parsed_url['path']);
         }
 
         return Accent::unparseUrl($parsed_url);
+    }
+
+    /**
+     * Finds the route for a GET request, like the router does, and binds it.
+     * Route model binding gives the models for translated slugs.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Routing\Route|null
+     */
+    protected function findRouteByRequest(Request $request)
+    {
+        [$fallbacks, $routes] = collect(app('router')->getRoutes()->get('GET'))->partition(function ($route) {
+            return $route->isFallback;
+        });
+
+        $route = $routes->merge($fallbacks)->first(function ($route) use ($request) {
+            return $route->matches($request);
+        });
+
+        if (! $route) {
+            return null;
+        }
+
+        // A copy, so the route of the current request keeps its parameters
+        $route = (clone $route)->bind($request);
+
+        try {
+            app('router')->substituteBindings($route);
+            app('router')->substituteImplicitBindings($route);
+        } catch (Exception $e) {
+            // For example a deleted model. The URL keeps the values that it has.
+        }
+
+        return $route;
     }
 
     /**

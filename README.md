@@ -321,6 +321,15 @@ If the route has no translation, `dialect()->current()` keeps the path of the cu
 
 You can pass route parameters if necessary. If you don't give a specific locale, it will use the current locale ☺️.
 
+### Translate any URL of your app
+
+```php
+  dialect()->translateUrl('https://de.example.com/hallo/john?tab=2', 'fr');
+  // Result: https://fr.example.com/bonjour/john?tab=2
+```
+
+Use `dialect()->translateUrl($url, $locale = null)` for a URL instead of a route, for example the URL of the previous page. Tongue finds the route of the URL like the router does. A translated route gets the translated path, and a translated slug gets the slug of the locale. The query string stays. If no route matches, only the subdomain changes.
+
 ### Redirect URL to the language you want
 
 ```php
@@ -394,7 +403,7 @@ Or in a controller far far away...
   } 
 ```
 
-`back()` keeps the path of the previous page and only changes the subdomain. It cannot translate the path, because the controller does not know the route of the previous page. For translated routes, use links with `dialect()->current($locale)` like in the selector above.
+`back()` redirects to the previous page in the new locale. If the previous page belongs to a translated route, it also gets the translated path, for example `de.example.com/hallo/john` becomes `example.com/hello/john`.
 ## Upgrade Guide 🎢
 ### Upgrade to 6.x.x from 5.x.x
 
@@ -419,6 +428,7 @@ These changes can affect your app:
 - Aliases are case-insensitive now, like hosts.
 - The home page URL has no trailing slash: `https://fr.example.com` instead of `https://fr.example.com/`.
 - If you extend `Tongue` or `Dialect`: the constructors take no arguments, and `Dialect` has no `$app` property.
+- `tongue()->back()` translates the path of the previous page for translated routes. Before, it only changed the subdomain.
 
 ### Upgrade to 2.x.x from 1.x.x
 There are little changes that might be important for you.
