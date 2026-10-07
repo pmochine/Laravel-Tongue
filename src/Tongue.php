@@ -2,7 +2,6 @@
 
 namespace Pmochine\LaravelTongue;
 
-use Illuminate\Foundation\Application;
 use Pmochine\LaravelTongue\Localization\Locale;
 use Pmochine\LaravelTongue\Localization\Localization;
 use Pmochine\LaravelTongue\Misc\Config;
@@ -18,9 +17,9 @@ class Tongue
      */
     protected $locale;
 
-    public function __construct(Application $app)
+    public function __construct()
     {
-        $this->locale = new Locale($app);
+        $this->locale = new Locale;
     }
 
     /**

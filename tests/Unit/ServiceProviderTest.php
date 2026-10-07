@@ -38,25 +38,24 @@ class ServiceProviderTest extends TestCase
     }
 
     #[Test]
-    public function tongue_is_built_again_for_each_octane_request_but_dialect_keeps_its_routes()
+    public function tongue_works_on_the_application_of_the_current_octane_request()
     {
+        // The worker boots the app and resolves Tongue and Dialect before the first request.
         $this->setRequestContext('GET', '', 'de');
-        $tongue = app('tongue');
+        app('tongue');
         dialect()->interpret('Tongue::routes.good_morning');
 
-        // Octane clones the application for each request and flushes the scoped instances.
+        // Octane clones the application for each request. The scoped instances are flushed only after the request.
         $sandbox = clone $this->app;
         $sandbox->instance('app', $sandbox);
         $sandbox->instance('config', clone $this->app['config']);
         Container::setInstance($sandbox);
-        $sandbox->forgetScopedInstances();
 
         try {
-            $this->assertNotSame($tongue, $sandbox->make('tongue'));
-
             $sandbox->make('tongue')->speaks('fr');
 
             $this->assertSame('fr', $sandbox['config']->get('app.locale'));
+            $this->assertSame('fr', $sandbox->make('tongue')->current());
             $this->assertSame('de', $this->app['config']->get('app.locale'));
 
             $this->assertSame('Tongue::routes.good_morning', $sandbox->make('dialect')->findRouteNameByPath('guten-morgen'));

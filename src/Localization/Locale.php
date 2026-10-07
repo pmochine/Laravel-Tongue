@@ -2,23 +2,14 @@
 
 namespace Pmochine\LaravelTongue\Localization;
 
-use Illuminate\Foundation\Application;
 use Pmochine\LaravelTongue\Misc\Config;
 
+/**
+ * Uses app() for each call and keeps no instance of the app.
+ * In Octane, app() is the application of the current request.
+ */
 class Locale
 {
-    /**
-     * Our instance of the Laravel app.
-     *
-     * @var \Illuminate\Foundation\Application
-     */
-    protected $app = '';
-
-    public function __construct(Application $app)
-    {
-        $this->app = $app;
-    }
-
     /**
      * Gets the current app locale that is set.
      *
@@ -26,7 +17,7 @@ class Locale
      */
     public function get(): string
     {
-        return $this->app->getLocale();
+        return app()->getLocale();
     }
 
     /**
@@ -37,7 +28,7 @@ class Locale
      */
     public function set(string $locale): void
     {
-        $this->app->setLocale($locale);
+        app()->setLocale($locale);
     }
 
     /**
