@@ -340,7 +340,9 @@ You can pass route parameters if necessary. If you don't give a specific locale,
   // Result: https://fr.example.com/bonjour/john?tab=2
 ```
 
-Use `dialect()->translateUrl($url, $locale = null)` for a URL instead of a route, for example the URL of the previous page. Tongue finds the route of the URL like the router does. A translated route gets the translated path, and a translated slug gets the slug of the locale. The query string stays. If no route matches, only the subdomain changes.
+Use `dialect()->translateUrl($url, $locale = null)` for a URL instead of a route, for example the URL of the previous page. Tongue finds the route of the URL like the router does, also for a URL in another locale than the current page. A translated route gets the translated path, and a translated slug gets the slug of the locale. The query string stays. If no route matches, only the subdomain changes.
+
+A relative URL is relative to the app, like in `url()`. In an app under `https://example.com/shop`, use `hallo/john` and not `/shop/hallo/john`.
 
 ### Redirect URL to the language you want
 

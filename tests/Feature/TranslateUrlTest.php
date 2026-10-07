@@ -83,4 +83,44 @@ class TranslateUrlTest extends TestCase
 
         $response->assertRedirect($this->getUri('hallo/samplename', 'de'));
     }
+
+    #[Test]
+    public function back_translates_the_slug_of_the_previous_page()
+    {
+        // The binding finds the article only with the slug of the locale of the previous page
+        $response = $this->sendRequest('POST', 'switch/en', 'de', [], [], [], ['HTTP_REFERER' => $this->getUri('artikel/wichtige-aenderung', 'de')]);
+
+        $response->assertRedirect($this->getUri('article/important-change'));
+    }
+
+    #[Test]
+    public function it_translates_a_url_of_another_locale_than_the_current_request()
+    {
+        // The current request is English, so the routes have English paths
+        $this->setRequestContext('GET', '', 'fr');
+
+        $this->assertEquals($this->getUri('hello/john', 'en'), app('dialect')->translateUrl($this->getUri('hallo/john', 'de'), 'en'));
+        $this->assertEquals($this->getUri('admin/good-evening', 'en'), app('dialect')->translateUrl($this->getUri('admin/guten-abend', 'de'), 'en'));
+        $this->assertEquals($this->getUri('article/important-change', 'fr'), app('dialect')->translateUrl($this->getUri('artikel/wichtige-aenderung', 'de'), 'fr'));
+        $this->assertEquals('fr', app()->getLocale());
+    }
+
+    #[Test]
+    public function a_relative_url_is_relative_to_the_app()
+    {
+        // The app runs under https://laraveltongue.dev/shop
+        $server = ['SCRIPT_FILENAME' => '/var/www/shop/public/index.php', 'SCRIPT_NAME' => '/shop/index.php'];
+
+        $this->setRequestContext('GET', 'shop/localized', 'de', [], [], [], $server);
+
+        $this->assertEquals($this->getUri('shop/hello/john', 'en'), app('dialect')->translateUrl('hallo/john', 'en'));
+    }
+
+    #[Test]
+    public function it_translates_a_protocol_relative_url()
+    {
+        $this->setRequestContext('GET', '', 'de');
+
+        $this->assertEquals($this->getUri('hello/john', 'en'), app('dialect')->translateUrl('//de.laraveltongue.dev/hallo/john', 'en'));
+    }
 }

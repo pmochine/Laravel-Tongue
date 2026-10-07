@@ -110,6 +110,35 @@ class Url
         return in_array(strtolower($subdomain), array_map('strtolower', $reserved), true);
     }
 
+    /**
+     * The locale of a host of the app, like "de" for de.domain.com or for its alias gewinnen.domain.com.
+     *
+     * @return string|null [null for the bare domain, a whitelisted subdomain or another domain]
+     */
+    public static function localeOfHost(string $host): ?string
+    {
+        $host = strtolower($host);
+
+        if (! Str::endsWith($host, '.'.self::domain())) {
+            return null;
+        }
+
+        $subdomain = explode('.', $host)[0];
+
+        if (tongue()->isSpeaking($subdomain)) {
+            return $subdomain;
+        }
+
+        // Like Localization::decipherTongue(): a whitelisted subdomain is never an alias
+        if (tongue()->speaking('subdomains', $subdomain)) {
+            return null;
+        }
+
+        $locale = tongue()->speaking('aliases', $subdomain);
+
+        return is_string($locale) && tongue()->isSpeaking($locale) ? $locale : null;
+    }
+
     public static function hasSubdomain(): bool
     {
         // Compare the whole domain: "example.example.com" has the subdomain "example".

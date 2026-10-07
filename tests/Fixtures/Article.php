@@ -28,9 +28,10 @@ class Article implements LocalizedUrlRoutable, UrlRoutable
         return 'slug';
     }
 
+    // Like the README: the slug of the current locale finds the article
     public function resolveRouteBinding($value, $field = null)
     {
-        return in_array($value, array_filter(self::SLUGS), true) ? new self : null;
+        return $value === $this->getRouteKey() ? new self : null;
     }
 
     public function resolveChildRouteBinding($childType, $value, $field)

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Pmochine\LaravelTongue\Accent\Accent;
 use Pmochine\LaravelTongue\Contracts\LocalizedUrlRoutable;
 use Pmochine\LaravelTongue\Localization\Localization;
@@ -85,18 +86,21 @@ class Dialect
     /**
      * The path of a bound route in the given locale, with its parameters.
      *
-     * @param  \Illuminate\Routing\Route  $route
+     * @param  \Illuminate\Routing\Route  $route  [the bound route]
      * @param  string  $locale
+     * @param  \Illuminate\Routing\Route|null  $registered  [the route of the app, if $route is a copy with another path]
      * @return string|false [false, if the route has no translation and no parameter with a key per locale]
      */
-    protected function localizedRoutePath(Route $route, $locale)
+    protected function localizedRoutePath(Route $route, $locale, ?Route $registered = null)
     {
+        $registered = $registered ?: $route;
+
         // A route name that is a translation key, like "routes.welcome"
-        $path = $this->translatedKeyPath($route->getName(), $locale, $route);
+        $path = $this->translatedKeyPath($registered->getName(), $locale, $registered);
 
         // A route with a path from interpret()
         if ($path === false) {
-            $path = $this->translatedRoutePath($route, $locale);
+            $path = $this->translatedRoutePath($registered, $locale);
         }
 
         // A route without translation keeps its path. Only a translated slug changes it.
@@ -104,7 +108,7 @@ class Dialect
             return false;
         }
 
-        return Accent::substituteAttributesInRoute($this->routeAttributes($route, $locale), $path !== false ? $path : $route->uri());
+        return Accent::substituteAttributesInRoute($this->routeAttributes($route, $locale), $path !== false ? $path : $registered->uri());
     }
 
     /**
@@ -231,6 +235,7 @@ class Dialect
     /**
      * Translates a URL of the app into the given locale, like the URL of the previous page.
      * The URL keeps its query string. Without a matching route, only the subdomain changes.
+     * A relative URL is relative to the app, like in url().
      *
      * @param  string  $url
      * @param  string|null  $locale  [the current locale, if null]
@@ -239,12 +244,20 @@ class Dialect
     public function translateUrl(string $url, ?string $locale = null): string
     {
         $locale = $locale ?: tongue()->current();
-        $url = url()->to($url);
+        $url = $this->absoluteUrl($url);
 
         // Like the request of the app, so an app in a subfolder finds its routes
         $request = Request::create($url, 'GET', [], [], [], Arr::only(request()->server->all(), ['SCRIPT_FILENAME', 'SCRIPT_NAME']));
-        $route = $this->findRouteByRequest($request);
-        $path = $route ? $this->localizedRoutePath($route, $locale) : false;
+
+        // The locale of the URL, like "de" for de.example.com. The bare domain has the fallback locale.
+        $urlLocale = Url::localeOfHost($request->getHost()) ?? Config::fallbackLocale();
+
+        // Route model binding finds a translated slug only in the locale of the URL
+        $routes = $this->inLocale($urlLocale, function () use ($request, $urlLocale) {
+            return $this->findRouteByRequest($request, $urlLocale);
+        });
+
+        $path = $routes ? $this->localizedRoutePath($routes[0], $locale, $routes[1]) : false;
 
         $parsed_url = parse_url($url) ?: [];
         $parsed_url['host'] = $this->addLocaleToHost($locale);
@@ -389,37 +402,135 @@ class Dialect
     }
 
     /**
+     * Makes a relative or a protocol-relative URL absolute.
+     *
+     * @param  string  $url
+     * @return string
+     */
+    protected function absoluteUrl(string $url): string
+    {
+        // A protocol-relative URL, like //de.example.com/hallo, gets the scheme of the current request
+        if (Str::startsWith($url, '//')) {
+            return request()->getScheme().':'.$url;
+        }
+
+        // A relative URL is relative to the app, like url('hallo/john')
+        return url()->to($url);
+    }
+
+    /**
+     * Runs the callback with the given app locale and sets the previous locale again.
+     *
+     * @param  string  $locale
+     * @param  callable  $callback
+     * @return mixed
+     */
+    protected function inLocale($locale, callable $callback)
+    {
+        $previous = app()->getLocale();
+
+        if ($previous === $locale) {
+            return $callback();
+        }
+
+        app()->setLocale($locale);
+
+        try {
+            return $callback();
+        } finally {
+            app()->setLocale($previous);
+        }
+    }
+
+    /**
      * Finds the route for a GET request, like the router does, and binds it.
+     * The app registered its translated routes only in the locale of the current request.
+     * So a translated route gets the path of the locale of the URL for the comparison.
      * Route model binding gives the models for translated slugs.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Routing\Route|null
+     * @param  string  $locale  [the locale of the URL]
+     * @return array|null [the bound copy of the route and the route of the app]
      */
-    protected function findRouteByRequest(Request $request)
+    protected function findRouteByRequest(Request $request, $locale)
     {
         [$fallbacks, $routes] = collect(app('router')->getRoutes()->get('GET'))->partition(function ($route) {
             return $route->isFallback;
         });
 
-        $route = $routes->merge($fallbacks)->first(function ($route) use ($request) {
-            return $route->matches($request);
-        });
+        foreach ($routes->merge($fallbacks) as $route) {
+            $candidate = $this->routeInLocale($route, $locale);
 
-        if (! $route) {
-            return null;
+            if (! $candidate->matches($request)) {
+                continue;
+            }
+
+            // A copy, so the route of the current request keeps its parameters
+            $candidate = $candidate === $route ? clone $route : $candidate;
+            $candidate->bind($request);
+
+            try {
+                app('router')->substituteBindings($candidate);
+                app('router')->substituteImplicitBindings($candidate);
+            } catch (Exception $e) {
+                // For example a deleted model. The URL keeps the values that it has.
+            }
+
+            return [$candidate, $route];
         }
 
-        // A copy, so the route of the current request keeps its parameters
-        $route = (clone $route)->bind($request);
+        return null;
+    }
 
-        try {
-            app('router')->substituteBindings($route);
-            app('router')->substituteImplicitBindings($route);
-        } catch (Exception $e) {
-            // For example a deleted model. The URL keeps the values that it has.
+    /**
+     * A copy of a translated route with its path in the given locale, or the route itself.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  string  $locale
+     * @return \Illuminate\Routing\Route
+     */
+    protected function routeInLocale(Route $route, $locale)
+    {
+        $translationKey = $this->interpretedKey($route);
+
+        // Only a path from interpret() differs between the locales
+        $path = $translationKey !== false
+            ? $this->withPrefix($this->routePrefix($route), Accent::findRoutePathByName($translationKey, $locale))
+            : false;
+
+        if ($path === false || $this->normalizePath($path) === $this->normalizePath($route->uri())) {
+            return $route;
         }
 
-        return $route;
+        $copy = clone $route;
+        $copy->compiled = null;
+
+        return $copy->setUri(trim($path, '/') ?: '/');
+    }
+
+    /**
+     * The translation key that interpret() gave the path of the route. Two routes can have
+     * the same path, like GET and POST "contact". Then the route name decides, if it is one of the keys.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @return string|false
+     */
+    protected function interpretedKey(Route $route)
+    {
+        $path = $this->normalizePath($route->uri());
+        $keys = [];
+
+        foreach ($this->interpretedRoutes as $interpreted) {
+            if ($interpreted['path'] === $path) {
+                $keys[] = $interpreted['key'];
+            }
+        }
+
+        if (! $keys) {
+            return false;
+        }
+
+        return in_array($route->getName(), $keys, true) ? $route->getName() : $keys[0];
     }
 
     /**
