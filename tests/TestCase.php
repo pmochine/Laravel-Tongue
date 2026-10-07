@@ -2,9 +2,10 @@
 
 namespace Pmochine\LaravelTongue\Tests;
 
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Request;
-use Orchestra\Testbench\BrowserKit\TestCase as OrchestraTestCase;
+use Illuminate\Http\Request;
+use Illuminate\Testing\TestResponse;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use Pmochine\LaravelTongue\ServiceProvider;
 
 class TestCase extends OrchestraTestCase
 {
@@ -17,7 +18,21 @@ class TestCase extends OrchestraTestCase
     {
         parent::setUp();
 
+        // Laravel only logs deprecations. Throw them, so a new PHP version shows them in the test run.
+        $this->withoutDeprecationHandling();
+
         $this->refreshConfig();
+    }
+
+    /**
+     * Get package providers.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
+     * @return array
+     */
+    protected function getPackageProviders($app)
+    {
+        return [ServiceProvider::class];
     }
 
     /**
@@ -48,7 +63,7 @@ class TestCase extends OrchestraTestCase
      * @param  array  $files
      * @param  array  $server
      * @param  string  $content
-     * @return Response
+     * @return TestResponse
      */
     protected function sendRequest($method, $path, $locale = null, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
     {
@@ -61,6 +76,7 @@ class TestCase extends OrchestraTestCase
 
     /**
      * Set Request context for the package components.
+     * Like in a real app: the locale is detected before the routes are registered.
      *
      * @param  string  $method
      * @param  string  $path
@@ -70,7 +86,7 @@ class TestCase extends OrchestraTestCase
      * @param  array  $files
      * @param  array  $server
      * @param  string  $content
-     * @return Response
+     * @return void
      */
     protected function setRequestContext($method, $path, $locale = null, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
     {
@@ -94,7 +110,7 @@ class TestCase extends OrchestraTestCase
      */
     public function getUri($path, $locale = null)
     {
-        return $this->scheme.'://'.($locale ? $locale.'.' : '').$this->domain.'/'.$path;
+        return $this->scheme.'://'.($locale !== null && $locale !== '' ? $locale.'.' : '').$this->domain.'/'.$path;
     }
 
     /**
@@ -113,14 +129,19 @@ class TestCase extends OrchestraTestCase
         app('translator')->load('Tongue', 'routes', 'de');
         app('translator')->load('Tongue', 'routes', 'en');
 
+        app('view')->addLocation(__DIR__.'/views');
+
         //Load routes for testing
         app('files')->getRequire(__DIR__.'/routing/routes.php');
+
+        // Like the RouteServiceProvider of Laravel after the routes are loaded
+        app('router')->getRoutes()->refreshNameLookups();
     }
 
     /**
      * Checks if the given response contains the given cookie(s).
      *
-     * @param  Response  $response
+     * @param  TestResponse  $response
      * @param  array  $cookies
      * @return bool
      */
@@ -132,7 +153,6 @@ class TestCase extends OrchestraTestCase
             $cookieFound = false;
 
             foreach ($responseCookies as $cookie) {
-
                 // The cookie is found but with an unexpected value
                 if ($cookieName == $cookie->getName()) {
                     $cookieFound = true;

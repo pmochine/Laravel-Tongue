@@ -2,11 +2,11 @@
 
 namespace Pmochine\LaravelTongue;
 
-use Illuminate\Foundation\Application;
 use Pmochine\LaravelTongue\Localization\Locale;
 use Pmochine\LaravelTongue\Localization\Localization;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Misc\ConfigList;
+use Pmochine\LaravelTongue\Misc\Url;
 
 class Tongue
 {
@@ -17,9 +17,9 @@ class Tongue
      */
     protected $locale;
 
-    public function __construct(Application $app)
+    public function __construct()
     {
-        $this->locale = new Locale($app);
+        $this->locale = new Locale;
     }
 
     /**
@@ -74,27 +74,38 @@ class Tongue
     {
         $locale = Localization::fromUrl();
 
-        if ($locale && tongue()->speaking('subdomains', $locale)) {
+        if ($locale !== false && tongue()->speaking('subdomains', $locale)) {
             //whitelisted subdomains! like admin.domain.com
             return false;
         }
 
         //custom subdomains with locale. gewinnen.domain.com -> de as locale
-        if ($locale && $customLocale = tongue()->speaking('aliases', $locale)) {
+        //a subdomain that is a locale is never an alias, like in Localization::decipherTongue()
+        if ($locale !== false && ! $this->isSpeaking($locale) && $customLocale = tongue()->speaking('aliases', $locale)) {
             //but we need to check again if it is spoken or not
-            return $this->current() !== $customLocale;
+            if ($this->current() !== $customLocale) {
+                return true;
+            }
+
+            //with alias_urls a locale has one address: its first alias or the beautiful URL of the fallback locale
+            return Config::aliasUrls() && Url::localeSubdomain($customLocale) !== $locale;
         }
 
         //fallback language is the same as the current language
         if (Config::beautify() && $this->current() === Config::fallbackLocale()) {
             //didn't found locale means browser is set to exmaple.com
-            if (! $locale) {
+            if ($locale === false) {
                 return false;
             }
             //browser is set to en.example.com but should be forced back to example.com
             if ($locale === Config::fallbackLocale()) {
                 return true;
             }
+        }
+
+        //with alias_urls the alias is the address of the locale: de.domain.com -> gewinnen.domain.com
+        if ($locale === $this->current() && Url::localeSubdomain($locale) !== $locale) {
+            return true;
         }
 
         //decipher from
@@ -123,12 +134,13 @@ class Tongue
     /**
      * Used to return back to previous url.
      * e.g. if you change the language. its usefull.
+     * A translated route of the previous page gets the path of the new locale.
      *
      * @return \Illuminate\Http\RedirectResponse;
      */
     public function back()
     {
-        return dialect()->redirect(dialect()->redirectUrl(url()->previous()));
+        return dialect()->redirect(dialect()->translateUrl(url()->previous()));
     }
 
     /**
@@ -137,7 +149,7 @@ class Tongue
      *
      * @return \Illuminate\Support\Collection|string|array|null
      */
-    public function speaking(string $key = null, string $locale = null)
+    public function speaking(?string $key = null, ?string $locale = null)
     {
         return (new ConfigList)->lookup($key, $locale);
     }

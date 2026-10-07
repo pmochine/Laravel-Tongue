@@ -1,0 +1,93 @@
+name: tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.stability }}${{ matrix.phpunit && ' - PHPUnit 13' || '' }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5']
+        laravel: ['11', '12', '13']
+        stability: [prefer-stable]
+        exclude:
+          # PHP versions per Laravel version: https://laravel.com/docs/13.x/releases#support-policy
+          - php: '8.2'
+            laravel: '13'
+          - php: '8.5'
+            laravel: '11'
+        include:
+          - laravel: '11'
+            testbench: '^9.0'
+          - laravel: '12'
+            testbench: '^10.0'
+          - laravel: '13'
+            testbench: '^11.0'
+          # PHPUnit 13 needs PHP 8.4.1 or higher. Testbench 9 for Laravel 11 does not support it.
+          - php: '8.4'
+            laravel: '12'
+            phpunit: '^13.0'
+          - php: '8.4'
+            laravel: '13'
+            phpunit: '^13.0'
+          - php: '8.5'
+            laravel: '12'
+            phpunit: '^13.0'
+          - php: '8.5'
+            laravel: '13'
+            phpunit: '^13.0'
+          # The lowest versions run on the oldest PHP version of each Laravel version.
+          - php: '8.2'
+            laravel: '11'
+            testbench: '^9.0'
+            stability: prefer-lowest
+          - php: '8.2'
+            laravel: '12'
+            testbench: '^10.0'
+            stability: prefer-lowest
+          - php: '8.3'
+            laravel: '13'
+            testbench: '^11.0'
+            stability: prefer-lowest
+
+    env:
+      # Composer blocks versions with a known security advisory. No Laravel 11 release is free of
+      # one, and --prefer-lowest must reach the lowest versions that composer.json allows.
+      COMPOSER_NO_SECURITY_BLOCKING: 1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: intl, mbstring
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:^${{ matrix.laravel }}.0" --no-update --no-interaction
+          composer require --dev "orchestra/testbench:${{ matrix.testbench }}" --no-update --no-interaction
+          if [ -n "${{ matrix.phpunit }}" ]; then
+            composer require --dev "phpunit/phpunit:${{ matrix.phpunit }}" --no-update --no-interaction
+          fi
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
+
+      - name: Show versions
+        run: composer show --direct
+
+      - name: Run tests
+        run: vendor/bin/phpunit

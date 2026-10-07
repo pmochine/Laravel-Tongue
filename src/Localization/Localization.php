@@ -29,6 +29,7 @@ class Localization
                 // if not the fallback language is going to be used
                 return Config::fallbackLocale();
             }
+
             // we are checking if we have languages set in cookies or in the browser
             return self::currentTongue();
         }
@@ -95,6 +96,7 @@ class Localization
         if (is_string($server)) {
             $server = [$server];
         }
+
         // Check if the HTTP_ACCEPT_LANGUAGE header is set in the server variable.
         return ! app()->runningInConsole() || Arr::has($server, 'HTTP_ACCEPT_LANGUAGE');
     }
@@ -107,7 +109,7 @@ class Localization
      * @param  string  $locale
      * @return string|null
      */
-    public static function cookie(string $locale = null): ?string
+    public static function cookie(?string $locale = null): ?string
     {
         $cookie = new Cookie('tongue-locale', Config::cookieSerialize()); //Name of the cookie
 

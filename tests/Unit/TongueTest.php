@@ -2,24 +2,13 @@
 
 namespace Pmochine\LaravelTongue\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\Test;
 use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
-use Pmochine\LaravelTongue\ServiceProvider;
 use Pmochine\LaravelTongue\Tests\TestCase;
 
 class TongueTest extends TestCase
 {
-    /**
-     * Get package providers. To read the config file.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return array
-     */
-    protected function getPackageProviders($app)
-    {
-        return [ServiceProvider::class];
-    }
-
-    /** @test */
+    #[Test]
     public function it_returns_the_current_app_locale()
     {
         $this->app->setLocale('fr');
@@ -27,7 +16,7 @@ class TongueTest extends TestCase
         $this->assertEquals(app('tongue')->current(), $this->app->getLocale());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_current_name_or_other_keys()
     {
         $this->app->setLocale('de');
@@ -43,7 +32,7 @@ class TongueTest extends TestCase
         $this->assertEquals(app('tongue')->current('BCP47'), 'de-DE');
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_an_exception_if_key_does_not_exist()
     {
         $this->app->setLocale('de');
@@ -53,7 +42,7 @@ class TongueTest extends TestCase
         app('tongue')->current('namr');
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_direction_of_the_spoken_language()
     {
         $this->assertEquals('ltr', app('tongue')->leftOrRight());
@@ -65,9 +54,8 @@ class TongueTest extends TestCase
 
     /**
      * Important to note. I just don't want to test the full array...
-     *
-     * @test
      */
+    #[Test]
     public function it_returns_the_available_locales()
     {
         $supportedLocales = ['en', 'es', 'fr', 'de'];
@@ -77,7 +65,7 @@ class TongueTest extends TestCase
         $this->assertEquals($supportedLocales, app('tongue')->speaking()->all());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_subdomains_and_can_validate_it()
     {
         app('config')->set('localization.subdomains', $subdomains = ['admin']);
@@ -88,7 +76,7 @@ class TongueTest extends TestCase
         $this->assertFalse(app('tongue')->speaking('subdomains', 'blubb'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_aliases()
     {
         app('config')->set('localization.aliases', $subdomains = ['gewinnen' => 'de']);

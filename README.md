@@ -4,10 +4,8 @@
 # Laravel Tongue 👅 - Multilingual subdomain URLs and redirects
 
 
-[![Build Status](https://travis-ci.org/pmochine/Laravel-Tongue.svg?branch=master)](https://travis-ci.org/pmochine/Laravel-Tongue)
+[![tests](https://github.com/pmochine/Laravel-Tongue/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/pmochine/Laravel-Tongue/actions/workflows/tests.yml)
 [![styleci](https://styleci.io/repos/140954300/shield)](https://styleci.io/repos/140954300)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pmochine/laravel-tongue/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pmochine/laravel-tongue/?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/pmochine/Laravel-Tongue/badge.svg?branch=master)](https://coveralls.io/github/pmochine/Laravel-Tongue?branch=master)
 
 [![Packagist](https://img.shields.io/packagist/v/pmochine/laravel-tongue.svg)](https://packagist.org/packages/pmochine/laravel-tongue)
 [![Packagist](https://poser.pugx.org/pmochine/laravel-tongue/d/total.svg)](https://packagist.org/packages/pmochine/laravel-tongue)
@@ -20,10 +18,17 @@
  **Old Way**: `https://example.com/de`, `https://example.com/fr` etc. <br>
  **New Way**: `https://de.example.com`, `https://fr.example.com` etc.
 
- >***Prerequisites**: PHP ^7.4 || ^8.1  and Laravel ^8.41 || PHP ^8.0.2  and Laravel ^9.0 and Laravel ^10.0
- >***Older Laravel Versions**: [Click here](https://github.com/pmochine/Laravel-Tongue#support-for-laravel-5xx)
+## Requirements
 
-## Installation in 4 Steps*
+| Laravel Tongue | Laravel | PHP |
+| --- | --- | --- |
+| 6.x | 11, 12, 13 | 8.2 or higher (Laravel 13 needs 8.3 or higher) |
+| 5.x | 8.41 to 10 | 7.4, 8.1 or higher |
+
+For older Laravel versions, read [Older Laravel versions](#older-laravel-versions).
+If you upgrade from 5.x, read the [upgrade guide](#upgrade-to-6xx-from-5xx).
+
+## Installation in 4 Steps
 
 ### 1: Add with composer 💻
 ```bash
@@ -35,16 +40,24 @@
 ```bash
   php artisan vendor:publish --provider="Pmochine\LaravelTongue\ServiceProvider" --tag="config"
 ```
-### 3: Add the Middleware 🌐
+### 3: The Middleware 🌐
 **Laravel Tongue** comes with a middleware that can be used to enforce the use of a language subdomain. For example the user calls example.com it goes directly to fr.example.com. 
 
-If you want to use it, open `app/Http/kernel.php` and register this route middleware by adding it to the `routeMiddleware` (down below) array:
+The package registers the middleware alias `speaks-tongue` for you. You do not need to add it yourself.
+
+If your app defines the alias itself, the package keeps your definition. Since Laravel 11 you do this in `bootstrap/app.php`:
 
 ```php
-  ...
-  'speaks-tongue' => \Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale::class,
-  ...
+  use Illuminate\Foundation\Configuration\Middleware;
+
+  ->withMiddleware(function (Middleware $middleware) {
+      $middleware->alias([
+          'speaks-tongue' => \Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale::class,
+      ]);
+  })
 ```
+
+An app that still has `app/Http/Kernel.php` can add the same line to the `$middlewareAliases` array.
 
 ### 4: Add in your Env 🔑
 ```shell
@@ -53,35 +66,29 @@ If you want to use it, open `app/Http/kernel.php` and register this route middle
 ```
   **Important!** Note the dot before the domain name. Now the session is available in every subdomain 🙃. This is important because you want to save all your cookie 🍪 data in one place and not in many other.
 
-
-
-> ****Note*!** 📝 This step is optional if you use laravel>=5.5 with package auto-discovery feature.
-> Add service provider to `config/app.php` in `providers` section
->```php
->    Pmochine\LaravelTongue\ServiceProvider::class,
->```
+Laravel finds the service provider of the package with package auto-discovery. You do not need to register it.
 
 ## Usage - (or to make it runnable 🏃‍♂️)
 
 
 ### Locale detection 🔍
 
-Open `app/Providers/RouteServiceProvider.php` and add this
+Open `app/Providers/AppServiceProvider.php` and add this to the `boot()` method:
 
 ```php
-  public function boot()
+  public function boot(): void
   {
       // This will guess a locale from the current HTTP request
       // and set the application locale.
       tongue()->detect();
-      
-      //If you use Carbon you can set the Locale right here.
-      \Carbon\Carbon::setLocale(tongue()->current()); 
-      
-      parent::boot();
   }
-  ...
 ```
+
+Carbon uses the new locale automatically. Its Laravel service provider listens to the `LocaleUpdated` event.
+
+Laravel loads your routes after the `boot()` method of the `AppServiceProvider`. So `tongue()->detect()` sets the locale before `dialect()->interpret()` translates your routes.
+
+If your app still has `app/Providers/RouteServiceProvider.php`, you can call `tongue()->detect()` at the start of its `boot()` method instead.
 
 Once you have done this, there is nothing more that you MUST do. Laravel application locale has been set and you can use other locale-dependent Laravel components (e.g. Translation) as you normally do.
 
@@ -101,7 +108,26 @@ If you want to enforce the use of a language subdomain for some routes, you can 
   });
 ```
 
-For more information about Middleware, please refer to <a href="http://laravel.com/docs/middleware">Laravel docs</a>.
+For more information about Middleware, please refer to <a href="https://laravel.com/docs/middleware">Laravel docs</a>.
+
+### Laravel Octane
+
+Octane boots your app one time for many requests. A service provider does not see each request. So do not call `tongue()->detect()` in a service provider. Use the middleware `TongueDetectsLocale` of the package instead. It detects the locale for each request. Add it before all other middleware:
+
+```php
+  // bootstrap/app.php
+  ->withMiddleware(function (Middleware $middleware) {
+      $middleware->prepend(\Pmochine\LaravelTongue\Middleware\TongueDetectsLocale::class);
+  })
+```
+
+You can also use its alias `detects-tongue` on a group of routes, for example for API routes without a service provider. In a group with both middleware, put `detects-tongue` before `speaks-tongue`.
+
+Octane registers your routes one time, before the first request. So translated routes with `dialect()->interpret()` do not work with Octane. All other features work.
+
+### Route caching
+
+`php artisan route:cache` works for routes without translated paths. For translated routes, the cache keeps the paths of one locale only. If you use `dialect()->interpret()`, do not cache your routes.
 
 ### Frontend 😴
 
@@ -117,6 +143,26 @@ For more information about Middleware, please refer to <a href="http://laravel.c
     ...
 ```
 The above `<html>` tag will always have a supported locale and directionality (‘ltr’ or ‘rtl’). The latter is important for right-to-left languages like Arabic and Hebrew since the whole page layout will change for those.
+
+### Alternate links for search engines
+
+Search engines find the other languages of a page with `hreflang` links. Add them to the `<head>` of your layout:
+
+```php
+  @foreach (dialect()->alternates() as $hreflang => $url)
+      <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $url }}">
+  @endforeach
+```
+
+`dialect()->alternates()` lists each supported locale and `x-default` for the fallback locale, as [Google asks for](https://developers.google.com/search/docs/specialty/international/localized-versions). Each URL is the address of the locale itself, with the query string of the current page, like `?page=2`. So the fallback locale uses the beautiful URL `example.com`. The language switcher still links to `en.example.com`, because that link switches the cookie.
+
+If a cookie or the browser language asks for another locale, the middleware still redirects a visitor from `example.com`. Google's crawler [sends no `Accept-Language` header](https://developers.google.com/search/docs/specialty/international/locale-adaptive-pages), so it sees the page of the fallback locale.
+
+The hreflang is the locale key, with `_` replaced by `-`. Google accepts ISO 639-1 language codes. If your locale key is no such code, set the hreflang in `config/localization.php`:
+
+```php
+  'fil' => ['name' => 'Filipino', 'script' => 'Latn', 'native' => 'Filipino', 'regional' => 'fil_PH', 'hreflang' => 'tl'],
+```
 
 
 ## Configuration
@@ -135,7 +181,7 @@ If there is no subdomain added, we get the locale from:
 3. or the browsers prefered language
 4. or at the end we fall back to the `fallback_locale`
 
->*Note*: The value `locale` in `config/app.php` has no impact and is going to overwritten by ` tongue()->detect();`  in `app/Providers/RouteServiceProvider.php`
+>*Note*: The value `locale` in `config/app.php` has no impact. `tongue()->detect()` overwrites it.
 
 
 ### Configuration values
@@ -158,6 +204,12 @@ Sometimes you would like to specify aliases to use custom subdomains instead of 
   gewinnen.domain.com --> "de"
   gagner.domain.com --> "fr",
 ```
+
+- `alias_urls` (default: `false`)
+
+By default, the aliases only work for incoming requests. The URLs that Tongue builds still use the locale, like `de.domain.com`. If you set `alias_urls` to `true`, these URLs use the first alias of the locale, like `gewinnen.domain.com`. The middleware then redirects `de.domain.com` and the other aliases of the locale to `gewinnen.domain.com`.
+
+The beautiful URL of the fallback locale (`beautify_url`) wins over its alias. Tongue ignores an alias that is also a locale code or a whitelisted subdomain.
 
 - `acceptLanguage` (default: `true`)
 
@@ -183,9 +235,9 @@ Don't say anyone that I copied it from [mcamara](https://github.com/mcamara/lara
 
 If you want to use translated routes (en.yourdomain.com/welcome, fr.yourdomain.com/bienvenue), proceed as follows:
 
-First, create language files for the languages that you support:
+First, create language files for the languages that you support. Since Laravel 9 the language files are in the `lang` folder of your app. If you do not have this folder, run `php artisan lang:publish`.
 
-`resources/lang/en/routes.php`:
+`lang/en/routes.php`:
 
 ```php
   return [
@@ -197,7 +249,7 @@ First, create language files for the languages that you support:
   ];
 ```
 
-`resources/lang/fr/routes.php`:
+`lang/fr/routes.php`:
 
 ```php
   return [
@@ -220,6 +272,31 @@ Then, here is how you define translated routes in `routes/web.php`:
 ```
 
 You can, of course, name the language files as you wish, and pass the proper prefix (routes. in the example) to the interpret() method.
+
+## Translated slugs
+
+A model can have a different slug in each language, like `en.example.com/article/important-change` and `de.example.com/artikel/wichtige-aenderung`. Then implement `LocalizedUrlRoutable` in the model:
+
+```php
+  use Pmochine\LaravelTongue\Contracts\LocalizedUrlRoutable;
+
+  class Article extends Model implements LocalizedUrlRoutable
+  {
+      // The slug of the article in the given locale
+      public function getLocalizedRouteKey(string $locale)
+      {
+          return $this->getTranslation('slug', $locale); // for example with spatie/laravel-translatable
+      }
+
+      // Route model binding finds the article by the slug of the current locale
+      public function resolveRouteBinding($value, $field = null)
+      {
+          return static::where('slug->'.app()->getLocale(), $value)->firstOrFail();
+      }
+  }
+```
+
+`dialect()->current()`, `dialect()->translateAll()` and `dialect()->translate()` then use the slug of the target locale. If `getLocalizedRouteKey()` returns `null` for a locale, the URL keeps the current slug. This also works for routes without translated paths. The parameter must use route model binding, like `Route::get('article/{article}', ...)` with an `Article $article` argument in the controller.
 
 ## Helper Functions - (finally something useful 😎)
 
@@ -251,7 +328,30 @@ You can pass `false` as parameter so it won't exclude the current URL.
 
 Use `dialect()->translate($routeName, $routeAttributes = null, $locale = null)` to generate an alternate version of the given route. This will return an URL with the proper subdomain and also translate the URI if necessary.
 
+`$routeName` can be a translation key, like `routes.user_profile`, or the name of a route, like `home`:
+
+```php
+  Route::get('/', HomeController::class)->name('home');
+
+  dialect()->translate('home', [], 'fr'); // https://fr.example.com
+```
+
+If the route got its path from `dialect()->interpret()`, you get the translated path of the locale. For a route without translation, Laravel builds the path like `route()`. Attributes that are not in the path become the query string.
+
+If the route has no translation, `dialect()->current()` keeps the path of the current page.
+
 You can pass route parameters if necessary. If you don't give a specific locale, it will use the current locale ☺️.
+
+### Translate any URL of your app
+
+```php
+  dialect()->translateUrl('https://de.example.com/hallo/john?tab=2', 'fr');
+  // Result: https://fr.example.com/bonjour/john?tab=2
+```
+
+Use `dialect()->translateUrl($url, $locale = null)` for a URL instead of a route, for example the URL of the previous page. Tongue finds the route of the URL like the router does, also for a URL in another locale than the current page. A translated route gets the translated path, and a translated slug gets the slug of the locale. The query string stays. If no route matches, only the subdomain changes.
+
+A relative URL is relative to the app, like in `url()`. In an app under `https://example.com/shop`, use `hallo/john` and not `/shop/hallo/john`.
 
 ### Redirect URL to the language you want
 
@@ -266,7 +366,7 @@ Use `dialect()->redirectUrl($url = null, $locale = null);` to redirect for examp
 ```php
   $collection = tongue()->speaking(); //returns collection
 ```
-Remember it returns a collection. You can add methods to it ([see available methods](https://laravel.com/docs/5.6/collections#available-methods))
+Remember it returns a collection. You can add methods to it ([see available methods](https://laravel.com/docs/collections#available-methods))
 Examples: 
 ```php
   $keys = tongue()->speaking()->keys()->all(); //['en','de',..]
@@ -319,13 +419,40 @@ Or in a controller far far away...
   public function store()
   {
     $locale = request()->validate([
-      'locale' => 'required|string|size:2'
+      'locale' => ['required', Rule::in(tongue()->speaking()->keys()->all())],
     ])['locale'];
 
     return tongue()->speaks($locale)->back();
   } 
 ```
+
+`back()` redirects to the previous page in the new locale. If the previous page belongs to a translated route, it also gets the translated path, for example `de.example.com/hallo/john` becomes `example.com/hello/john`.
 ## Upgrade Guide 🎢
+### Upgrade to 6.x.x from 5.x.x
+
+Version 6 supports Laravel 11, 12 and 13. It needs PHP 8.2 or higher.
+
+1. Make sure that your app runs on Laravel 11 or higher and PHP 8.2 or higher.
+2. Update the package:
+
+   ```bash
+     composer require pmochine/laravel-tongue:^6.0
+   ```
+
+3. You can delete your own `speaks-tongue` alias from `app/Http/Kernel.php` or `bootstrap/app.php`. The package registers it now. If you keep your alias, the package uses it.
+4. If your app has no `app/Providers/RouteServiceProvider.php` anymore, move `tongue()->detect()` to the `boot()` method of `app/Providers/AppServiceProvider.php`.
+5. Optional: add the new key `'alias_urls' => false,` to your published `config/localization.php`. If the key is missing, the package uses `false`.
+
+These changes can affect your app:
+
+- `dialect()->translate()` and `dialect()->current()` now also find a route by its name. Before, a route name that was no translation key kept the path of the current page.
+- `tongue()`, `dialect()`, the facades and `app('tongue')` now return the same instance. Before, each call of a helper built a new instance.
+- `dialect()->translate()` and `dialect()->current()` encode route attributes in translated paths, like `route()` of Laravel. A space becomes `%20`.
+- Aliases are case-insensitive now, like hosts.
+- The home page URL has no trailing slash: `https://fr.example.com` instead of `https://fr.example.com/`.
+- If you extend `Tongue` or `Dialect`: the constructors take no arguments, and `Dialect` has no `$app` property.
+- `tongue()->back()` translates the path of the previous page for translated routes. Before, it only changed the subdomain.
+
 ### Upgrade to 2.x.x from 1.x.x
 There are little changes that might be important for you.
 
@@ -333,6 +460,19 @@ There are little changes that might be important for you.
 - Add `APP_DOMAIN` in your .env if you have a complicated domain, like: `155ad73e.eu.ngrok.io`
 - Now you are able to use aliases in your subdomain. For example: `gewinnen.domain.com --> "de"`
 - If a subdomain is invalid, it returns to the latest valid locale subdomain.
+
+## Older Laravel versions
+
+### Support for Laravel 8.41 up to Laravel 10
+
+If you want to use:
+>PHP ^7.4 or ^8.1 and Laravel 8.41 up to Laravel 10
+
+you need to download the version 5.0.0. This version gets no more updates.
+
+```bash
+  composer require pmochine/laravel-tongue:^5.0
+```
 
 ### Support for Laravel 9.x.x
 

@@ -19,6 +19,11 @@ class Config
         return config('localization.aliases', []);
     }
 
+    public static function aliasUrls()
+    {
+        return config('localization.alias_urls', false);
+    }
+
     public static function beautify()
     {
         return config('localization.beautify_url');

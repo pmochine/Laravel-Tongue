@@ -2,10 +2,22 @@
 
 namespace Pmochine\LaravelTongue\Accent;
 
+use BackedEnum;
+use Illuminate\Contracts\Routing\UrlRoutable;
 use Pmochine\LaravelTongue\Misc\Url;
+use Stringable;
 
 class Accent
 {
+    /**
+     * Characters that stay unencoded in a route attribute, like in route() of Laravel.
+     * Unlike route(), "#", "?" and "%" are encoded, so the URL keeps the value.
+     */
+    protected const DONT_ENCODE = [
+        '%2F' => '/', '%40' => '@', '%3A' => ':', '%3B' => ';', '%2C' => ',', '%3D' => '=',
+        '%2B' => '+', '%21' => '!', '%2A' => '*', '%7C' => '|', '%26' => '&',
+    ];
+
     /**
      * Get url using array data from parse_url.
      *
@@ -36,14 +48,17 @@ class Accent
     }
 
     /**
-     * Get the current route name.
+     * Get the parameters of the current route, as they are in the URL.
+     * Route model binding has not replaced them with models yet.
      *
      * @return bool|array
      */
     public static function currentRouteAttributes()
     {
         if (app('router')->current()) {
-            return app('router')->current()->parametersWithoutNulls();
+            return array_filter(app('router')->current()->originalParameters(), function ($value) {
+                return ! is_null($value);
+            });
         }
 
         return false;
@@ -59,6 +74,10 @@ class Accent
      */
     public static function findRoutePathByName($routeName, $locale = null)
     {
+        if (! is_string($routeName) || $routeName === '') {
+            return false;
+        }
+
         if (app('translator')->has($routeName, $locale)) {
             $name = app('translator')->get($routeName, [], $locale);
 
@@ -70,22 +89,54 @@ class Accent
 
     /**
      * Change route attributes for the ones in the $attributes array.
+     * A missing optional attribute disappears with its slash or dot, like in "files/{name}.{extension?}".
+     * A missing required attribute stays.
      *
      * @param  array  $attributes  Array of attributes
      * @param  string  $route  route to substitute
+     * @param  array  $bindingFields  like ['post' => 'slug'] for the placeholder {post}
      * @return string route with attributes changed
      */
-    public static function substituteAttributesInRoute($attributes, $route)
+    public static function substituteAttributesInRoute($attributes, $route, array $bindingFields = [])
     {
-        foreach ($attributes as $key => $value) {
-            $route = str_replace('{'.$key.'}', $value, $route);
-            $route = str_replace('{'.$key.'?}', $value, $route);
+        return preg_replace_callback('/([\/.]?)\{(\w+)(?::(\w+))?(\??)\}/', function ($match) use ($attributes, $bindingFields) {
+            $name = $match[2];
+            $field = $match[3] !== '' ? $match[3] : ($bindingFields[$name] ?? null);
+            $value = self::routeValue($attributes[$name] ?? null, $field);
+
+            if ($value !== null) {
+                return $match[1].$value;
+            }
+
+            return $match[4] === '?' ? '' : $match[0];
+        }, $route);
+    }
+
+    /**
+     * The value of a route attribute, encoded for the path.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field  [the binding field, like "slug" in {post:slug}]
+     * @return string|null [null if the value cannot be part of the path]
+     */
+    protected static function routeValue($value, ?string $field): ?string
+    {
+        if ($value instanceof UrlRoutable) {
+            $value = $field ? $value->{$field} : $value->getRouteKey();
         }
 
-        // delete empty optional arguments that are not in the $attributes array
-        $route = preg_replace('/\/{[^)]+\?}/', '', $route);
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+        } elseif ($value instanceof Stringable) {
+            $value = (string) $value;
+        }
 
-        return $route;
+        // Route::view() and route defaults can hold arrays. They are no part of the path.
+        if (! is_scalar($value) || (string) $value === '') {
+            return null;
+        }
+
+        return strtr(rawurlencode((string) $value), self::DONT_ENCODE);
     }
 
     /**

@@ -7,7 +7,7 @@ use Pmochine\LaravelTongue\Exceptions\SupportedLocalesNotDefined;
 
 class ConfigList
 {
-    public function lookup(string $key = null, string $locale = null)
+    public function lookup(?string $key = null, ?string $locale = null)
     {
         $locales = Config::supportedLocales();
 
@@ -46,7 +46,7 @@ class ConfigList
      * @param  array  $loacles  [the list in the config file]
      * @return string|null
      */
-    protected function BCP47(string $locale = null, array $locales): ?string
+    protected function BCP47(?string $locale, array $locales): ?string
     {
         $bcp47 = data_get($locales, "{$locale}.regional");
 
@@ -62,7 +62,7 @@ class ConfigList
      * @param  string  $subdomain  [like "admin"]
      * @return array|bool
      */
-    protected function getSubdomains(string $subdomain = null)
+    protected function getSubdomains(?string $subdomain = null)
     {
         if (is_null($subdomain)) {
             return Config::subdomains();
@@ -78,7 +78,7 @@ class ConfigList
      * @param  string  $subdomain
      * @return array|string
      */
-    protected function getAliases(string $subdomain = null)
+    protected function getAliases(?string $subdomain = null)
     {
         $domains = Config::aliases();
 
@@ -86,8 +86,12 @@ class ConfigList
             return $domains;
         }
 
-        if (array_key_exists($subdomain, $domains)) {
-            return $domains[$subdomain];
+        // Hosts are lowercase, so "Gewinnen" in the config matches gewinnen.domain.com.
+        // PHP stores an alias like "123" as integer key.
+        foreach ($domains as $alias => $locale) {
+            if (strtolower((string) $alias) === strtolower($subdomain)) {
+                return $locale;
+            }
         }
 
         return '';

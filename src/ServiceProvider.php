@@ -2,6 +2,9 @@
 
 namespace Pmochine\LaravelTongue;
 
+use Pmochine\LaravelTongue\Middleware\TongueDetectsLocale;
+use Pmochine\LaravelTongue\Middleware\TongueSpeaksLocale;
+
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     const CONFIG_PATH = __DIR__.'/../config/localization.php';
@@ -11,6 +14,15 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->publishes([
             self::CONFIG_PATH => config_path('localization.php'),
         ], 'config');
+
+        // Since Laravel 11 there is no app/Http/Kernel.php. Keep an alias that the app defines itself.
+        $router = $this->app['router'];
+
+        foreach (['speaks-tongue' => TongueSpeaksLocale::class, 'detects-tongue' => TongueDetectsLocale::class] as $alias => $middleware) {
+            if (! array_key_exists($alias, $router->getMiddleware())) {
+                $router->aliasMiddleware($alias, $middleware);
+            }
+        }
     }
 
     public function register()
@@ -28,12 +40,12 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             'localization'
         );
 
-        $this->app->singleton('tongue', function ($app) {
-            return new Tongue($app);
-        });
+        // Tongue keeps no state. Scoped, so a queue job or an Octane request starts with a new instance.
+        $this->app->scoped(Tongue::class);
+        $this->app->alias(Tongue::class, 'tongue');
 
-        $this->app->singleton('dialect', function ($app) {
-            return new Dialect($app);
-        });
+        // A singleton, because it remembers the routes from interpret() for the lifetime of the app.
+        $this->app->singleton(Dialect::class);
+        $this->app->alias(Dialect::class, 'dialect');
     }
 }
