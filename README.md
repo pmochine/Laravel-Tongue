@@ -86,7 +86,7 @@ Open `app/Providers/AppServiceProvider.php` and add this to the `boot()` method:
   }
 ```
 
-Laravel loads your routes after the `boot()` method of the `AppServiceProvider`. So the locale is known when `dialect()->interpret()` translates your routes.
+Laravel loads your routes after the `boot()` method of the `AppServiceProvider`. So `tongue()->detect()` sets the locale before `dialect()->interpret()` translates your routes.
 
 If your app still has `app/Providers/RouteServiceProvider.php`, you can call `tongue()->detect()` at the start of its `boot()` method instead.
 
@@ -142,7 +142,7 @@ Octane registers your routes one time, before the first request. So translated r
 
 ### Route caching
 
-`php artisan route:cache` works for routes without translated paths. For translated routes, the cache keeps the paths of one locale only. Do not cache your routes if you use `dialect()->interpret()`.
+`php artisan route:cache` works for routes without translated paths. For translated routes, the cache keeps the paths of one locale only. If you use `dialect()->interpret()`, do not cache your routes.
 
 ### Frontend 😴
 
@@ -396,7 +396,7 @@ Version 6 supports Laravel 11, 12 and 13. It needs PHP 8.2 or higher.
 
 3. You can delete your own `speaks-tongue` alias from `app/Http/Kernel.php` or `bootstrap/app.php`. The package registers it now. If you keep your alias, the package uses it.
 4. If your app has no `app/Providers/RouteServiceProvider.php` anymore, move `tongue()->detect()` to the `boot()` method of `app/Providers/AppServiceProvider.php`.
-5. Optional: add the new key `'alias_urls' => false,` to your published `config/localization.php`. The package uses `false` if the key is missing.
+5. Optional: add the new key `'alias_urls' => false,` to your published `config/localization.php`. If the key is missing, the package uses `false`.
 
 These changes can affect your app:
 

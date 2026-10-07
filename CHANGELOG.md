@@ -16,7 +16,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 
 - Support for Laravel 11, 12 and 13 (#56).
 - The service provider registers the middleware alias `speaks-tongue`. If the app defines this alias, the service provider keeps it.
-- New option `alias_urls` (default `false`). If it is `true`, the URLs that Tongue builds use the alias of a locale as subdomain, and the middleware redirects to the alias (#52, #47).
+- New option `alias_urls` (default `false`). If it is `true`, the URLs that Tongue builds use the alias of a locale as subdomain. The middleware then redirects to the alias (#52, #47).
 - `dialect()->translate()` also accepts the name of a route, not only a translation key (#53).
 
 ### Fixed
@@ -29,7 +29,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - `Tongue` is a scoped binding, so Octane builds it again for each request (#54).
 - The Accept-Language fallback read `$_SERVER`, which does not belong to the current request in Octane (#54).
 - `dialect()->translate()` with route attributes threw "Undefined array key" on a URL without a path.
-- Missing optional route parameters could remove the path between them.
+- A pattern for missing optional route parameters removed the path between two of them.
 - Implicitly nullable parameters for PHP 8.4.
 
 ### Changed
