@@ -11,11 +11,11 @@ class ConfigList
     {
         $locales = Config::supportedLocales();
 
-        if (empty($locales) || ! is_array($locales)) {
+        if (empty($locales) || !is_array($locales)) {
             throw new SupportedLocalesNotDefined();
         }
 
-        if (! $key) {
+        if (!$key) {
             return collect($locales);
         }
 
@@ -31,7 +31,7 @@ class ConfigList
             return $this->getAliases($locale);
         }
 
-        if (! Arr::has($locales, "{$locale}.{$key}")) {
+        if (!Arr::has($locales, "{$locale}.{$key}")) {
             throw new SupportedLocalesNotDefined();
         }
 
@@ -42,15 +42,16 @@ class ConfigList
      * Gets the BCP 47 Value of the regional
      * See for more: http://schneegans.de/lv/?tags=en&format=text.
      *
-     * @param  string|null  $locale
-     * @param  array  $loacles  [the list in the config file]
+     * @param string|null $locale
+     * @param array       $loacles [the list in the config file]
+     *
      * @return string|null
      */
     protected function BCP47(?string $locale, array $locales): ?string
     {
         $bcp47 = data_get($locales, "{$locale}.regional");
 
-        if (! $bcp47) {
+        if (!$bcp47) {
             return $locale;
         } //locale is the "minimum" of BCP 47
 
@@ -59,7 +60,8 @@ class ConfigList
     }
 
     /**
-     * @param  string  $subdomain  [like "admin"]
+     * @param string $subdomain [like "admin"]
+     *
      * @return array|bool
      */
     protected function getSubdomains(?string $subdomain = null)
@@ -75,7 +77,8 @@ class ConfigList
      * Gets the array of the config, or gets the locale value of a subdomain.
      * Like: "gewinnen" -> "de".
      *
-     * @param  string  $subdomain
+     * @param string $subdomain
+     *
      * @return array|string
      */
     protected function getAliases(?string $subdomain = null)

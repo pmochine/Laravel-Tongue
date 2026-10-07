@@ -57,6 +57,7 @@ class Dialect
      * Creates the redirect response.
      *
      * @param  string
+     *
      * @return \Illuminate\Http\RedirectResponse;
      */
     public function redirect(string $redirection)
@@ -71,6 +72,7 @@ class Dialect
      * Translate the current route for the given locale.
      *
      * @param $locale
+     *
      * @return bool|string
      */
     public function current($locale)
@@ -86,9 +88,10 @@ class Dialect
     /**
      * The path of a bound route in the given locale, with its parameters.
      *
-     * @param  \Illuminate\Routing\Route  $route  [the bound route]
-     * @param  string  $locale
-     * @param  \Illuminate\Routing\Route|null  $registered  [the route of the app, if $route is a copy with another path]
+     * @param \Illuminate\Routing\Route      $route      [the bound route]
+     * @param string                         $locale
+     * @param \Illuminate\Routing\Route|null $registered [the route of the app, if $route is a copy with another path]
+     *
      * @return string|false [false, if the route has no translation and no parameter with a key per locale]
      */
     protected function localizedRoutePath(Route $route, $locale, ?Route $registered = null)
@@ -104,7 +107,7 @@ class Dialect
         }
 
         // A route without translation keeps its path. Only a translated slug changes it.
-        if ($path === false && ! $this->hasLocalizedParameter($route)) {
+        if ($path === false && !$this->hasLocalizedParameter($route)) {
             return false;
         }
 
@@ -115,14 +118,15 @@ class Dialect
      * The parameters of a bound route as they are in the URL, before route model binding.
      * A model that implements LocalizedUrlRoutable gives its route key in the locale.
      *
-     * @param  \Illuminate\Routing\Route  $route
-     * @param  string  $locale
+     * @param \Illuminate\Routing\Route $route
+     * @param string                    $locale
+     *
      * @return array
      */
     protected function routeAttributes(Route $route, $locale)
     {
         $attributes = array_filter($route->originalParameters(), function ($value) {
-            return ! is_null($value);
+            return !is_null($value);
         });
 
         foreach ($route->parameters() as $name => $value) {
@@ -138,7 +142,8 @@ class Dialect
     }
 
     /**
-     * @param  \Illuminate\Routing\Route  $route
+     * @param \Illuminate\Routing\Route $route
+     *
      * @return bool
      */
     protected function hasLocalizedParameter(Route $route)
@@ -155,8 +160,9 @@ class Dialect
     /**
      * Replaces each model that implements LocalizedUrlRoutable with its route key in the locale, if it has one.
      *
-     * @param  array  $attributes
-     * @param  string  $locale
+     * @param array  $attributes
+     * @param string $locale
+     *
      * @return array
      */
     protected function localizeAttributes(array $attributes, $locale)
@@ -172,7 +178,8 @@ class Dialect
     /**
      * Get all Translations for the current URL.
      *
-     * @param  bool  $excludeCurrentLocale
+     * @param bool $excludeCurrentLocale
+     *
      * @return array
      */
     public function translateAll($excludeCurrentLocale = true)
@@ -206,7 +213,7 @@ class Dialect
         $alternates = [];
 
         foreach (tongue()->speaking()->all() as $locale => $properties) {
-            $hreflang = is_array($properties) && ! empty($properties['hreflang'])
+            $hreflang = is_array($properties) && !empty($properties['hreflang'])
                 ? $properties['hreflang']
                 : str_replace('_', '-', $locale);
 
@@ -221,8 +228,9 @@ class Dialect
     /**
      * The URL of the current page in the locale, without a redirect by the middleware.
      *
-     * @param  \Illuminate\Routing\Route|null  $route
-     * @param  string  $locale
+     * @param \Illuminate\Routing\Route|null $route
+     * @param string                         $locale
+     *
      * @return string
      */
     protected function canonicalUrl(?Route $route, $locale)
@@ -246,8 +254,9 @@ class Dialect
      * The URL keeps its query string. Without a matching route, only the subdomain changes.
      * A relative URL is relative to the app, like in url().
      *
-     * @param  string  $url
-     * @param  string|null  $locale  [the current locale, if null]
+     * @param string      $url
+     * @param string|null $locale [the current locale, if null]
+     *
      * @return string
      */
     public function translateUrl(string $url, ?string $locale = null): string
@@ -282,15 +291,16 @@ class Dialect
      * Return translated URL from route.
      * The route name can be a translation key, like "routes.welcome", or the name of a route, like "welcome".
      *
-     * @param  string  $routeName
+     * @param string $routeName
      * @param array]null]bool $routeAttributes
-     * @param  string|false  $locale
+     * @param string|false $locale
+     *
      * @return string|bool
      */
     public function translate($routeName, $routeAttributes = null, $locale = null)
     {
         // If no locale is given, we use the current locale
-        if (! $locale) {
+        if (!$locale) {
             $locale = tongue()->current();
         }
 
@@ -317,10 +327,11 @@ class Dialect
     /**
      * Builds the URL for the locale. Without a path, the URL keeps the path of the current request.
      *
-     * @param  string  $locale
-     * @param  string|false  $path  [a route path with placeholders, like "hello/{user}"]
-     * @param  array  $attributes
-     * @param  array  $bindingFields
+     * @param string       $locale
+     * @param string|false $path          [a route path with placeholders, like "hello/{user}"]
+     * @param array        $attributes
+     * @param array        $bindingFields
+     *
      * @return string
      */
     protected function buildUrl($locale, $path, array $attributes, array $bindingFields = [])
@@ -336,9 +347,10 @@ class Dialect
     /**
      * Builds the URL of a route without translation with route() of Laravel.
      *
-     * @param  string  $locale
-     * @param  \Illuminate\Routing\Route  $route
-     * @param  array  $attributes
+     * @param string                    $locale
+     * @param \Illuminate\Routing\Route $route
+     * @param array                     $attributes
+     *
      * @return string
      */
     protected function buildUrlFromRoute($locale, Route $route, array $attributes)
@@ -358,9 +370,10 @@ class Dialect
     /**
      * The current URL with the given host and path.
      *
-     * @param  string  $host  [like "de.example.com"]
-     * @param  string|false  $path  [a path of the app, false keeps the path of the current request]
-     * @param  string|null  $query
+     * @param string       $host  [like "de.example.com"]
+     * @param string|false $path  [a path of the app, false keeps the path of the current request]
+     * @param string|null  $query
+     *
      * @return string
      */
     protected function assembleUrl($host, $path, $query = null)
@@ -384,8 +397,9 @@ class Dialect
     /**
      * An app in a subfolder, like https://example.com/shop, keeps "/shop" before the path.
      *
-     * @param  string  $path
-     * @param  string  $baseUrl  [like "/shop", or "" for an app in the root]
+     * @param string $path
+     * @param string $baseUrl [like "/shop", or "" for an app in the root]
+     *
      * @return string
      */
     protected function withBasePath($path, $baseUrl)
@@ -398,7 +412,8 @@ class Dialect
     /**
      * The home page, like url('/'), has no trailing slash.
      *
-     * @param  array  $parsed_url
+     * @param array $parsed_url
+     *
      * @return string
      */
     protected function unparseUrlWithoutTrailingSlash(array $parsed_url)
@@ -413,7 +428,8 @@ class Dialect
     /**
      * Makes a relative or a protocol-relative URL absolute.
      *
-     * @param  string  $url
+     * @param string $url
+     *
      * @return string
      */
     protected function absoluteUrl(string $url): string
@@ -430,8 +446,9 @@ class Dialect
     /**
      * Runs the callback with the given app locale and sets the previous locale again.
      *
-     * @param  string  $locale
-     * @param  callable  $callback
+     * @param string   $locale
+     * @param callable $callback
+     *
      * @return mixed
      */
     protected function inLocale($locale, callable $callback)
@@ -457,8 +474,9 @@ class Dialect
      * So a translated route gets the path of the locale of the URL for the comparison.
      * Route model binding gives the models for translated slugs.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $locale  [the locale of the URL]
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $locale  [the locale of the URL]
+     *
      * @return array|null [the bound copy of the route and the route of the app]
      */
     protected function findRouteByRequest(Request $request, $locale)
@@ -470,7 +488,7 @@ class Dialect
         foreach ($routes->merge($fallbacks) as $route) {
             $candidate = $this->routeInLocale($route, $locale);
 
-            if (! $candidate->matches($request)) {
+            if (!$candidate->matches($request)) {
                 continue;
             }
 
@@ -494,8 +512,9 @@ class Dialect
     /**
      * A copy of a translated route with its path in the given locale, or the route itself.
      *
-     * @param  \Illuminate\Routing\Route  $route
-     * @param  string  $locale
+     * @param \Illuminate\Routing\Route $route
+     * @param string                    $locale
+     *
      * @return \Illuminate\Routing\Route
      */
     protected function routeInLocale(Route $route, $locale)
@@ -521,7 +540,8 @@ class Dialect
      * The translation key that interpret() gave the path of the route. Two routes can have
      * the same path, like GET and POST "contact". Then the route name decides, if it is one of the keys.
      *
-     * @param  \Illuminate\Routing\Route  $route
+     * @param \Illuminate\Routing\Route $route
+     *
      * @return string|false
      */
     protected function interpretedKey(Route $route)
@@ -535,7 +555,7 @@ class Dialect
             }
         }
 
-        if (! $keys) {
+        if (!$keys) {
             return false;
         }
 
@@ -545,8 +565,9 @@ class Dialect
     /**
      * The translated path of a route from interpret(), with the prefix of its route group.
      *
-     * @param  \Illuminate\Routing\Route  $route
-     * @param  string  $locale
+     * @param \Illuminate\Routing\Route $route
+     * @param string                    $locale
+     *
      * @return string|false
      */
     protected function translatedRoutePath(Route $route, $locale)
@@ -564,9 +585,10 @@ class Dialect
      * The translated path of a translation key. The path gets the prefix of the given route.
      * Without a route, it gets the prefix of the first route from interpret() with this key.
      *
-     * @param  string|false|null  $translationKey
-     * @param  string  $locale
-     * @param  \Illuminate\Routing\Route|null  $route
+     * @param string|false|null              $translationKey
+     * @param string                         $locale
+     * @param \Illuminate\Routing\Route|null $route
+     *
      * @return string|false
      */
     protected function translatedKeyPath($translationKey, $locale, ?Route $route = null)
@@ -591,7 +613,8 @@ class Dialect
     }
 
     /**
-     * @param  \Illuminate\Routing\Route  $route
+     * @param \Illuminate\Routing\Route $route
+     *
      * @return string [like "admin" for a route in Route::prefix('admin')->group()]
      */
     protected function routePrefix(Route $route)
@@ -600,8 +623,9 @@ class Dialect
     }
 
     /**
-     * @param  string  $prefix
-     * @param  string|false  $path
+     * @param string       $prefix
+     * @param string|false $path
+     *
      * @return string|false
      */
     protected function withPrefix($prefix, $path)
@@ -614,12 +638,13 @@ class Dialect
     }
 
     /**
-     * @param  string|false  $routeName
+     * @param string|false $routeName
+     *
      * @return \Illuminate\Routing\Route|null
      */
     protected function findRouteByName($routeName)
     {
-        if (! is_string($routeName) || $routeName === '') {
+        if (!is_string($routeName) || $routeName === '') {
             return null;
         }
 
@@ -631,7 +656,8 @@ class Dialect
      * to the current locale and to the fallbackLocal.
      * We don't need to add a subdomain to the host.
      *
-     * @param  string  $locale
+     * @param string $locale
+     *
      * @return string
      */
     protected function addLocaleToHost($locale)
@@ -648,6 +674,7 @@ class Dialect
      * Interprets a translated route path for the given route name.
      *
      * @param $routeName
+     *
      * @return string|false (but should be string if it exists!)
      */
     public function interpret($routeName)
@@ -659,7 +686,7 @@ class Dialect
             $prefix = trim(app('router')->getLastGroupPrefix(), '/');
             $interpreted = ['path' => $this->normalizePath($prefix.'/'.$routePath), 'key' => $routeName, 'prefix' => $prefix];
 
-            if (! in_array($interpreted, $this->interpretedRoutes, true)) {
+            if (!in_array($interpreted, $this->interpretedRoutes, true)) {
                 $this->interpretedRoutes[] = $interpreted;
             }
         }
@@ -671,7 +698,8 @@ class Dialect
      * Find the route name matching the given route path.
      * The route path is like Route::uri(): with the group prefix, without slashes at the ends.
      *
-     * @param  string  $routePath
+     * @param string $routePath
+     *
      * @return bool|string [the translation key that interpret() got]
      */
     public function findRouteNameByPath($routePath)
@@ -691,7 +719,8 @@ class Dialect
     /**
      * Like Laravel stores a route path: "/admin//{post:slug}/" becomes "admin/{post}".
      *
-     * @param  string  $path
+     * @param string $path
+     *
      * @return string
      */
     protected function normalizePath($path)

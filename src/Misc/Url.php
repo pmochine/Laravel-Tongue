@@ -27,7 +27,7 @@ class Url
      */
     protected static function configDomainIsSet(): bool
     {
-        if (! $domain = Config::domain()) {
+        if (!$domain = Config::domain()) {
             return false;
         } // config was not set
 
@@ -44,7 +44,7 @@ class Url
      */
     protected static function extractDomain(): string
     {
-        $result = (new DomainParser)->resolve(self::host());
+        $result = (new DomainParser())->resolve(self::host());
 
         return $result->registrableDomain()->toString() ?: '';
     }
@@ -81,7 +81,7 @@ class Url
     {
         // The beautiful URL of the fallback locale wins over its alias. The link keeps the locale,
         // so the cookie switches to the fallback locale before the middleware redirects.
-        if (! Config::aliasUrls() || (Config::beautify() && $locale === Config::fallbackLocale())) {
+        if (!Config::aliasUrls() || (Config::beautify() && $locale === Config::fallbackLocale())) {
             return $locale;
         }
 
@@ -91,7 +91,7 @@ class Url
 
             // The detection ignores an alias that is a locale or a whitelisted subdomain, and it takes
             // the first alias that matches. So a URL uses only an alias that leads back to the locale.
-            if ($aliasLocale === $locale && ! self::isReservedSubdomain($alias)
+            if ($aliasLocale === $locale && !self::isReservedSubdomain($alias)
                 && tongue()->speaking('aliases', $alias) === $locale) {
                 return $alias;
             }
@@ -119,7 +119,7 @@ class Url
     {
         $host = strtolower($host);
 
-        if (! Str::endsWith($host, '.'.self::domain())) {
+        if (!Str::endsWith($host, '.'.self::domain())) {
             return null;
         }
 

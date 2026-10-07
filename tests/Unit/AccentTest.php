@@ -28,8 +28,7 @@ class AccentTest extends TestCase
     #[Test]
     public function it_uses_the_route_key_of_bound_models()
     {
-        $user = new class implements UrlRoutable
-        {
+        $user = new class() implements UrlRoutable {
             public function getRouteKey()
             {
                 return 'samplename';
@@ -68,9 +67,9 @@ class AccentTest extends TestCase
     #[Test]
     public function it_uses_the_binding_field_of_a_placeholder_or_of_the_route()
     {
-        $this->assertEquals('posts/hello-world', Accent::substituteAttributesInRoute(['post' => new Post], 'posts/{post:slug}'));
-        $this->assertEquals('posts/hello-world', Accent::substituteAttributesInRoute(['post' => new Post], 'posts/{post}', ['post' => 'slug']));
-        $this->assertEquals('posts/123', Accent::substituteAttributesInRoute(['post' => new Post], 'posts/{post}'));
+        $this->assertEquals('posts/hello-world', Accent::substituteAttributesInRoute(['post' => new Post()], 'posts/{post:slug}'));
+        $this->assertEquals('posts/hello-world', Accent::substituteAttributesInRoute(['post' => new Post()], 'posts/{post}', ['post' => 'slug']));
+        $this->assertEquals('posts/123', Accent::substituteAttributesInRoute(['post' => new Post()], 'posts/{post}'));
     }
 
     #[Test]

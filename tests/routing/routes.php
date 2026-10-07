@@ -4,7 +4,7 @@ use Pmochine\LaravelTongue\Tests\Fixtures\Article;
 
 // An article with a translated slug in each locale
 app('router')->bind('article', function ($value) {
-    return (new Article)->resolveRouteBinding($value) ?? abort(404);
+    return (new Article())->resolveRouteBinding($value) ?? abort(404);
 });
 
 app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse', 'Illuminate\Routing\Middleware\SubstituteBindings']], function () {
