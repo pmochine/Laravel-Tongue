@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Illuminate\Routing\Route;
 use Pmochine\LaravelTongue\Accent\Accent;
+use Pmochine\LaravelTongue\Contracts\LocalizedUrlRoutable;
 use Pmochine\LaravelTongue\Localization\Localization;
 use Pmochine\LaravelTongue\Misc\Config;
 use Pmochine\LaravelTongue\Misc\Url;
@@ -71,20 +72,88 @@ class Dialect
     public function current($locale)
     {
         $route = app('router')->current();
-        $path = false;
 
-        if ($route) {
-            // A route name that is a translation key, like "routes.welcome"
-            $path = $this->translatedKeyPath($route->getName(), $locale, $route);
+        // Without a route or a translation, the URL keeps the path of the current request.
+        $path = $route ? $this->localizedRoutePath($route, $locale) : false;
 
-            // A route with a path from interpret()
-            if ($path === false) {
-                $path = $this->translatedRoutePath($route, $locale);
+        return $this->assembleUrl($this->addLocaleToHost($locale), $path);
+    }
+
+    /**
+     * The path of a bound route in the given locale, with its parameters.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  string  $locale
+     * @return string|false [false, if the route has no translation and no parameter with a key per locale]
+     */
+    protected function localizedRoutePath(Route $route, $locale)
+    {
+        // A route name that is a translation key, like "routes.welcome"
+        $path = $this->translatedKeyPath($route->getName(), $locale, $route);
+
+        // A route with a path from interpret()
+        if ($path === false) {
+            $path = $this->translatedRoutePath($route, $locale);
+        }
+
+        // A route without translation keeps its path. Only a translated slug changes it.
+        if ($path === false && ! $this->hasLocalizedParameter($route)) {
+            return false;
+        }
+
+        return Accent::substituteAttributesInRoute($this->routeAttributes($route, $locale), $path !== false ? $path : $route->uri());
+    }
+
+    /**
+     * The parameters of a bound route as they are in the URL, before route model binding.
+     * A model that implements LocalizedUrlRoutable gives its route key in the locale.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  string  $locale
+     * @return array
+     */
+    protected function routeAttributes(Route $route, $locale)
+    {
+        $attributes = array_filter($route->originalParameters(), function ($value) {
+            return ! is_null($value);
+        });
+
+        foreach ($route->parameters() as $name => $value) {
+            if ($value instanceof LocalizedUrlRoutable) {
+                $attributes[$name] = $value->getLocalizedRouteKey($locale);
             }
         }
 
-        // Without a translation, the URL keeps the path of the current request.
-        return $this->buildUrl($locale, $path, Accent::currentRouteAttributes() ?: []);
+        return $attributes;
+    }
+
+    /**
+     * @param  \Illuminate\Routing\Route  $route
+     * @return bool
+     */
+    protected function hasLocalizedParameter(Route $route)
+    {
+        foreach ($route->parameters() as $value) {
+            if ($value instanceof LocalizedUrlRoutable) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Replaces each model that implements LocalizedUrlRoutable with its route key in the locale.
+     *
+     * @param  array  $attributes
+     * @param  string  $locale
+     * @return array
+     */
+    protected function localizeAttributes(array $attributes, $locale)
+    {
+        return array_map(function ($value) use ($locale) {
+            return $value instanceof LocalizedUrlRoutable ? $value->getLocalizedRouteKey($locale) : $value;
+        }, $attributes);
     }
 
     /**
@@ -126,7 +195,7 @@ class Dialect
             $locale = tongue()->current();
         }
 
-        $attributes = is_iterable($routeAttributes) ? collect($routeAttributes)->all() : [];
+        $attributes = $this->localizeAttributes(is_iterable($routeAttributes) ? collect($routeAttributes)->all() : [], $locale);
         $route = $this->findRouteByName($routeName);
         $bindingFields = $route ? $route->bindingFields() : [];
 
@@ -162,7 +231,7 @@ class Dialect
             $path = Accent::substituteAttributesInRoute($attributes, $path, $bindingFields);
         }
 
-        return $this->assembleUrl($locale, $path);
+        return $this->assembleUrl($this->addLocaleToHost($locale), $path);
     }
 
     /**
@@ -184,23 +253,23 @@ class Dialect
 
         $parts = parse_url($relativeUrl) ?: [];
 
-        return $this->assembleUrl($locale, $parts['path'] ?? '', $parts['query'] ?? null);
+        return $this->assembleUrl($this->addLocaleToHost($locale), $parts['path'] ?? '', $parts['query'] ?? null);
     }
 
     /**
-     * The current URL with the host of the locale and the given path.
+     * The current URL with the given host and path.
      *
-     * @param  string  $locale
+     * @param  string  $host  [like "de.example.com"]
      * @param  string|false  $path  [a path of the app, false keeps the path of the current request]
      * @param  string|null  $query
      * @return string
      */
-    protected function assembleUrl($locale, $path, $query = null)
+    protected function assembleUrl($host, $path, $query = null)
     {
         // Retrieve the current URL components
         $parsed_url = Accent::parseCurrentUrl();
 
-        $parsed_url['host'] = $this->addLocaleToHost($locale);
+        $parsed_url['host'] = $host;
 
         if ($path !== false) {
             // An app in a subfolder, like https://example.com/shop, keeps "/shop" before the path.

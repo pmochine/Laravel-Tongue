@@ -23,6 +23,7 @@ Version 6 supports Laravel 11, 12 and 13. Read the [upgrade guide](README.md#upg
 - `dialect()->translate()` also accepts the name of a route, not only a translation key (#53). For a route without translation, Laravel builds the path like `route()`. Attributes that are not in the path become the query string.
 - `dialect()->translate()` uses the binding field of a route, like `{post:slug}`, for a model.
 - Middleware `TongueDetectsLocale` with the alias `detects-tongue`. It detects the locale for each request, for example with Laravel Octane (#54).
+- Contract `LocalizedUrlRoutable` for translated slugs. `current()`, `translateAll()` and `translate()` use the route key of a model in the target locale.
 
 ### Fixed
 

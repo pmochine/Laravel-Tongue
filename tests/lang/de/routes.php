@@ -10,5 +10,6 @@ return [
     'article'      => 'artikel/{post}',
     'form'         => 'kontakt',
     'submit'       => 'absenden',
+    'article_slug' => 'artikel/{article}',
 
 ];

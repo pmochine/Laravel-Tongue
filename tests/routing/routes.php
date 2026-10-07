@@ -1,5 +1,12 @@
 <?php
 
+use Pmochine\LaravelTongue\Tests\Fixtures\Article;
+
+// An article with a translated slug in each locale
+app('router')->bind('article', function ($value) {
+    return (new Article)->resolveRouteBinding($value) ?? abort(404);
+});
+
 app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse', 'Illuminate\Routing\Middleware\SubstituteBindings']], function () {
     app('router')->get('not-localized', function () {
         return response('not-localized');
@@ -69,5 +76,13 @@ app('router')->group(['middleware' => ['Illuminate\Cookie\Middleware\AddQueuedCo
         app('router')->post(dialect()->interpret('Tongue::routes.submit'), function () {
             return response('submitted');
         })->name('Tongue::routes.submit');
+
+        app('router')->get(dialect()->interpret('Tongue::routes.article_slug'), function () {
+            return response('translated route with a translated slug');
+        });
+
+        app('router')->get('news/{article}', function () {
+            return response('route with a translated slug');
+        })->name('news');
     });
 });

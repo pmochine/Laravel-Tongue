@@ -252,6 +252,31 @@ Then, here is how you define translated routes in `routes/web.php`:
 
 You can, of course, name the language files as you wish, and pass the proper prefix (routes. in the example) to the interpret() method.
 
+## Translated slugs
+
+A model can have a different slug in each language, like `en.example.com/article/important-change` and `de.example.com/artikel/wichtige-aenderung`. Then implement `LocalizedUrlRoutable` in the model:
+
+```php
+  use Pmochine\LaravelTongue\Contracts\LocalizedUrlRoutable;
+
+  class Article extends Model implements LocalizedUrlRoutable
+  {
+      // The slug of the article in the given locale
+      public function getLocalizedRouteKey(string $locale)
+      {
+          return $this->getTranslation('slug', $locale); // for example with spatie/laravel-translatable
+      }
+
+      // Route model binding finds the article by the slug of the current locale
+      public function resolveRouteBinding($value, $field = null)
+      {
+          return static::where('slug->'.app()->getLocale(), $value)->firstOrFail();
+      }
+  }
+```
+
+`dialect()->current()`, `dialect()->translateAll()` and `dialect()->translate()` then use the slug of the target locale. This also works for routes without translated paths. The parameter must use route model binding, like `Route::get('article/{article}', ...)` with an `Article $article` argument in the controller.
+
 ## Helper Functions - (finally something useful 😎)
 
 This package provides useful helper functions that you can use - for example - in your views:
