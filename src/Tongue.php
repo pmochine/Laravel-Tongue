@@ -80,9 +80,15 @@ class Tongue
         }
 
         //custom subdomains with locale. gewinnen.domain.com -> de as locale
-        if ($locale && $customLocale = tongue()->speaking('aliases', $locale)) {
+        //a subdomain that is a locale is never an alias, like in Localization::decipherTongue()
+        if ($locale && ! $this->isSpeaking($locale) && $customLocale = tongue()->speaking('aliases', $locale)) {
             //but we need to check again if it is spoken or not
-            return $this->current() !== $customLocale;
+            if ($this->current() !== $customLocale) {
+                return true;
+            }
+
+            //with alias_urls a locale has one address: its first alias or the beautiful URL of the fallback locale
+            return Config::aliasUrls() && Url::localeSubdomain($customLocale) !== $locale;
         }
 
         //fallback language is the same as the current language

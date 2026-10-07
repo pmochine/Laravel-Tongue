@@ -79,10 +79,16 @@ class Url
      */
     public static function localeSubdomain(string $locale): string
     {
-        if (Config::aliasUrls()) {
-            $alias = array_search($locale, Config::aliases(), true);
+        // The beautiful URL of the fallback locale wins over its alias. The link keeps the locale,
+        // so the cookie switches to the fallback locale before the middleware redirects.
+        if (! Config::aliasUrls() || (Config::beautify() && $locale === Config::fallbackLocale())) {
+            return $locale;
+        }
 
-            if (is_string($alias)) {
+        foreach (Config::aliases() as $alias => $aliasLocale) {
+            // The detection ignores an alias that is a locale or a whitelisted subdomain. So do the URLs.
+            if ($aliasLocale === $locale && is_string($alias)
+                && ! tongue()->isSpeaking($alias) && ! in_array($alias, Config::subdomains(), true)) {
                 return $alias;
             }
         }

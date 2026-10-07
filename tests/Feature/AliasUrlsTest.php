@@ -85,4 +85,56 @@ class AliasUrlsTest extends TestCase
 
         $this->assertEquals($this->getUri('localized'), app('dialect')->current('en'));
     }
+
+    #[Test]
+    public function an_alias_that_is_a_locale_code_causes_no_redirect_loop()
+    {
+        app('config')->set('localization.beautify_url', false);
+        app('config')->set('localization.aliases', ['en' => 'de']);
+
+        $this->sendRequest('GET', 'localized', 'en')->assertOk();
+
+        app('config')->set('localization.alias_urls', true);
+
+        $this->sendRequest('GET', 'localized', 'en')->assertOk();
+        $this->sendRequest('GET', 'localized', 'de')->assertOk();
+
+        $this->assertEquals($this->getUri('localized', 'de'), app('dialect')->current('de'));
+    }
+
+    #[Test]
+    public function it_ignores_an_alias_that_is_a_whitelisted_subdomain()
+    {
+        app('config')->set('localization.alias_urls', true);
+        app('config')->set('localization.aliases', ['www' => 'de']);
+        app('config')->set('localization.subdomains', ['www']);
+
+        $this->setRequestContext('GET', 'localized');
+
+        $this->assertEquals($this->getUri('localized', 'de'), app('dialect')->current('de'));
+    }
+
+    #[Test]
+    public function the_alias_of_the_fallback_locale_redirects_to_the_beautiful_url()
+    {
+        app('config')->set('localization.alias_urls', true);
+        app('config')->set('localization.aliases', ['english' => 'en']);
+
+        // Like without aliases: the link keeps the subdomain, so the cookie switches before the redirect.
+        $this->sendRequest('GET', 'localized', 'de');
+
+        $this->assertEquals($this->getUri('localized', 'en'), app('dialect')->current('en'));
+        $this->assertEquals($this->getUri('localized', 'en'), app('dialect')->redirectUrl(null, 'en'));
+
+        $this->sendRequest('GET', 'localized', 'english')->assertRedirect($this->getUri('localized'));
+    }
+
+    #[Test]
+    public function a_second_alias_redirects_to_the_first_alias()
+    {
+        app('config')->set('localization.alias_urls', true);
+        app('config')->set('localization.aliases', ['gewinnen' => 'de', 'deutsch' => 'de']);
+
+        $this->sendRequest('GET', 'localized', 'deutsch')->assertRedirect($this->getUri('localized', 'gewinnen'));
+    }
 }

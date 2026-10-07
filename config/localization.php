@@ -57,7 +57,8 @@ return [
     | subdomain: gewinnen.domain.com instead of de.domain.com. The middleware
     | redirects de.domain.com to gewinnen.domain.com. If a locale has more
     | than one alias, Tongue uses the first one. The beautiful URL of the
-    | fallback locale (beautify_url) wins over its alias.
+    | fallback locale (beautify_url) wins over its alias. Tongue ignores an
+    | alias that is also a locale code or a whitelisted subdomain.
     |
     */
     'alias_urls' => false,
