@@ -2,7 +2,10 @@
 
 namespace Pmochine\LaravelTongue\Accent;
 
+use BackedEnum;
+use Illuminate\Contracts\Routing\UrlRoutable;
 use Pmochine\LaravelTongue\Misc\Url;
+use Stringable;
 
 class Accent
 {
@@ -36,14 +39,17 @@ class Accent
     }
 
     /**
-     * Get the current route name.
+     * Get the parameters of the current route, as they are in the URL.
+     * Route model binding has not replaced them with models yet.
      *
      * @return bool|array
      */
     public static function currentRouteAttributes()
     {
         if (app('router')->current()) {
-            return app('router')->current()->parametersWithoutNulls();
+            return array_filter(app('router')->current()->originalParameters(), function ($value) {
+                return ! is_null($value);
+            });
         }
 
         return false;
@@ -78,12 +84,24 @@ class Accent
     public static function substituteAttributesInRoute($attributes, $route)
     {
         foreach ($attributes as $key => $value) {
-            $route = str_replace('{'.$key.'}', $value, $route);
-            $route = str_replace('{'.$key.'?}', $value, $route);
+            if ($value instanceof UrlRoutable) {
+                $value = $value->getRouteKey();
+            } elseif ($value instanceof BackedEnum) {
+                $value = $value->value;
+            } elseif ($value instanceof Stringable) {
+                $value = (string) $value;
+            }
+
+            // Route::view() and route defaults can hold arrays. They are no part of the path.
+            if (! is_scalar($value)) {
+                continue;
+            }
+
+            $route = str_replace(['{'.$key.'}', '{'.$key.'?}'], (string) $value, $route);
         }
 
         // delete empty optional arguments that are not in the $attributes array
-        $route = preg_replace('/\/{[^)]+\?}/', '', $route);
+        $route = preg_replace('/\/\{[^\/}]+\?\}/', '', $route);
 
         return $route;
     }

@@ -129,6 +129,8 @@ class TestCase extends OrchestraTestCase
         app('translator')->load('Tongue', 'routes', 'de');
         app('translator')->load('Tongue', 'routes', 'en');
 
+        app('view')->addLocation(__DIR__.'/views');
+
         //Load routes for testing
         app('files')->getRequire(__DIR__.'/routing/routes.php');
     }

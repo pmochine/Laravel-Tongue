@@ -146,6 +146,28 @@ class DialectTest extends TestCase
     }
 
     #[Test]
+    public function it_translates_the_current_route_of_a_view_route()
+    {
+        $response = $this->sendRequest('GET', 'privacy', 'de');
+
+        $response->assertOk();
+
+        $this->assertEquals($this->getUri('privacy', 'fr'), trim($response->getContent()));
+    }
+
+    #[Test]
+    public function it_translates_the_current_route_with_a_bound_parameter()
+    {
+        app('router')->bind('username', function ($value) {
+            return new \ArrayObject(['username' => $value]);
+        });
+
+        $this->sendRequest('GET', $this->enPathWithParameter1, 'en');
+
+        $this->assertEquals($this->getUri($this->dePathWithParameter1, 'de'), app('dialect')->current('de'));
+    }
+
+    #[Test]
     public function it_interprets_a_translated_route_path()
     {
         $this->setRequestContext('GET', '', 'de');
